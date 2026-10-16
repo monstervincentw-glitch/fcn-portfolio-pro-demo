@@ -1,6 +1,6 @@
 """FCN Portfolio Pro · Google Sheets read-only connector.
 
-All demo pages are protected by a server-side six-digit PIN gate.
+All pages are protected by a server-side six-digit PIN gate before read.
 Google Sheets remain read-only and LIVE mode requires explicit policy approval.
 No credential is stored in source code.
 """
@@ -14,7 +14,7 @@ import altair as alt
 from demo_charts import demo_chart
 import streamlit as st
 from demo_utils import currency_summary, product_group, num
-from sheets_backend import SheetsReader, SheetConnectionError
+from sheets_backend import SheetsReader, SheetConnectionError, validate_masked_portfolio
 from site_login import gate, logout
 from demo_data import make_demo
 
@@ -42,7 +42,8 @@ def section(name):
         # Do not expose an unprotected DEMO when Secrets are absent.
         return {}
 
-gate(section("site_login"), section("app").get("mode", "demo"))  # PIN only in DEMO; stop before ANY Sheets read.
+gate(section("site_login"), section("app").get("mode", "demo"),
+     bank_approved=section("app").get("bank_approved") is True)  # PIN before ANY Sheets read.
 
 APP = section("app")
 MODE = str(APP.get("mode", "demo")).strip().lower()
@@ -79,7 +80,7 @@ if MODE in ("diagnostic", "live"):
         st.button("安全登出", on_click=logout)
         st.stop()
     try:
-        DATA = READER.portfolio()
+        DATA = validate_masked_portfolio(READER.portfolio())
     except SheetConnectionError as exc:
         st.error(str(exc))
         st.stop()
@@ -110,12 +111,12 @@ def display_status(raw):
 with st.sidebar:
     st.markdown("### 📊 FCN Portfolio Pro")
     st.caption("銀行 Edge 專用 · " + ("私人資料唯讀模式" if MODE == "live" else "相容性驗收版"))
-    st.success("🔒 6 位數 PIN 已驗證 · 僅限虛構資料 DEMO")
+    st.success("🔒 6 位數 PIN 已驗證 · 唯讀模式" if MODE != "demo" else "🔒 6 位數 PIN 已驗證 · 虛構資料 DEMO")
     st.button("安全登出", on_click=logout, use_container_width=True)
     if MODE == "demo":
         st.warning("**虛構資料 DEMO** · 沒有連接真實 Google Sheets", icon="🔒")
     else:
-        st.caption("Google Sheets 服務帳號僅在伺服器端唯讀使用")
+        st.caption("Google Sheets 服務帳號僅在伺服器端唯讀使用；不需在銀行電腦登入 Google")
     page = st.radio("功能選單", ["🏠 投資總覽", "👥 客戶投資", "📈 FCN 商品", "📝 例外處理", "🛡️ 銀行驗收"], label_visibility="collapsed")
     st.divider()
     st.caption("標準 HTTPS ｜ Microsoft Edge ｜ USD / EUR / JPY")
@@ -215,6 +216,7 @@ elif page=="📈 FCN 商品":
                 st.warning("⚠️ 以下為虛構的圖表測試資料，不是真實股價、即時行情或投資建議。")
             else:
                 st.caption("來源：此 FCN 私人 Google Sheets「Chart」工作表。不是交易所直接報價，更新頻率依原試算表。")
+            settings = settings or {}
             stocks = sorted(chart_data["stock"].unique().tolist())
             selected_stocks = st.multiselect("圖表顯示標的", stocks, default=stocks, key="chart_stocks_" + chosen_product)
             chart_view = chart_data[chart_data["stock"].isin(selected_stocks)]
@@ -257,7 +259,7 @@ elif page=="📈 FCN 商品":
         if MODE == "demo":
             st.caption("圖表資料來源：虛構示範資料；尚未連接真實 Google Sheets 或即時行情服務。")
         elif p.get("source_url"):
-            st.link_button("↗ 另開原始 FCN Chart 試算表（需原檔權限）", str(p["source_url"]))
+            st.caption("原始 Chart 已嵌入上方，不需要銀行電腦開啟 Google Sheets。")
 elif page=="📝 例外處理":
     st.subheader("異常才修正，不用逐筆對銀行")
     st.info("正常 FCN 按契約日及 3 個工作日的預設規則推定結算；特殊本金、票息、日期才需例外覆寫。")

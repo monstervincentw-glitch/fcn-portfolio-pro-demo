@@ -90,6 +90,31 @@ def _coerce_date_fields(items: list[dict], keys: tuple[str, ...]) -> list[dict]:
     return items
 
 
+def validate_masked_portfolio(data: dict) -> dict:
+    """Fail closed if a user renames an API customer to an unmasked real name.
+
+    This is a display-layer guardrail, NOT a substitute for access control or
+    genuine anonymisation. Portfolio values/positions may remain identifying.
+    """
+    customer_rows = data.get("customers", [])
+    customer_aliases = {str(r.get("customer_id") or "").strip() for r in customer_rows}
+    display_aliases = {str(r.get("display_name") or "").strip() for r in customer_rows}
+    holding_aliases = {str(r.get("customer_id") or "").strip() for r in data.get("holdings", [])}
+    if not customer_aliases or any("*" not in x for x in customer_aliases | display_aliases):
+        raise SheetConnectionError("客戶名稱遮罩檢查未通過，已停止載入正式資料。請檢查 API_客戶。")
+    if not holding_aliases.issubset(customer_aliases):
+        raise SheetConnectionError("持倉的客戶代號無法對應模糊化名冊，已停止載入。")
+    # 'customer_ids' is a free-text field from API_商品, so it must never reveal
+    # a newly inserted unmapped name.
+    for product in data.get("products", []):
+        participants = str(product.get("customer_ids") or "")
+        if participants:
+            tokens = [t.strip() for t in participants.replace(",", "、").split("、") if t.strip()]
+            if any(token not in customer_aliases for token in tokens):
+                product["customer_ids"] = "已遮罩（未驗證對應）"
+    return data
+
+
 @dataclass
 class SheetsReader:
     master_sheet_id: str

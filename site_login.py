@@ -1,7 +1,8 @@
-"""Six-digit PIN gate for a fictional-data-only FCN Portfolio Pro demo.
+"""PIN-only user experience for FCN Portfolio Pro.
 
-This is a UX demonstration, NOT an authorization mechanism for client/financial
-records. Any non-demo mode fails closed. No credentials are stored in GitHub.
+Server-side access gate runs before ANY Sheets API calls. For production use,
+combine with organisational approval, read-only credentials and hosting/network
+controls. A six-digit PIN alone is not a high-assurance security control.
 """
 from __future__ import annotations
 
@@ -14,27 +15,26 @@ import time
 PIN_PATTERN = re.compile(r"[0-9]{6}\Z")
 MAX_FAILURES = 5
 LOCK_SECONDS = 15 * 60
+SESSION_MAX_AGE = 30 * 60  # 30 minutes of inactivity
 
 
 def pin_valid(pin: object) -> bool:
-    """Keep leading zeros intact: the secret must be a quoted TOML string."""
     return isinstance(pin, str) and bool(PIN_PATTERN.fullmatch(pin))
 
 
-def pin_matches(candidate: str, expected: str) -> bool:
-    return pin_valid(expected) and bool(
-        PIN_PATTERN.fullmatch(str(candidate or ""))
-        and hmac.compare_digest(str(candidate), expected)
+def pin_matches(candidate: object, expected: str) -> bool:
+    return pin_valid(expected) and isinstance(candidate, str) and bool(
+        PIN_PATTERN.fullmatch(candidate) and hmac.compare_digest(candidate, expected)
     )
 
 
 def session_tag(pin: str) -> str:
-    """Change of PIN invalidates earlier session-state authorization."""
-    return hashlib.sha256(("fcn-demo-pin-v1:\x00" + pin).encode("utf-8")).hexdigest()
+    """Changing the PIN invalidates current Streamlit session authorization."""
+    return hashlib.sha256(("fcn-pin-session-v2:\x00" + pin).encode("utf-8")).hexdigest()
 
 
 class AttemptLimiter:
-    """Best-effort per-process throttle (not distributed or bank-grade)."""
+    """Shared within ONE server process; not a distributed brute-force solution."""
     def __init__(self) -> None:
         self.lock = threading.Lock()
         self.failures = 0
@@ -42,39 +42,53 @@ class AttemptLimiter:
 
     def blocked(self) -> int:
         with self.lock:
-            remaining = self.locked_until - time.monotonic()
-            return max(0, int(remaining) + (remaining > int(remaining)))
+            return max(0, int(self.locked_until - time.monotonic() + 0.999))
 
     def record(self, succeeded: bool) -> None:
         with self.lock:
             if succeeded:
                 self.failures = 0
                 self.locked_until = 0.0
-                return
-            self.failures += 1
-            if self.failures >= MAX_FAILURES:
-                self.failures = 0
-                self.locked_until = time.monotonic() + LOCK_SECONDS
+            else:
+                self.failures += 1
+                if self.failures >= MAX_FAILURES:
+                    self.failures = 0
+                    self.locked_until = time.monotonic() + LOCK_SECONDS
 
 
-def gate(config: dict, app_mode: str = "demo") -> None:
-    """Stop before any Sheets calls; PIN-only access is permitted for DEMO only."""
+def can_enter_mode(mode: str, approved: bool) -> bool:
+    """Explicit production approval is required in addition to a valid PIN."""
+    if mode not in {"demo", "diagnostic", "live"}:
+        return False
+    if mode == "live" and approved is not True:
+        return False
+    return True
+
+
+def gate(config: dict, app_mode: str = "demo", bank_approved: bool = False) -> None:
+    """Stop unauthenticated Streamlit execution before any business-data fetch."""
     import streamlit as st
 
-    if str(app_mode).strip().lower() != "demo":
-        st.error("🔒 六位數 PIN 僅提供虛構資料 DEMO 測試。正式資料與 Google Sheets 連線模式已停用；需先配置更強的身分驗證。")
+    mode = str(app_mode).strip().lower()
+    if not can_enter_mode(mode, bank_approved):
+        st.error("🔒 尚未啟用的資料模式。正式資料需確認銀行核准並在 Secrets 設定 bank_approved = true。")
         st.stop()
 
     pin = config.get("pin")
     if not pin_valid(pin):
-        st.error("🔒 請先在 Streamlit Secrets 的 [site_login] 設定 pin = \"六位數字\"。")
-        st.caption("請將 PIN 寫在 Streamlit Secrets，不要放進公開 GitHub 或聊天。")
+        st.error('🔒 請先在 Streamlit Secrets 的 [site_login] 設定 pin = "六位數字"。')
         st.stop()
 
     fingerprint = session_tag(pin)
+    now = time.monotonic()
     if st.session_state.get("fcn_authorized_session") == fingerprint:
-        return
+        last = st.session_state.get("fcn_last_activity")
+        if isinstance(last, (int, float)) and 0 <= now - last < SESSION_MAX_AGE:
+            st.session_state["fcn_last_activity"] = now
+            return
+
     st.session_state.pop("fcn_authorized_session", None)
+    st.session_state.pop("fcn_last_activity", None)
 
     @st.cache_resource
     def limiter() -> AttemptLimiter:
@@ -82,30 +96,39 @@ def gate(config: dict, app_mode: str = "demo") -> None:
 
     limit = limiter()
     st.title("🔒 FCN Portfolio Pro｜PIN 登入")
-    st.caption("銀行 Edge 可使用｜免 Google 登入｜虛構資料 DEMO")
-    st.warning("6 位數 PIN 僅適用 DEMO 測試；真實客戶資料尚未開放。")
+    st.caption("銀行 Microsoft Edge｜只需 6 位 PIN｜不需要 Google 帳號")
+    if mode == "demo":
+        st.info("目前為虛構資料展示模式。")
+    elif mode == "diagnostic":
+        st.info("登入後只檢查試算表欄位，不顯示投資資料。")
+    else:
+        st.caption("連線至私人 Google Sheets：資料由網站伺服器唯讀取得。")
+
     remaining = limit.blocked()
     if remaining:
-        st.error(f"嘗試次數過多，請約 {max(1, (remaining + 59) // 60)} 分鐘後再試。")
+        st.error(f"輸入錯誤次數過多，請約 {max(1, (remaining + 59) // 60)} 分鐘後再試。")
         st.stop()
 
     with st.form("fcn_pin_login", clear_on_submit=True):
-        candidate = st.text_input("6 位數字 PIN", type="password", max_chars=6,
-                                  placeholder="請輸入 6 位數字")
+        candidate = st.text_input(
+            "6 位數字 PIN", type="password", max_chars=6,
+            placeholder="請輸入 6 位數字"
+        )
         submitted = st.form_submit_button("登入 FCN Portfolio Pro", type="primary", use_container_width=True)
 
     if submitted:
-        passed = pin_matches(candidate, pin)
-        limit.record(passed)
-        if passed:
+        valid = pin_matches(candidate, pin)
+        limit.record(valid)
+        if valid:
             st.session_state["fcn_authorized_session"] = fingerprint
+            st.session_state["fcn_last_activity"] = time.monotonic()
             st.rerun()
-        else:
-            st.error("PIN 不正確，請重新輸入。")
+        st.error("PIN 不正確，請重新輸入。")
     st.stop()
 
 
 def logout() -> None:
     import streamlit as st
     st.session_state.pop("fcn_authorized_session", None)
+    st.session_state.pop("fcn_last_activity", None)
     st.rerun()
