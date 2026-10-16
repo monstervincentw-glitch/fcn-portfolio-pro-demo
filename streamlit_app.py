@@ -1,8 +1,8 @@
 """FCN Portfolio Pro · Google Sheets read-only connector.
 
-By default public demo has fictional data. Live/diagnostic never run without
-Google OIDC login and an allowlisted verified email. Live additionally
-requires explicit organization-policy approval. No secret is stored here.
+All pages are protected by a server-side account/password gate.
+Google Sheets remain read-only and LIVE mode requires explicit policy approval.
+No credential is stored in source code.
 """
 from __future__ import annotations
 import datetime as dt
@@ -15,6 +15,7 @@ from demo_charts import demo_chart
 import streamlit as st
 from demo_utils import currency_summary, product_group, num
 from sheets_backend import SheetsReader, SheetConnectionError
+from site_login import gate, logout
 from demo_data import make_demo
 
 st.set_page_config(page_title="FCN Portfolio Pro｜銀行相容測試", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
@@ -33,13 +34,15 @@ h1,h2,h3{color:#18324b;letter-spacing:-.025em}
 </style>""", unsafe_allow_html=True)
 
 def section(name):
-    # A new public deployment has no secrets and MUST remain fictional DEMO.
+    # Missing secrets must fail closed at the password gate, even in DEMO.
     try:
         return dict(st.secrets.get(name, {}))
     except Exception:
         # Streamlit also raises StreamlitSecretNotFoundError when no secrets file exists.
-        # Fail-safe DEMO remains available while LIVE stays explicitly gated.
+        # Do not expose an unprotected DEMO when Secrets are absent.
         return {}
+
+gate(section("site_login"))  # First protected operation, before ALL data reads.
 
 APP = section("app")
 MODE = str(APP.get("mode", "demo")).strip().lower()
@@ -52,28 +55,6 @@ if MODE in ("diagnostic", "live"):
     # Fail closed BEFORE any Sheets API request or client-data UI generation.
     if MODE == "live" and APP.get("bank_approved") is not True:
         st.error("正式資料模式尚未獲確認。請先依銀行資料與雲端使用政策完成核准，再設定 bank_approved = true。")
-        st.stop()
-    auth = section("auth")
-    if not all(auth.get(x) for x in ("redirect_uri", "cookie_secret", "client_id", "client_secret", "server_metadata_url")):
-        st.error("尚未設定 Google OIDC 登入資訊。網站沒有讀取任何客戶資料。")
-        st.stop()
-    allowed = APP.get("allowed_emails", [])
-    if isinstance(allowed, str):
-        allowed = [allowed]
-    allowlist = {str(x).strip().lower() for x in allowed if str(x).strip()}
-    if not allowlist:
-        st.error("尚未設定核准的登入信箱白名單。")
-        st.stop()
-    if not st.user.is_logged_in:
-        st.title("🔒 FCN Portfolio Pro｜權限驗證")
-        st.write("必須先通過 Google 帳號驗證與核准信箱白名單，才能連線試算表。")
-        st.button("使用 Google 帳號登入", on_click=st.login, type="primary")
-        st.stop()
-    logged_email = str(st.user.get("email", "")).strip().lower()
-    if (logged_email not in allowlist or
-        st.user.get("email_verified") not in (True, "true", "True")):
-        st.error("目前登入的帳號不在授權白名單內，或電子郵件尚未驗證。")
-        st.button("登出", on_click=st.logout)
         st.stop()
     svc = section("gcp_service_account")
     if not svc or not APP.get("master_sheet_id"):
@@ -95,7 +76,7 @@ if MODE in ("diagnostic", "live"):
                 st.info("連線及欄位測試通過。正式資料顯示仍須經銀行/公司批准，然後才可啟用 live。")
         except SheetConnectionError as exc:
             st.error(str(exc))
-        st.button("登出", on_click=st.logout)
+        st.button("安全登出", on_click=logout)
         st.stop()
     try:
         DATA = READER.portfolio()
@@ -129,11 +110,12 @@ def display_status(raw):
 with st.sidebar:
     st.markdown("### 📊 FCN Portfolio Pro")
     st.caption("銀行 Edge 專用 · " + ("私人資料唯讀模式" if MODE == "live" else "相容性驗收版"))
+    st.success("🔒 專用帳號已驗證 · 伺服器端保護")
+    st.button("安全登出", on_click=logout, use_container_width=True)
     if MODE == "demo":
         st.warning("**虛構資料 DEMO** · 沒有連接真實 Google Sheets", icon="🔒")
     else:
-        st.success("🔒 Google 登入 + 白名單 · Sheets 唯讀")
-        st.button("登出", on_click=st.logout)
+        st.caption("Google Sheets 服務帳號僅在伺服器端唯讀使用")
     page = st.radio("功能選單", ["🏠 投資總覽", "👥 客戶投資", "📈 FCN 商品", "📝 例外處理", "🛡️ 銀行驗收"], label_visibility="collapsed")
     st.divider()
     st.caption("標準 HTTPS ｜ Microsoft Edge ｜ USD / EUR / JPY")
