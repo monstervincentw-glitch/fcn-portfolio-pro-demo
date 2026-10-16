@@ -7,6 +7,8 @@ import html
 from collections import defaultdict
 
 import pandas as pd
+import altair as alt
+from demo_charts import demo_chart
 import streamlit as st
 from demo_utils import currency_summary, product_group
 from demo_data import make_demo
@@ -106,7 +108,50 @@ elif page=="📈 FCN 商品":
         st.markdown(f"#### {html.escape(chosen_product)} · {html.escape(p.get('product_currency',''))}")
         st.write("合約狀態：",p.get('model_state'));st.write("監控分類：",p.get('monitor_group'))
         st.write("參與客戶：",p.get('customer_ids'))
-        st.caption("正式版以 Google Sheets 商品模型為來源。示範版不呈現虛構股價作為實際行情。")
+        st.divider()
+        st.subheader("📉 連結標的走勢圖｜期初價格 = 100%")
+        chart_data, settings = demo_chart(chosen_product)
+        if chart_data.empty:
+            st.info("此商品尚未建立完整條款或走勢資料，暫時無法顯示圖表。")
+        else:
+            st.warning("⚠️ 以下為虛構的圖表測試資料，不是真實股價、即時行情或投資建議。")
+            stocks = sorted(chart_data["stock"].unique().tolist())
+            selected_stocks = st.multiselect("圖表顯示標的", stocks, default=stocks, key="chart_stocks_" + chosen_product)
+            chart_view = chart_data[chart_data["stock"].isin(selected_stocks)]
+            if chart_view.empty:
+                st.info("請至少選擇一個連結標的。")
+            else:
+                domain = [float(chart_view["ratio"].min()), float(chart_view["ratio"].max())]
+                for key in ("ko", "strike", "ki"):
+                    level = settings.get(key)
+                    if level is not None: domain.append(float(level))
+                yscale = alt.Scale(domain=[max(0, min(domain)-6), max(domain)+6], zero=False)
+                base = alt.Chart(chart_view).encode(
+                    x=alt.X("date:T", title="交易日期"),
+                    y=alt.Y("ratio:Q", title="相對期初價格（%）", scale=yscale),
+                )
+                lines = base.mark_line(strokeWidth=2.4).encode(
+                    color=alt.Color("stock:N", title="連結標的"),
+                    tooltip=[alt.Tooltip("date:T",title="日期",format="%Y/%m/%d"),alt.Tooltip("stock:N",title="標的"),alt.Tooltip("ratio:Q",title="相對期初",format=".2f")],
+                )
+                rule_rows = [{"level":settings[key],"name":label} for key,label in (("ko","KO"),("strike","Strike"),("ki","KI")) if settings.get(key) is not None]
+                overlays = lines
+                if rule_rows:
+                    rules = alt.Chart(pd.DataFrame(rule_rows)).mark_rule(strokeDash=[6,4],strokeWidth=1.5).encode(
+                        y="level:Q",color=alt.Color("name:N",title="參考門檻",scale=alt.Scale(domain=["KO","Strike","KI"],range=["#269e83","#ee9b39","#d85c63"])),
+                        tooltip=[alt.Tooltip("name:N",title="門檻"),alt.Tooltip("level:Q",title="相對期初 %",format=".2f")],
+                    )
+                    overlays = overlays + rules
+                if settings.get("ko_start"):
+                    obs = pd.DataFrame({"date":[pd.Timestamp(settings["ko_start"])],"event":["KO 觀察起日"]})
+                    ko_rule = alt.Chart(obs).mark_rule(color="#57697e",strokeDash=[2,4]).encode(x="date:T",tooltip=["event:N","date:T"])
+                    overlays = overlays + ko_rule
+                st.altair_chart(overlays.properties(height=390).interactive(),use_container_width=True)
+                cols = st.columns(3)
+                for box,key,label in zip(cols,("ko","strike","ki"),("KO 門檻","Strike 執行價","KI 門檻")):
+                    box.metric(label, "—" if settings.get(key) is None else f"{settings[key]:.1f}%")
+                st.caption("折線以期初定價 = 100% 正規化；虛線是示範 KO／KI／Strike 門檻。正式版預計讀取每份 FCN 私有 Google Sheets「Chart」分頁並顯示實際行情更新時間。")
+        st.caption("圖表資料來源：目前只有虛構示範資料；尚未連接真實 Google Sheets 或即時行情服務。")
 elif page=="📝 例外處理":
     st.subheader("異常才修正，不用逐筆對銀行")
     st.info("正常 FCN 按契約日及 3 個工作日的預設規則推定結算；特殊本金、票息、日期才需例外覆寫。")
