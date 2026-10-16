@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import datetime as dt
 import math
+import re
 from collections.abc import Sequence
 
 import pandas as pd
@@ -47,16 +48,35 @@ def demo_chart(product_id: str):
 
 
 def _date(value):
-    if isinstance(value, (dt.datetime, dt.date, pd.Timestamp)):
-        return pd.Timestamp(value)
-    if isinstance(value, (int, float)) and not isinstance(value, bool):
-        return pd.Timestamp("1899-12-30") + pd.Timedelta(days=float(value))
-    if isinstance(value, str):
-        try:
-            return pd.Timestamp(value.strip())
-        except (ValueError, TypeError):
+    """Return a real trade date, rejecting accidental chart-marker numbers.
+
+    In Sheets Chart columns, trading dates are serials around 46,000 in 2026,
+    but the KO-start *plot marker* is typically a price-level such as 130.
+    Converting 130 to a Sheets date would produce 1900-05-09 and make the
+    timeline span 130 years, hiding the underlying series.
+    """
+    if isinstance(value, bool) or value is None:
+        return None
+    try:
+        if isinstance(value, (dt.datetime, dt.date, pd.Timestamp)):
+            parsed = pd.Timestamp(value)
+        elif isinstance(value, (int, float)):
+            if not math.isfinite(value) or not 32_874 <= float(value) <= 73_415:
+                return None  # circa 1990–2100; levels like 130 are NOT dates
+            parsed = pd.Timestamp("1899-12-30") + pd.Timedelta(days=float(value))
+        elif isinstance(value, str):
+            raw = value.strip()
+            # ISO or YYYY/MM/DD only. No loose parsing of short numbers.
+            if not re.fullmatch(r"\d{4}[-/]\d{1,2}[-/]\d{1,2}(?:[ T].*)?", raw):
+                return None
+            parsed = pd.Timestamp(raw)
+        else:
             return None
-    return None
+    except (ValueError, TypeError, OverflowError, pd.errors.OutOfBoundsDatetime):
+        return None
+    if not 1990 <= parsed.year <= 2100:
+        return None
+    return parsed.normalize()
 
 
 def _numeric_percentage(value):
@@ -153,7 +173,15 @@ def chart_sheet_rows(rows: Sequence[Sequence]):
                     elif attr == "strike": strike = level
                     else: ki = level
         if ko_start is None and len(row) > 9:
-            ko_start = _date(row[9])
+            # Chart!W is a plot-annotation Y level, NOT a date column.
+            # A finite marker (e.g. 130) means this row's N-column
+            # trading date is the KO observation start.
+            marker, _ = _numeric_percentage(row[9])
+            if marker is not None and marker != 0:
+                ko_start = date
+            elif isinstance(row[9], (str, dt.date, dt.datetime, pd.Timestamp)):
+                # Older/alternate sources may store the date directly.
+                ko_start = _date(row[9])
     if not records:
         return empty, None
     return pd.DataFrame(records), {"ko": ko, "strike": strike, "ki": ki, "ko_start": ko_start}
