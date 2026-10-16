@@ -1,55 +1,41 @@
-"""Server-side password gate for a *single-authorized-user* Streamlit app.
+"""Six-digit PIN gate for a fictional-data-only FCN Portfolio Pro demo.
 
-Credentials are read from Streamlit Secrets at runtime, never hardcoded or
-sent to Google; no Google login is required on the client device.
-A public web endpoint still requires organizational authorization and
-production-grade perimeter controls before hosting regulated client data.
+This is a UX demonstration, NOT an authorization mechanism for client/financial
+records. Any non-demo mode fails closed. No credentials are stored in GitHub.
 """
 from __future__ import annotations
 
 import hashlib
 import hmac
+import re
 import threading
 import time
 
-
-MIN_PASSWORD_LENGTH = 20
-MAX_FAILURES = 8
+PIN_PATTERN = re.compile(r"[0-9]{6}\Z")
+MAX_FAILURES = 5
 LOCK_SECONDS = 15 * 60
 
 
-def credentials_valid(username: str, password: str) -> bool:
-    """Refuse placeholder / weak / unset server-side credentials."""
-    return bool(
-        isinstance(username, str)
-        and username.strip()
-        and isinstance(password, str)
-        and len(password) >= MIN_PASSWORD_LENGTH
-        and username.strip().lower() not in {"admin", "username", "user"}
-        and password not in {"YOUR_PASSWORD", "CHANGE_ME"}
+def pin_valid(pin: object) -> bool:
+    """Keep leading zeros intact: the secret must be a quoted TOML string."""
+    return isinstance(pin, str) and bool(PIN_PATTERN.fullmatch(pin))
+
+
+def pin_matches(candidate: str, expected: str) -> bool:
+    return pin_valid(expected) and bool(
+        PIN_PATTERN.fullmatch(str(candidate or ""))
+        and hmac.compare_digest(str(candidate), expected)
     )
 
 
-def verify_credentials(candidate_user: str, candidate_pass: str,
-                       expected_user: str, expected_pass: str) -> bool:
-    """Check both fields without interpolating passwords into logs or HTML."""
-    if not credentials_valid(expected_user, expected_pass):
-        return False
-    a = str(candidate_user or "").strip().encode("utf-8")
-    b = expected_user.strip().encode("utf-8")
-    c = str(candidate_pass or "").encode("utf-8")
-    d = expected_pass.encode("utf-8")
-    return bool(hmac.compare_digest(a, b) & hmac.compare_digest(c, d))
-
-
-def session_tag(username: str, password: str) -> str:
-    """Invalidate live sessions when configured credentials are rotated."""
-    return hashlib.sha256((username + "\x00" + password).encode()).hexdigest()
+def session_tag(pin: str) -> str:
+    """Change of PIN invalidates earlier session-state authorization."""
+    return hashlib.sha256(("fcn-demo-pin-v1:\x00" + pin).encode("utf-8")).hexdigest()
 
 
 class AttemptLimiter:
-    """Per-app-process throttle; complement with provider/WAF rate limiting."""
-    def __init__(self):
+    """Best-effort per-process throttle (not distributed or bank-grade)."""
+    def __init__(self) -> None:
         self.lock = threading.Lock()
         self.failures = 0
         self.locked_until = 0.0
@@ -57,13 +43,13 @@ class AttemptLimiter:
     def blocked(self) -> int:
         with self.lock:
             remaining = self.locked_until - time.monotonic()
-            return max(0, int(remaining) + (1 if remaining > int(remaining) else 0))
+            return max(0, int(remaining) + (remaining > int(remaining)))
 
     def record(self, succeeded: bool) -> None:
         with self.lock:
             if succeeded:
                 self.failures = 0
-                self.locked_until = 0
+                self.locked_until = 0.0
                 return
             self.failures += 1
             if self.failures >= MAX_FAILURES:
@@ -71,54 +57,55 @@ class AttemptLimiter:
                 self.locked_until = time.monotonic() + LOCK_SECONDS
 
 
-def gate(config: dict) -> None:
-    """Stop the Streamlit script BEFORE any Google Sheets read or report UI."""
+def gate(config: dict, app_mode: str = "demo") -> None:
+    """Stop before any Sheets calls; PIN-only access is permitted for DEMO only."""
     import streamlit as st
 
-    username = config.get("username")
-    password = config.get("password")
-    if not credentials_valid(username, password):
-        st.error("🔒 網站尚未設定有效的專用帳號與高強度密碼，所有資料存取已停用。")
-        st.caption("請在 Streamlit App settings → Secrets 設定 [site_login] username 和 20 字元以上獨立密碼。")
+    if str(app_mode).strip().lower() != "demo":
+        st.error("🔒 六位數 PIN 僅提供虛構資料 DEMO 測試。正式資料與 Google Sheets 連線模式已停用；需先配置更強的身分驗證。")
         st.stop()
 
-    fingerprint = session_tag(username, password)
+    pin = config.get("pin")
+    if not pin_valid(pin):
+        st.error("🔒 請先在 Streamlit Secrets 的 [site_login] 設定 pin = \"六位數字\"。")
+        st.caption("請將 PIN 寫在 Streamlit Secrets，不要放進公開 GitHub 或聊天。")
+        st.stop()
+
+    fingerprint = session_tag(pin)
     if st.session_state.get("fcn_authorized_session") == fingerprint:
         return
-    # Never preserve a prior session if the configured secret changes.
     st.session_state.pop("fcn_authorized_session", None)
 
     @st.cache_resource
-    def attempt_limiter() -> AttemptLimiter:
+    def limiter() -> AttemptLimiter:
         return AttemptLimiter()
 
-    limiter = attempt_limiter()
-    st.title("🔒 FCN Portfolio Pro｜專屬登入")
-    st.caption("銀行 Edge 可使用｜無需 Google 登入｜未登入不會讀取 Google Sheets")
-    remaining = limiter.blocked()
+    limit = limiter()
+    st.title("🔒 FCN Portfolio Pro｜PIN 登入")
+    st.caption("銀行 Edge 可使用｜免 Google 登入｜虛構資料 DEMO")
+    st.warning("6 位數 PIN 僅適用 DEMO 測試；真實客戶資料尚未開放。")
+    remaining = limit.blocked()
     if remaining:
-        st.error(f"密碼嘗試次數過多，請約 {max(1, (remaining + 59) // 60)} 分鐘後再試。")
+        st.error(f"嘗試次數過多，請約 {max(1, (remaining + 59) // 60)} 分鐘後再試。")
         st.stop()
 
-    with st.form("fcn_login_form", clear_on_submit=True):
-        entered_user = st.text_input("專用帳號")
-        entered_pass = st.text_input("專用密碼", type="password")
+    with st.form("fcn_pin_login", clear_on_submit=True):
+        candidate = st.text_input("6 位數字 PIN", type="password", max_chars=6,
+                                  placeholder="請輸入 6 位數字")
         submitted = st.form_submit_button("登入 FCN Portfolio Pro", type="primary", use_container_width=True)
 
     if submitted:
-        passed = verify_credentials(entered_user, entered_pass, username, password)
-        limiter.record(passed)
+        passed = pin_matches(candidate, pin)
+        limit.record(passed)
         if passed:
             st.session_state["fcn_authorized_session"] = fingerprint
             st.rerun()
         else:
-            st.error("帳號或密碼不正確，請重新確認。")
-    st.info("網站僅限授權本人使用；不論是否知道網址，未登入都不能查看資料或操作商品。")
+            st.error("PIN 不正確，請重新輸入。")
     st.stop()
 
 
 def logout() -> None:
-    """Remove authorization for this Streamlit browser session."""
     import streamlit as st
     st.session_state.pop("fcn_authorized_session", None)
     st.rerun()

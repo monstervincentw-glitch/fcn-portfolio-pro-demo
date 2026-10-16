@@ -1,6 +1,6 @@
 """FCN Portfolio Pro · Google Sheets read-only connector.
 
-All pages are protected by a server-side account/password gate.
+All demo pages are protected by a server-side six-digit PIN gate.
 Google Sheets remain read-only and LIVE mode requires explicit policy approval.
 No credential is stored in source code.
 """
@@ -42,7 +42,7 @@ def section(name):
         # Do not expose an unprotected DEMO when Secrets are absent.
         return {}
 
-gate(section("site_login"))  # First protected operation, before ALL data reads.
+gate(section("site_login"), section("app").get("mode", "demo"))  # PIN only in DEMO; stop before ANY Sheets read.
 
 APP = section("app")
 MODE = str(APP.get("mode", "demo")).strip().lower()
@@ -110,7 +110,7 @@ def display_status(raw):
 with st.sidebar:
     st.markdown("### 📊 FCN Portfolio Pro")
     st.caption("銀行 Edge 專用 · " + ("私人資料唯讀模式" if MODE == "live" else "相容性驗收版"))
-    st.success("🔒 專用帳號已驗證 · 伺服器端保護")
+    st.success("🔒 6 位數 PIN 已驗證 · 僅限虛構資料 DEMO")
     st.button("安全登出", on_click=logout, use_container_width=True)
     if MODE == "demo":
         st.warning("**虛構資料 DEMO** · 沒有連接真實 Google Sheets", icon="🔒")
