@@ -59,25 +59,66 @@ def _date(value):
     return None
 
 
-def _percentage(value):
+def _numeric_percentage(value):
+    """Return (number, explicitly_percentage) without guessing a numeric unit.
+
+    Source Sheets vary: a 100% ratio may be stored as 100, 1.0 or
+    the textual display ``100.0%``. We infer a unit per column below.
+    """
     if value is None or value == "" or isinstance(value, bool):
-        return None
+        return None, False
     try:
         if isinstance(value, str):
-            v = value.strip()
-            if v.startswith("#"):
-                return None
-            return float(v[:-1]) if v.endswith("%") else float(v) * 100.0
-        return float(value) * 100.0
+            v = value.strip().replace(",", "")
+            if not v or v.startswith("#"):
+                return None, False
+            explicit = v.endswith("%")
+            number = float(v[:-1].strip() if explicit else v)
+        else:
+            explicit = False
+            number = float(value)
+        return (number, explicit) if math.isfinite(number) else (None, explicit)
     except (TypeError, ValueError, OverflowError):
+        return None, False
+
+
+def _numeric_unit_multiplier(rows: Sequence[Sequence], column: int) -> float:
+    """Infer unit using samples in *this one column*, not each value.
+
+    A normalized stock column begins near either 100 (percentage points) or
+    1 (fraction). KO / Strike / KI thresholds likewise may be 100/70 or
+    1/.7. This preserves a genuinely low stock value later in the series
+    (e.g. 1.5%) instead of mistakenly turning it into 150%.
+    """
+    samples = []
+    for row in rows:
+        if len(row) <= column:
+            continue
+        value, explicit = _numeric_percentage(row[column])
+        if value is not None and not explicit and value != 0:
+            samples.append(abs(value))
+        if len(samples) >= 25:
+            break
+    if not samples:
+        return 1.0
+    # The first valid source value is the usual normalization baseline;
+    # the median of early observations guards against a single stray cell.
+    central = sorted(samples)[len(samples) // 2]
+    return 100.0 if central < 5.0 else 1.0
+
+
+def _percentage(value, multiplier=1.0):
+    number, explicit = _numeric_percentage(value)
+    if number is None:
         return None
+    return number if explicit else number * multiplier
 
 
 def chart_sheet_rows(rows: Sequence[Sequence]):
     """Parse values from Google Sheets 'Chart'!N11:W1000.
 
     Columns: date, up to five underlying normalised ratios, KO, Strike, KI,
-    KO observation start. Percentage fields may be numeric fractions or '100%'.
+    KO observation start. Percentage fields may be 100, 1.0 or '100%'.
     Returns (long-form chart data, level metadata) without exposing sheet URLs.
     """
     empty = pd.DataFrame(columns=["date", "stock", "ratio"])
@@ -86,6 +127,10 @@ def chart_sheet_rows(rows: Sequence[Sequence]):
     header = list(rows[0])
     symbols = [str(header[j]).strip() if j < len(header) else "" for j in range(1, 6)]
     records = []
+    data_rows = rows[1:]
+    column_multiplier = {
+        j: _numeric_unit_multiplier(data_rows, j) for j in range(1, 9)
+    }
     ko = strike = ki = None
     ko_start = None
     for row in rows[1:]:
@@ -97,12 +142,12 @@ def chart_sheet_rows(rows: Sequence[Sequence]):
         for j, symbol in enumerate(symbols, 1):
             if not symbol or j >= len(row):
                 continue
-            ratio = _percentage(row[j])
+            ratio = _percentage(row[j], column_multiplier[j])
             if ratio is not None and math.isfinite(ratio):
                 records.append({"date": date, "stock": symbol, "ratio": ratio})
         for j, attr in ((6, "ko"), (7, "strike"), (8, "ki")):
             if j < len(row):
-                level = _percentage(row[j])
+                level = _percentage(row[j], column_multiplier[j])
                 if level is not None and math.isfinite(level):
                     if attr == "ko": ko = level
                     elif attr == "strike": strike = level
