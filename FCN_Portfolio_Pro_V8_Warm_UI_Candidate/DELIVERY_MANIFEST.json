@@ -1,0 +1,124 @@
+{
+  "baseline_commit": "e46ed0cc88255cc45316c4dad6eb434f0f2d6155",
+  "result": {
+    "run": 37,
+    "passed": 36,
+    "skipped": 1,
+    "errors": 0,
+    "failures": 0
+  },
+  "files": {
+    ".streamlit/config.toml": {
+      "bytes": 155,
+      "sha256": "cfe219c2a05428167abe5b4bc9c0a733002712c6c969f5b899768230d5670a00"
+    },
+    "advisor_analytics.py": {
+      "bytes": 1067,
+      "sha256": "f1c938fabde4bf9b0549fac7a639c04c6ca2de329892aef759b8832cea319f74"
+    },
+    "assets/shiba-login.png": {
+      "bytes": 2241868,
+      "sha256": "7c123bb8325450c9d4cd67cbb476df6666dfffc340d4ab78a9541678faf15192"
+    },
+    "assets/warm-theme.css": {
+      "bytes": 7485,
+      "sha256": "ae4c290c15308144a69639c5f304f1ef95e9203304d87001eac06780205b4ff4"
+    },
+    "CHANGELOG_V8.md": {
+      "bytes": 3275,
+      "sha256": "37644e065d390f6335bbc3b38d937ec6c65f0c8b9e41f03f51f58e5c5e6314d0"
+    },
+    "chart_render.py": {
+      "bytes": 2462,
+      "sha256": "906b38a9a5936ce9f3606b576bcecf0d01045fc4b90ce208a5d5aaf16e35308c"
+    },
+    "demo_charts.py": {
+      "bytes": 7357,
+      "sha256": "58ec44801af888dc866dcfe985526edde0f8dad46ea2acc8c758fcfeb4d3bbdd"
+    },
+    "demo_data.py": {
+      "bytes": 2270,
+      "sha256": "44f07d239469d14ff04d5bb7802adfa53b9e028c558af82aac2cce1eefd61520"
+    },
+    "demo_utils.py": {
+      "bytes": 1363,
+      "sha256": "0efb5145c15ebe8648c852920de108f564a8e92cb6129659e986792e37943679"
+    },
+    "ONLINE_ACCEPTANCE.md": {
+      "bytes": 1863,
+      "sha256": "0b01d259d20cb90f5921fa43e56bb14332ea29d9f5f45eb681599abe12977b60"
+    },
+    "README.md": {
+      "bytes": 3756,
+      "sha256": "c5aa7f6fea1721ff6c6abbb38a4b7c5f9c525752be0ead81c3c2f566f14dd4ed"
+    },
+    "requirements.txt": {
+      "bytes": 94,
+      "sha256": "0101a26db06d5e6fe7714993a5a18b43e87b5850da2ace9302b9be89091388aa"
+    },
+    "sheets_backend.py": {
+      "bytes": 11058,
+      "sha256": "270044cb12d151e9dd907dc23812e4b411f93f32b3d7722f25f0fb0d705adbf1"
+    },
+    "site_login.py": {
+      "bytes": 4956,
+      "sha256": "68a04842b3d9212419a895093364966e7c9e1f6fc08e2cea9e073d970603e60e"
+    },
+    "streamlit_app.py": {
+      "bytes": 27584,
+      "sha256": "de654493af493b8806801328651c14e5bd9bb2608b102e14a19afc5234b5f7e6"
+    },
+    "tests/test_chart_date_axis.py": {
+      "bytes": 3141,
+      "sha256": "d7c2dbd94e4f7967ed61465f89fb475f59b428d8a407a806235db3a464b94fc9"
+    },
+    "tests/test_chart_percentage.py": {
+      "bytes": 2797,
+      "sha256": "533fdbc6f198bbc38184c9162ff3c240d76e8c5ccc8cbdb48c2e03bfb9344e3e"
+    },
+    "tests/test_integration_source.py": {
+      "bytes": 985,
+      "sha256": "fbfd7490464e3cbcf0eba3c4487c3fcd6b9a31d4fa7456566a0c5117e80ef53b"
+    },
+    "tests/test_v4_safety.py": {
+      "bytes": 1940,
+      "sha256": "9af3fd06e755060f295224293b7d42627a9aa3f9c2f7dab7f5add55f4e56f9d3"
+    },
+    "tests/test_v6_advisor.py": {
+      "bytes": 1405,
+      "sha256": "001b65d9c375746aef4e051ee3527dfa2b71b4222295ffbd94d233b5705babe5"
+    },
+    "tests/test_v7_hardening.py": {
+      "bytes": 716,
+      "sha256": "5afb818366173044de77074fc704cb4b4c950a87d19eccff7c6da55dabf80736"
+    },
+    "tests/test_v8_boundaries.py": {
+      "bytes": 4721,
+      "sha256": "4ecd49e014e495c49781bcf13b97de3fd418ea31ea469d0f905525abaa3e59c9"
+    },
+    "tests/test_virtual_trial.py": {
+      "bytes": 4546,
+      "sha256": "44086d8e842eb02fcf253b8940b606556a8bc0691766172c14ff652d1455404c"
+    },
+    "tests/v8_baseline.json": {
+      "bytes": 4364,
+      "sha256": "abbedc09ba94cf8e6dd2945709c348f7cbd380b4a2ea98631281710502dab483"
+    },
+    "V8_UI_changes.patch": {
+      "bytes": 30172,
+      "sha256": "3f7045602193f9876e4f5c423f194afc9b45f842f2f4b8be8d8f34204d2d4667"
+    },
+    "VALIDATION.txt": {
+      "bytes": 5119,
+      "sha256": "c7602a773d0c17c4d8a267eb97abd221af33a07a2bcfd92c19a8f12e14b1fbbb"
+    },
+    "virtual_trial.py": {
+      "bytes": 15469,
+      "sha256": "ccdc279fbf7b0122361d3ead4c5aab90e4c115c13e6d75839341a8091786e35f"
+    },
+    "warm_theme.py": {
+      "bytes": 2930,
+      "sha256": "3ed79b4a9a82c09465ac5ca7d1f0644246188b9cc64fd31f78de44e2268b0453"
+    }
+  }
+}

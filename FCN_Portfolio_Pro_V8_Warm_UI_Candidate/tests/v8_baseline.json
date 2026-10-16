@@ -1,0 +1,32 @@
+{
+  "github_commit": "e46ed0cc88255cc45316c4dad6eb434f0f2d6155",
+  "protected_files": {
+    "sheets_backend.py": "270044cb12d151e9dd907dc23812e4b411f93f32b3d7722f25f0fb0d705adbf1",
+    "virtual_trial.py": "ccdc279fbf7b0122361d3ead4c5aab90e4c115c13e6d75839341a8091786e35f",
+    "demo_charts.py": "58ec44801af888dc866dcfe985526edde0f8dad46ea2acc8c758fcfeb4d3bbdd",
+    "demo_utils.py": "0efb5145c15ebe8648c852920de108f564a8e92cb6129659e986792e37943679",
+    "demo_data.py": "44f07d239469d14ff04d5bb7802adfa53b9e028c558af82aac2cce1eefd61520",
+    "advisor_analytics.py": "f1c938fabde4bf9b0549fac7a639c04c6ca2de329892aef759b8832cea319f74",
+    "requirements.txt": "0101a26db06d5e6fe7714993a5a18b43e87b5850da2ace9302b9be89091388aa"
+  },
+  "auth_ast_sha256": "86bce02172a63ad5bcd0e13e9124026d5a95510ba05735fb09c78a1f9db0bd31",
+  "business_calls": [
+    "Call(func=Attribute(value=Name(id='READER', ctx=Load()), attr='diagnostic', ctx=Load()), args=[], keywords=[])",
+    "Call(func=Attribute(value=Name(id='READER', ctx=Load()), attr='portfolio', ctx=Load()), args=[], keywords=[])",
+    "Call(func=Attribute(value=Name(id='READER', ctx=Load()), attr='product_chart', ctx=Load()), args=[Name(id='p', ctx=Load())], keywords=[])",
+    "Call(func=Attribute(value=Name(id='READER', ctx=Load()), attr='product_chart', ctx=Load()), args=[Name(id='p', ctx=Load())], keywords=[])",
+    "Call(func=Attribute(value=Name(id='READER', ctx=Load()), attr='product_chart', ctx=Load()), args=[Name(id='prod', ctx=Load())], keywords=[])",
+    "Call(func=Attribute(value=Name(id='SheetsReader', ctx=Load()), attr='from_secrets', ctx=Load()), args=[Name(id='svc', ctx=Load()), Call(func=Name(id='str', ctx=Load()), args=[Subscript(value=Name(id='APP', ctx=Load()), slice=Constant(value='master_sheet_id'), ctx=Load())], keywords=[])], keywords=[])",
+    "Call(func=Name(id='TrialInputs', ctx=Load()), args=[Name(id='codes', ctx=Load()), Call(func=Name(id='parse_month', ctx=Load()), args=[Name(id='start_month', ctx=Load())], keywords=[]), Call(func=Name(id='int', ctx=Load()), args=[Name(id='tenor', ctx=Load())], keywords=[]), Call(func=Name(id='int', ctx=Load()), args=[Name(id='lockup', ctx=Load())], keywords=[]), Call(func=Name(id='float', ctx=Load()), args=[Name(id='rate', ctx=Load())], keywords=[]), Call(func=Name(id='float', ctx=Load()), args=[Name(id='principal', ctx=Load())], keywords=[]), Call(func=Name(id='float', ctx=Load()), args=[Name(id='ko', ctx=Load())], keywords=[]), Call(func=Name(id='float', ctx=Load()), args=[Name(id='strike', ctx=Load())], keywords=[]), IfExp(test=Compare(left=Name(id='ki_mode', ctx=Load()), ops=[NotEq()], comparators=[Constant(value='Non-KI')]), body=Call(func=Name(id='float', ctx=Load()), args=[Name(id='ki', ctx=Load())], keywords=[]), orelse=Constant(value=None)), Name(id='ki_mode', ctx=Load())], keywords=[])",
+    "Call(func=Name(id='choose_available_series', ctx=Load()), args=[Name(id='sources', ctx=Load()), Name(id='codes', ctx=Load()), Attribute(value=Name(id='params', ctx=Load()), attr='start_month', ctx=Load()), Attribute(value=Name(id='params', ctx=Load()), attr='term_months', ctx=Load())], keywords=[])",
+    "Call(func=Name(id='currency_summary', ctx=Load()), args=[Name(id='rows', ctx=Load())], keywords=[])",
+    "Call(func=Name(id='parse_month', ctx=Load()), args=[Name(id='start_month', ctx=Load())], keywords=[])",
+    "Call(func=Name(id='parse_symbols', ctx=Load()), args=[Name(id='symbol_input', ctx=Load())], keywords=[])",
+    "Call(func=Name(id='product_group', ctx=Load()), args=[Name(id='p', ctx=Load())], keywords=[])",
+    "Call(func=Name(id='rank_quality_issues', ctx=Load()), args=[Name(id='PRODUCTS', ctx=Load()), Name(id='HOLDINGS', ctx=Load())], keywords=[])",
+    "Call(func=Name(id='simulate_history', ctx=Load()), args=[Name(id='series', ctx=Load()), Name(id='params', ctx=Load())], keywords=[])",
+    "Call(func=Name(id='summarize_portfolio', ctx=Load()), args=[Name(id='CUSTOMERS', ctx=Load()), Name(id='HOLDINGS', ctx=Load()), Name(id='PRODUCTS', ctx=Load())], keywords=[])",
+    "Call(func=Name(id='validate_masked_portfolio', ctx=Load()), args=[Call(func=Attribute(value=Name(id='READER', ctx=Load()), attr='portfolio', ctx=Load()), args=[], keywords=[])], keywords=[])"
+  ],
+  "hero_sha256": "7c123bb8325450c9d4cd67cbb476df6666dfffc340d4ab78a9541678faf15192"
+}

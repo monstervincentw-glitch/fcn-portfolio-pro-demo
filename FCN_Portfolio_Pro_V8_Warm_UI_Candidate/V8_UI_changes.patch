@@ -1,0 +1,378 @@
+--- a/streamlit_app.py
++++ b/streamlit_app.py
+@@ -20,44 +20,10 @@
+ from virtual_trial import TrialDataError, TrialInputs, choose_available_series, parse_month, parse_symbols, simulate_history
+ from advisor_analytics import summarize_portfolio, stock_exposures, rank_quality_issues
+ from chart_render import build_stock_chart
+-
+-st.set_page_config(page_title="FCN Portfolio Pro｜銀行相容測試", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
+-st.markdown("""<style>
+-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700&display=swap');
+-:root{--fcn-ink:#1b3045;--fcn-muted:#62798d;--fcn-border:#e0e8ef;--fcn-navy:#132c43;--fcn-teal:#0b7885;--fcn-bg:#f5f8fb}
+-html,body,[class*="css"],.stApp{font-family:Inter,'Noto Sans TC','Microsoft JhengHei',sans-serif;color:var(--fcn-ink)}
+-.stApp{background:var(--fcn-bg)}
+-.block-container{padding-top:1.35rem;padding-bottom:3.5rem;max-width:1420px}
+-h1,h2,h3{color:#1a344d;letter-spacing:-.025em;font-weight:700}
+-h2{margin-top:1.15rem}h3{font-size:1.12rem}
+-[data-testid="stSidebar"]{background:#eef3f8;border-right:1px solid #d9e4ef}
+-[data-testid="stSidebar"] .block-container{padding-top:1.15rem}
+-[data-testid="stSidebar"] div[role="radiogroup"] label{border-radius:10px;padding:.48rem .65rem;transition:background .15s}
+-[data-testid="stSidebar"] div[role="radiogroup"] label:hover{background:#e2edf5}
+-[data-testid="stMetric"]{background:#fff;border:1px solid var(--fcn-border);box-shadow:0 3px 14px rgba(19,44,67,.035);padding:18px 20px;border-radius:15px}
+-[data-testid="stMetricLabel"]{color:var(--fcn-muted);font-weight:600}
+-[data-testid="stMetricValue"]{color:var(--fcn-navy);letter-spacing:-.03em;font-size:clamp(1.25rem,2vw,2.1rem)}
+-[data-testid="stDataFrame"]{border:1px solid var(--fcn-border);border-radius:12px;overflow:hidden}
+-[data-testid="stForm"],div[data-testid="stExpander"]{background:#fff;border:1px solid var(--fcn-border);border-radius:14px;padding:12px}
+-[data-baseweb="input"]>div,[data-baseweb="select"]>div{border-radius:10px!important}
+-.stButton button[kind="primary"],div[data-testid="stFormSubmitButton"] button[kind="primary"]{background:var(--fcn-teal);border-color:var(--fcn-teal);border-radius:10px;font-weight:700}
+-.stButton button[kind="primary"]:hover,div[data-testid="stFormSubmitButton"] button[kind="primary"]:hover{background:#075f6b;border-color:#075f6b}
+-.stButton button{border-radius:10px}
+-[data-testid="stTabs"] button{font-weight:600}
+-[data-testid="stAlert"]{border-radius:11px}
+-.fcn-banner{background:linear-gradient(115deg,#142e46 0%,#1c4760 64%,#147a85 100%);color:white;border-radius:18px;padding:28px 32px;margin:0 0 22px;box-shadow:0 8px 24px rgba(15,44,66,.1);position:relative;overflow:hidden}
+-.fcn-banner::after{content:"";width:250px;height:250px;border:1px solid rgba(255,255,255,.12);border-radius:50%;position:absolute;right:-50px;top:-100px}
+-.fcn-banner h1{color:white;margin:0;font-size:clamp(1.55rem,3vw,2.1rem)}
+-.fcn-banner p{margin:10px 0 0;color:#dcecf1;font-size:.95rem}
+-.fcn-eyebrow{font-size:.68rem;color:#8cdee5;letter-spacing:.16em;text-transform:uppercase;font-weight:800;margin-bottom:8px}
+-.fcn-tag{display:inline-block;border-radius:30px;padding:4px 12px;background:#fff0d6;color:#865c16;font-size:.81rem;font-weight:650}
+-.fcn-small{color:var(--fcn-muted);font-size:.87rem}
+-.fcn-panel{padding:1rem 1.1rem;background:#fff;border:1px solid var(--fcn-border);border-radius:12px;margin-bottom:12px}
+-.fcn-divider{height:1px;background:var(--fcn-border);margin:1.5rem 0}
+-.fcn-section{margin:1.5rem 0 .85rem}.fcn-section strong{font-size:1.1rem;color:#18344c}.fcn-section p{color:var(--fcn-muted);font-size:.86rem;margin:4px 0}
+-@media(max-width:750px){.block-container{padding:1rem .8rem 2rem}.fcn-banner{padding:20px 20px;border-radius:14px}[data-testid="stMetric"]{padding:12px}}
+-@media print{[data-testid="stSidebar"],.stButton{display:none!important}.fcn-banner{box-shadow:none}}
+-</style>""", unsafe_allow_html=True)
++from warm_theme import apply_theme, page_intro, status_card, style_chart, COLORS, LEVEL_COLORS
++
++st.set_page_config(page_title="FCN Portfolio Pro V8｜投資工作台", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
++apply_theme()
+ 
+ def section(name):
+     # Missing secrets must fail closed at the password gate, even in DEMO.
+@@ -135,7 +101,7 @@
+     return raw
+ 
+ with st.sidebar:
+-    st.markdown("### ◈ FCN Portfolio Pro")
++    st.markdown('<div class="fcn-brand"><span>YOUR PORTFOLIO COMPANION</span><strong>◈ FCN Portfolio Pro</strong></div>', unsafe_allow_html=True)
+     st.caption("銀行 Edge 專用 · " + ("私人資料唯讀模式" if MODE == "live" else "相容性驗收版"))
+     st.success("🔒 6 位數 PIN 已驗證 · 唯讀模式" if MODE != "demo" else "🔒 6 位數 PIN 已驗證 · 虛構資料 DEMO")
+     st.button("安全登出", on_click=logout, use_container_width=True)
+@@ -147,14 +113,14 @@
+     st.divider()
+     st.caption("標準 HTTPS ｜ Microsoft Edge ｜ USD / EUR / JPY")
+ 
+-st.markdown('<div class="fcn-banner"><div class="fcn-eyebrow">Structured Notes · Portfolio Intelligence</div><h1>FCN Portfolio Pro</h1><p>投資組合總覽　／　FCN 商品監控　／　虛擬試打回測</p></div>', unsafe_allow_html=True)
++st.markdown('<div class="fcn-banner"><div class="fcn-eyebrow">YOUR PORTFOLIO, THOUGHTFULLY CARED FOR · V8</div><h1>FCN Portfolio Pro</h1><p>從每一份持倉，到每一次決策，讓投資脈絡更清晰。</p></div>', unsafe_allow_html=True)
+ if MODE == "demo":
+     st.warning("目前為銀行電腦**畫面及互動驗收版**，所有名稱、價格與金額均為虛構，不含銀行或客戶資料。", icon="🧪")
+ else:
+     st.info("資料來源：私人 Google Sheets（伺服器端唯讀）。配息與本金是**依合約推定**，並非銀行實際入帳證明。", icon="🔒")
+ 
+ if page == "🧭 顧問工作台":
+-    st.subheader("今日商品風險與資料品質")
++    page_intro("顧問工作台", "先看資料品質，再掌握需要追蹤的商品。", "ADVISOR DESK")
+     summary = summarize_portfolio(CUSTOMERS, HOLDINGS, PRODUCTS)
+     cols=st.columns(4)
+     for c,(label,value) in zip(cols,[('商品數',summary['products']),('持倉筆數',summary['holdings']),('待補來源',summary['missing_sources']),('需確認資料',summary['quality_flags'])]):
+@@ -164,7 +130,7 @@
+     if issues: st.dataframe(pd.DataFrame(issues),use_container_width=True,hide_index=True)
+     else: st.success("目前沒有可從唯讀資料推定的品質問題。")
+ elif page == "🔎 股票曝險":
+-    st.subheader("股票曝險搜尋")
++    page_intro("股票曝險搜尋", "查看同一標的在已授權商品中的分布。", "UNDERLYING EXPOSURE")
+     st.caption("從現有授權 FCN Chart 分析標的關聯；只有已授權來源才會列入，結果不包含未連線商品。")
+     q=st.text_input("股票代號（例如 NVDA）",value="").strip().upper()
+     if q:
+@@ -180,9 +146,11 @@
+             st.dataframe(pd.DataFrame(exposures),use_container_width=True,hide_index=True)
+             st.caption('多幣別本金不直接加總；此清單不代表全部商品都有授權行情。')
+         else: st.info('授權商品中沒有找到此標的；也可能部分商品尚未連線。')
++    else:
++        st.info("輸入一檔股票代號，開始查看已授權商品的標的關聯。")
+ elif page in ("🏠 投資總覽","👥 客戶投資"):
+ 
+-    st.markdown('<div class="fcn-section"><strong>客戶選擇</strong><p>切換客戶查看幣別摘要與完整歷史持倉</p></div>', unsafe_allow_html=True)
++    st.markdown('<div class="fcn-section"><span class="fcn-eyebrow">CLIENT PORTFOLIO</span><strong>客戶投資總覽</strong><p>選擇客戶，依幣別查看摘要與完整持倉。</p></div>', unsafe_allow_html=True)
+     chosen=st.selectbox("客戶",[x["customer_id"] for x in CUSTOMERS],key="customer")
+     rows=[x for x in HOLDINGS if x["customer_id"]==chosen]
+     if page=="🏠 投資總覽":
+@@ -202,7 +170,7 @@
+                     st.info(f"另有 {data['pending_count']} 筆缺商品條款，涉及歷史申購 {money(data['pending_principal'],cc)}。**存續狀態未知**，不可把這些本金當成已返還。")
+                 elif not data["count"]:st.caption("這位客戶沒有此幣別的申購。")
+         st.subheader("近期商品狀態")
+-        for r in rows: st.write(f"**{r['product_id']}** · {r['currency']} · {display_status(r.get('estimated_settlement_state'))}")
++        for r in rows: status_card(r["product_id"], r["currency"], display_status(r.get("estimated_settlement_state")))
+     else:
+         st.markdown('<div class="fcn-section"><strong>客戶完整投資歷史</strong><p>所有 FCN 保留歷史，可查看預估回收日與收益</p></div>', unsafe_allow_html=True)
+         table=[]
+@@ -232,7 +200,7 @@
+             else:
+                 st.info("這檔 FCN 尚無可計算的合約配息期，不能將空白當成已領取 0 元。")
+ elif page=="📈 FCN 商品":
+-    st.markdown('<div class="fcn-section"><strong>跨客戶 FCN 商品監控</strong><p>以商品代號搜尋，或切換監控、待建檔與歷史歸檔</p></div>', unsafe_allow_html=True)
++    st.markdown('<div class="fcn-section"><span class="fcn-eyebrow">PRODUCT MONITOR</span><strong>FCN 商品監控</strong><p>從日常追蹤到歷史歸檔，掌握每一檔商品的狀態。</p></div>', unsafe_allow_html=True)
+     types=["日常監控","全部商品","待建檔","歷史歸檔"]
+     a,b=st.columns([1,2])
+     with a:view=st.selectbox("顯示範圍",types)
+@@ -247,11 +215,15 @@
+         cc=p.get('product_currency') or 'USD'
+         data.append({"商品":p['product_id'],"幣別":cc,"狀態":p.get('model_state'),"分類":p.get('monitor_group'),"參與客戶":p.get('customer_ids'),"累計申購":p.get('invested_'+cc.lower(),0),"模型未回本金":p.get('estimated_outstanding_'+cc.lower()),"KO日期":date_str(p.get('ko_date')),"到期日":date_str(p.get('maturity_date'))})
+     st.dataframe(pd.DataFrame(data) if data else pd.DataFrame(columns=['商品','幣別','狀態','分類']),use_container_width=True,hide_index=True)
++    if not data:
++        st.info("目前篩選條件下沒有商品。可清除搜尋文字，或改選「全部商品」。")
+     if data:
+         chosen_product=st.selectbox("開啟商品詳情",[r['商品'] for r in data])
+         p=next(x for x in PRODUCTS if x['product_id']==chosen_product)
+         st.markdown(f"#### {html.escape(chosen_product)} · {html.escape(p.get('product_currency',''))}")
+-        st.write("合約狀態：",p.get('model_state'));st.write("監控分類：",p.get('monitor_group'))
++        detail_a, detail_b = st.columns(2)
++        detail_a.metric("合約狀態", p.get("model_state") or "—")
++        detail_b.metric("監控分類", p.get("monitor_group") or "—")
+         st.write("參與客戶：",p.get('customer_ids'))
+         st.divider()
+         st.subheader("📉 連結標的走勢圖｜期初價格 = 100%")
+@@ -291,12 +263,13 @@
+         elif p.get("source_url"):
+             st.caption("原始 Chart 已嵌入上方，不需要銀行電腦開啟 Google Sheets。")
+ elif page=="🧪 虛擬試打":
+-    st.markdown('<div class="fcn-section"><strong>🧪 FCN 虛擬試打</strong><p>輸入基本條款，自動試算歷史情境及收益；不寫入客戶持倉</p></div>', unsafe_allow_html=True)
++    st.markdown('<div class="fcn-section"><span class="fcn-eyebrow">SCENARIO STUDIO</span><strong>FCN 虛擬試打</strong><p>設定條款，探索歷史情境下的走勢與模型結果。</p></div>', unsafe_allow_html=True)
+     st.info("以通用最終 V2 的最多 5 檔、月配息、閉鎖期、KO / KI / Strike 架構建模。"
+             "不寫入 Google Sheets、不新增客戶持倉；價格僅取自已授權商品 Chart，並非即時報價。")
+     st.caption("省略精確日期：起始月份自動取當月第一個所有標的均有行情的日期；"
+                "起息日暫以 5 個工作日後推算，每期評價日按月份推算（未包含各市場國定假日）。")
+     with st.form("trial_inputs_form"):
++        st.markdown("#### 01　設定情境條款")
+         c1,c2=st.columns(2)
+         with c1:
+             symbol_input=st.text_input("連結標的（最多五檔，用逗號分隔）",value=("NVDA,AMD,MU" if MODE=="live" else "DEMO-X,DEMO-Y"),key="trial_symbols")
+@@ -306,7 +279,7 @@
+             tenor=st.number_input("合約期間（月）",min_value=1,max_value=12,value=3,step=1,key="trial_tenor")
+             lockup=st.number_input("閉鎖期（月）",min_value=0,max_value=11,value=1,step=1,key="trial_lockup")
+             principal=st.number_input("示範本金（USD）",min_value=1.0,value=100000.0,step=10000.0,key="trial_principal")
+-        with st.expander("進階選項（預設沿用通用最終 V2 範本 SR39 的條款）"):
++        with st.expander("02　進階門檻 · KO / Strike / KI（SR39 預設條款）"):
+             a,b,c,d=st.columns(4)
+             ko=a.number_input("KO (%)",min_value=1.0,max_value=300.0,value=100.0)
+             strike=b.number_input("Strike (%)",min_value=1.0,max_value=200.0,value=75.0)
+@@ -353,7 +326,7 @@
+         if trial_mode != MODE:
+             st.session_state.pop("trial_result",None)
+         else:
+-            st.markdown("#### 試打結果 · " + trial["status"])
++            page_intro("試打結果", trial["status"], "SCENARIO RESULT")
+             if MODE=="demo":st.warning("⚠️ 以下均為虛構行情 DEMO，不可視為市場回測。")
+             a,b,c=st.columns(3)
+             a.metric("已可計算模型票息",f"{trial['coupon_pct']:.4f}%")
+@@ -367,16 +340,17 @@
+                        "｜預定到期 " + str(trial['scheduled_maturity']) + "｜最新可用行情 " + str(trial['last_market_date']))
+             tr=trial["chart"]
+             base=alt.Chart(tr).encode(x=alt.X("date:T",title="交易日期"),y=alt.Y("ratio:Q",title="相對期初價格 (%)",scale=alt.Scale(zero=False)))
+-            line=base.mark_line(strokeWidth=2.5).encode(color=alt.Color("stock:N",title="試打連結標的"),
++            line=base.mark_line(strokeWidth=2.5).encode(color=alt.Color("stock:N",title="試打連結標的",scale=alt.Scale(domain=list(params.symbols),range=COLORS[:len(params.symbols)])),
+                         tooltip=[alt.Tooltip("date:T",title="日期"),"stock:N",alt.Tooltip("ratio:Q",format=".2f")])
+             levels=[{"label":"KO","level":params.ko_pct},{"label":"Strike","level":params.strike_pct}]
+             if params.ki_type!="Non-KI" and params.ki_pct is not None:
+                 levels.append({"label":"KI","level":params.ki_pct})
+             rules=alt.Chart(pd.DataFrame(levels)).mark_rule(strokeDash=[5,4]).encode(y="level:Q",
+-                 color=alt.Color("label:N",title="合約參考門檻",scale=alt.Scale(domain=["KO","Strike","KI"],range=["#289c83","#ed9637","#d95c65"])))
+-            obs=alt.Chart(pd.DataFrame({"date":[pd.Timestamp(trial["ko_start"])]})).mark_rule(color="#62758b",strokeDash=[2,4]).encode(x="date:T")
+-            st.altair_chart((line+rules+obs).resolve_scale(color="independent").properties(height=400).interactive(),use_container_width=True)
++                 color=alt.Color("label:N",title="合約參考門檻",scale=alt.Scale(domain=["KO","Strike","KI"],range=LEVEL_COLORS)))
++            obs=alt.Chart(pd.DataFrame({"date":[pd.Timestamp(trial["ko_start"])]})).mark_rule(color="#8A7660",strokeDash=[2,4]).encode(x="date:T")
++            st.altair_chart(style_chart((line+rules+obs).resolve_scale(color="independent").properties(height=400).interactive()),use_container_width=True)
+             st.caption("行情來源（分別按單一 FCN Chart 重設期初 100%）："+"；".join(f"{code}: {origin[code]}" for code in params.symbols)+"。不同商品的價格日期可能不完整，絕不補造缺價。")
++            st.markdown("#### 配息期明細")
+             st.dataframe(pd.DataFrame(trial["coupon_steps"]),hide_index=True,use_container_width=True)
+             st.caption("KO 觀察、票息切期、T+3 及股價修正均以試打假設計算；" 
+                        "歷史數據不代表當時可成交報價，亦不等於銀行實際入帳或正式合約逐項核對結果。")
+--- a/chart_render.py
++++ b/chart_render.py
+@@ -4,8 +4,9 @@
+ from __future__ import annotations
+ import pandas as pd
+ import altair as alt
+-PALETTE=['#2575a9','#9253b6','#d7772b','#23876c','#bf5069']
+-BARRIERS={'ko':('KO','#20977e'),'strike':('Strike','#e79b32'),'ki':('KI','#d45165')}
++from warm_theme import COLORS, style_chart
++PALETTE=COLORS
++BARRIERS={'ko':('KO','#517A61'),'strike':('Strike','#A36B22'),'ki':('KI','#B34E48')}
+ 
+ def build_stock_chart(data,settings,stocks):
+     frame=data.copy()
+@@ -34,6 +35,6 @@
+     if settings.get('ko_start') is not None:
+         dt=pd.to_datetime(settings['ko_start'],errors='coerce')
+         if pd.notna(dt) and frame.date.min()<=dt<=frame.date.max():
+-            obs=alt.Chart(pd.DataFrame({'date':[dt],'event':['KO觀察起日']})).mark_rule(color='#64748b',strokeDash=[2,4]).encode(x='date:T',tooltip=['event:N','date:T'])
++            obs=alt.Chart(pd.DataFrame({'date':[dt],'event':['KO觀察起日']})).mark_rule(color='#8A7660',strokeDash=[2,4]).encode(x='date:T',tooltip=['event:N','date:T'])
+             chart=chart+obs
+-    return chart.properties(height=390).interactive()
++    return style_chart(chart.properties(height=390).interactive())
+--- a/site_login.py
++++ b/site_login.py
+@@ -95,8 +95,9 @@
+         return AttemptLimiter()
+ 
+     limit = limiter()
+-    st.title("🔒 FCN Portfolio Pro｜PIN 登入")
+-    st.caption("銀行 Microsoft Edge｜只需 6 位 PIN｜不需要 Google 帳號")
++    from warm_theme import login_intro
++    login_intro()
++    st.caption("使用 6 位數字 PIN，開啟你的投資工作台。")
+     if mode == "demo":
+         st.info("目前為虛構資料展示模式。")
+     elif mode == "diagnostic":
+@@ -110,11 +111,13 @@
+         st.stop()
+ 
+     with st.form("fcn_pin_login", clear_on_submit=True):
++        st.markdown("### 歡迎回來")
++        st.caption("請輸入你的登入 PIN")
+         candidate = st.text_input(
+             "6 位數字 PIN", type="password", max_chars=6,
+             placeholder="請輸入 6 位數字"
+         )
+-        submitted = st.form_submit_button("登入 FCN Portfolio Pro", type="primary", use_container_width=True)
++        submitted = st.form_submit_button("進入投資工作台", type="primary", use_container_width=True)
+ 
+     if submitted:
+         valid = pin_matches(candidate, pin)
+@@ -132,3 +135,4 @@
+     st.session_state.pop("fcn_authorized_session", None)
+     st.session_state.pop("fcn_last_activity", None)
+     st.rerun()
++
+--- /dev/null
++++ b/warm_theme.py
+@@ -0,0 +1,57 @@
++"""V8 presentation only: no credentials, Sheets access, or portfolio calculations."""
++from __future__ import annotations
++
++import base64
++import html
++from functools import lru_cache
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parent
++COLORS = ["#986127", "#547C70", "#B65F4D", "#76668D", "#497C91"]
++LEVEL_COLORS = ["#517A61", "#A36B22", "#B34E48"]
++
++
++@lru_cache(maxsize=1)
++def hero_uri() -> str:
++    image = ROOT / "assets" / "shiba-login.png"
++    return "data:image/png;base64," + base64.b64encode(image.read_bytes()).decode("ascii")
++
++
++def apply_theme() -> None:
++    import streamlit as st
++    css = (ROOT / "assets" / "warm-theme.css").read_text(encoding="utf-8")
++    st.markdown("<style>" + css + "</style>", unsafe_allow_html=True)
++
++
++def login_intro() -> None:
++    import streamlit as st
++    # A marker scopes login-only layout; the native form remains keyboard accessible.
++    st.markdown('<span class="fcn-login-marker"></span>', unsafe_allow_html=True)
++    st.markdown("<style>.stApp:has(.fcn-login-marker){background-image:linear-gradient(90deg,transparent 35%,rgba(250,246,239,.18) 65%,rgba(250,246,239,.45)),url('"
++                + hero_uri() + "');background-size:cover;background-position:left center;background-attachment:fixed}</style>", unsafe_allow_html=True)
++    st.markdown('<div class="fcn-login-heading"><span class="fcn-eyebrow">FCN PORTFOLIO PRO · V8</span>'
++                '<h1>每一份投資，<br>都值得用心照看。</h1>'
++                '<p>歡迎回到你的投資工作台</p></div>', unsafe_allow_html=True)
++
++
++def page_intro(title: str, subtitle: str, eyebrow: str = "PORTFOLIO WORKSPACE") -> None:
++    import streamlit as st
++    st.markdown(f'<header class="fcn-page-heading"><span class="fcn-eyebrow">{html.escape(eyebrow)}</span>'
++                f'<h2>{html.escape(title)}</h2><p>{html.escape(subtitle)}</p></header>', unsafe_allow_html=True)
++
++
++def status_card(product: str, currency: str, status: str) -> None:
++    import streamlit as st
++    tone = "pending" if any(x in status for x in ("待建檔", "不足", "未知")) else "neutral" if "存續" in status else "success"
++    st.markdown(f'<div class="fcn-status-row"><div><strong>{html.escape(str(product))}</strong>'
++                f'<span class="fcn-currency">{html.escape(str(currency))}</span></div>'
++                f'<span class="fcn-status {tone}">{html.escape(str(status))}</span></div>', unsafe_allow_html=True)
++
++
++def style_chart(chart):
++    """Apply presentation config only; never transform source values."""
++    return (chart.configure(background="#FFFCF7")
++            .configure_view(stroke=None)
++            .configure_axis(gridColor="#EAE0D2", domainColor="#D8C9B5", tickColor="#D8C9B5",
++                            labelColor="#6D5C4B", titleColor="#514333", labelFontSize=12, titleFontSize=12)
++            .configure_legend(labelColor="#514333", titleColor="#514333", orient="bottom", labelFontSize=12))
+--- /dev/null
++++ b/assets/warm-theme.css
+@@ -0,0 +1,59 @@
++:root{--fcn-paper:#FAF6EF;--fcn-card:#FFFCF7;--fcn-ink:#403529;--fcn-muted:#756653;--fcn-gold:#946328;--fcn-line:#E5D9C8;--fcn-soft:#F1E7D8}
++.stApp{background:var(--fcn-paper);color:var(--fcn-ink);font-family:"Segoe UI","Microsoft JhengHei",sans-serif}
++[data-testid="stHeader"]{background:rgba(250,246,239,.94)}
++.block-container{max-width:1440px;padding:2.2rem 3rem 3rem}
++h1,h2,h3,h4{color:var(--fcn-ink);letter-spacing:-.025em}
++h1{font-weight:750}h2{font-size:1.75rem}h3{font-size:1.18rem}
++p,li{line-height:1.7}
++[data-testid="stCaptionContainer"],.fcn-small{color:var(--fcn-muted)}
++[data-testid="stSidebar"]{background:#F2EADC;border-right:1px solid var(--fcn-line)}
++[data-testid="stSidebar"] [data-testid="stVerticalBlock"]{gap:.8rem}
++[data-testid="stSidebar"] [role="radiogroup"]{gap:.4rem}
++[data-testid="stSidebar"] [data-testid="stRadio"] label{padding:.65rem .75rem;border-radius:12px;width:100%;transition:background .15s}
++[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked){background:#E5D5BB;color:#68451D;font-weight:700}
++[data-testid="stSidebar"] [data-testid="stRadio"] label:hover{background:#EDE0CC}
++.fcn-brand{padding:6px 0 18px;border-bottom:1px solid #DFD0BB;margin-bottom:12px}
++.fcn-brand strong{display:block;font-size:1.18rem;letter-spacing:-.03em}.fcn-brand span{font-size:.72rem;letter-spacing:.14em;color:#87643C}
++.fcn-banner{background:linear-gradient(115deg,#EEDCC0,#F8EEDD 75%);border:1px solid #E5D1B0;border-radius:20px;padding:22px 28px;margin-bottom:22px;position:relative;overflow:hidden}
++.fcn-banner:after{content:"";position:absolute;right:-25px;top:-65px;width:220px;height:220px;border:1px solid #D8BD8E;border-radius:50%;pointer-events:none;opacity:.5}
++.fcn-banner h1{font-size:1.65rem;margin:0;color:#584329}.fcn-banner p{color:#7A6345;margin:7px 0 0;font-size:.92rem}
++.fcn-eyebrow{display:block;color:#8C632F;font-weight:700;letter-spacing:.16em;font-size:.68rem;margin-bottom:10px}
++.fcn-section{margin:1.5rem 0 .9rem}.fcn-section strong{font-size:1.45rem;color:var(--fcn-ink)}.fcn-section p{color:var(--fcn-muted);font-size:.9rem;margin:6px 0}
++.fcn-panel,[data-testid="stExpander"]{background:var(--fcn-card);border:1px solid var(--fcn-line);border-radius:14px}
++.fcn-tag{display:inline-block;border-radius:30px;padding:4px 12px;background:#F3E4C9;color:#795221;font-size:.81rem;font-weight:650}
++.fcn-page-heading{padding:10px 0 16px}.fcn-page-heading h2{margin:0;padding:0}.fcn-page-heading p{margin:7px 0 0;color:var(--fcn-muted);font-size:.93rem}
++[data-testid="stMetric"]{background:var(--fcn-card);border:1px solid var(--fcn-line);border-radius:16px;padding:20px 22px;box-shadow:0 4px 14px rgba(88,63,28,.035);min-height:112px}
++[data-testid="stMetricLabel"]{color:var(--fcn-muted);font-size:.86rem}
++[data-testid="stMetricValue"]{color:#65491F;font-variant-numeric:tabular-nums;font-size:clamp(1.35rem,2.05vw,2rem)}
++[data-testid="stMetricValue"]>div{white-space:normal;overflow-wrap:anywhere}
++[data-testid="stForm"]{background:var(--fcn-card);border:1px solid var(--fcn-line);border-radius:20px;padding:24px}
++[data-testid="stTextInput"] input,[data-testid="stNumberInput"] input{color:var(--fcn-ink);font-variant-numeric:tabular-nums}
++[data-baseweb="input"],[data-baseweb="select"]>div{background:var(--fcn-card);border-color:#D9CBB7;border-radius:10px}
++button[kind="primary"],button[kind="primaryFormSubmit"]{background:#946328;border:1px solid #946328;color:#fff;border-radius:10px;min-height:44px;font-weight:650}
++button[kind="primary"]:hover,button[kind="primaryFormSubmit"]:hover{background:#79501F;border-color:#79501F;color:#fff}
++button[kind="secondary"],button[kind="secondaryFormSubmit"]{background:var(--fcn-card);border-color:#D8C6AC;color:#735226;border-radius:10px;min-height:42px}
++button:focus-visible,input:focus-visible,[role="tab"]:focus-visible{outline:3px solid #A87734!important;outline-offset:3px}
++[data-baseweb="tab-list"]{gap:10px;border-bottom:1px solid var(--fcn-line)}
++[data-baseweb="tab"]{padding:12px 18px;background:transparent;border-radius:10px 10px 0 0;color:var(--fcn-muted)}
++[data-baseweb="tab"][aria-selected="true"]{background:#EFE0C7;color:#6F481B;font-weight:700}
++[data-baseweb="tab-highlight"]{background:#A87734}
++[data-testid="stDataFrame"]{border:1px solid var(--fcn-line);border-radius:14px;overflow:hidden}
++[data-testid="stVegaLiteChart"]{background:var(--fcn-card);border:1px solid var(--fcn-line);border-radius:16px;padding:14px 10px}
++[data-testid="stAlert"]{border-radius:12px;border:1px solid rgba(149,112,61,.15)}
++[data-testid="stAlert"][data-baseweb="notification"]{color:#554837}
++[data-testid="stAlert"]:has([data-testid="stAlertContentInfo"]){background:#F1EADF;color:#68543B}
++[data-testid="stAlert"]:has([data-testid="stAlertContentWarning"]){background:#FAECCE;color:#80551D}
++[data-testid="stAlert"]:has([data-testid="stAlertContentSuccess"]){background:#EAF0E4;color:#446045}
++[data-testid="stAlert"]:has([data-testid="stAlertContentError"]){background:#F7E5DE;color:#93483C}
++hr{border-color:var(--fcn-line)}
++.fcn-status-row{display:flex;align-items:center;justify-content:space-between;gap:16px;background:var(--fcn-card);border:1px solid var(--fcn-line);border-radius:13px;padding:16px 18px;margin-bottom:10px}
++.fcn-currency{font-size:.75rem;color:var(--fcn-muted);border-left:1px solid var(--fcn-line);padding-left:12px;margin-left:12px}
++.fcn-status{font-size:.8rem;border-radius:30px;padding:5px 11px;white-space:normal}.fcn-status.success{background:#EAF0E4;color:#446045}.fcn-status.pending{background:#F8E9CC;color:#82551B}.fcn-status.neutral{background:#EEE6D9;color:#715A3A}
++.stApp:has(.fcn-login-marker) .block-container{max-width:1440px;padding-top:9vh;padding-left:57%;padding-right:5%;min-height:85vh}
++.stApp:has(.fcn-login-marker) [data-testid="stHeader"]{background:transparent}
++.stApp:has(.fcn-login-marker) [data-testid="stForm"]{background:rgba(255,252,247,.96);box-shadow:0 18px 60px rgba(108,66,20,.12);padding:28px}
++.fcn-login-heading{margin:10px 0 22px;padding:0 4px}.fcn-login-heading h1{font-size:clamp(1.8rem,3vw,2.65rem);line-height:1.45;margin:0;color:#654523}.fcn-login-heading p{color:#755B3C;margin:12px 0 0}
++@media(min-width:1600px){.stApp:has(.fcn-login-marker) .block-container{padding-left:720px;padding-right:70px}}
++@media(max-width:900px){.block-container{padding:1.7rem 1.2rem 2rem}.stApp:has(.fcn-login-marker){background-position:left top!important;background-size:auto 48vh!important;background-repeat:no-repeat!important;background-attachment:scroll!important;background-color:#FAF6EF}.stApp:has(.fcn-login-marker) .block-container{padding:40vh 5% 3rem;max-width:600px}.fcn-login-heading{padding:18px 20px;margin-bottom:12px;background:rgba(255,252,247,.96);border-radius:18px}.fcn-login-heading h1{font-size:1.7rem}.stApp:has(.fcn-login-marker) [data-testid="stAlert"],.stApp:has(.fcn-login-marker) [data-testid="stCaptionContainer"]{background:#FFFCF7;border-radius:8px;padding:8px}}
++@media(max-width:540px){.fcn-banner{padding:18px}.fcn-banner h1{font-size:1.4rem}.fcn-status-row{align-items:flex-start;flex-direction:column;gap:10px}[data-testid="stMetric"]{padding:16px}[data-testid="stMetricValue"]{font-size:1.45rem}[data-baseweb="tab"]{padding:10px 12px}.stApp:has(.fcn-login-marker){background-size:auto 44vh!important}.stApp:has(.fcn-login-marker) .block-container{padding-top:40vh}.fcn-login-heading h1{font-size:1.45rem}}
++@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+--- /dev/null
++++ b/.streamlit/config.toml
+@@ -0,0 +1,7 @@
++[theme]
++base = "light"
++primaryColor = "#946328"
++backgroundColor = "#FAF6EF"
++secondaryBackgroundColor = "#F1E7D8"
++textColor = "#403529"
++font = "sans serif"

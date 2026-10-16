@@ -1,0 +1,44 @@
+test_legacy_date_in_annotation_still_works (test_chart_date_axis.ChartDateAxisRegressionTest.test_legacy_date_in_annotation_still_works) ... ok
+test_numeric_chart_marker_130_cannot_become_1900_date (test_chart_date_axis.ChartDateAxisRegressionTest.test_numeric_chart_marker_130_cannot_become_1900_date) ... ok
+test_only_real_marker_row_is_observation_start (test_chart_date_axis.ChartDateAxisRegressionTest.test_only_real_marker_row_is_observation_start) ... ok
+test_sq29_plot_marker_130_is_not_a_date (test_chart_date_axis.ChartDateAxisRegressionTest.test_sq29_plot_marker_130_is_not_a_date) ... ok
+test_demo_remains_available (test_chart_percentage.ChartPercentageTest.test_demo_remains_available) ... ok
+test_display_percent_strings_and_numeric_mix (test_chart_percentage.ChartPercentageTest.test_display_percent_strings_and_numeric_mix) ... ok
+test_fractional_numbers_are_scaled_once (test_chart_percentage.ChartPercentageTest.test_fractional_numbers_are_scaled_once) ... ok
+test_low_percentage_does_not_turn_into_150_percent (test_chart_percentage.ChartPercentageTest.test_low_percentage_does_not_turn_into_150_percent) ... ok
+test_no_data_returns_empty (test_chart_percentage.ChartPercentageTest.test_no_data_returns_empty) ... ok
+test_sq29_values_are_not_multiplied_twice (test_chart_percentage.ChartPercentageTest.test_sq29_values_are_not_multiplied_twice) ... ok
+test_chart_layer_keeps_stock_colors_separate_from_barriers (test_integration_source.AppLayoutGuard.test_chart_layer_keeps_stock_colors_separate_from_barriers) ... ok
+test_sheet_gate_still_before_page_dispatch (test_integration_source.AppLayoutGuard.test_sheet_gate_still_before_page_dispatch) ... ok
+test_virtual_trial_never_writes_ledger (test_integration_source.AppLayoutGuard.test_virtual_trial_never_writes_ledger) ... ok
+test_long_missing_middle_is_not_passed_as_no_knockout (test_v4_safety.V4Regression.test_long_missing_middle_is_not_passed_as_no_knockout) ... ok
+test_marker_is_not_a_stock_and_stock_rows_survive (test_v4_safety.V4Regression.test_marker_is_not_a_stock_and_stock_rows_survive) ... ok
+test_partial_history_remains_pending_not_falsely_final (test_v4_safety.V4Regression.test_partial_history_remains_pending_not_falsely_final) ... ok
+test_chart_has_3_stocks_and_no_barrier_color_domain (test_v6_advisor.V6Tests.test_chart_has_3_stocks_and_no_barrier_color_domain) ... skipped 'Altair 不在離線容器；線上渲染仍需驗收'
+test_exposure_is_exact_symbol (test_v6_advisor.V6Tests.test_exposure_is_exact_symbol) ... ok
+test_unknown_source_flag (test_v6_advisor.V6Tests.test_unknown_source_flag) ... ok
+test_sparsely_observed_ko_does_not_yield_definitive_return (test_v7_hardening.TrialCoverageTests.test_sparsely_observed_ko_does_not_yield_definitive_return) ... ok
+test_app_calls_existing_calculators_and_readers_with_same_arguments (test_v8_boundaries.V8Boundaries.test_app_calls_existing_calculators_and_readers_with_same_arguments) ... ok
+test_data_calculation_and_dependency_files_are_byte_identical (test_v8_boundaries.V8Boundaries.test_data_calculation_and_dependency_files_are_byte_identical) ... ok
+test_dynamic_status_text_is_html_escaped (test_v8_boundaries.V8Boundaries.test_dynamic_status_text_is_html_escaped) ... ok
+test_entire_login_module_identical_after_removing_allowlisted_presentation (test_v8_boundaries.V8Boundaries.test_entire_login_module_identical_after_removing_allowlisted_presentation) ... ok
+test_no_secrets_or_credentials_in_deployment (test_v8_boundaries.V8Boundaries.test_no_secrets_or_credentials_in_deployment) ... ok
+test_primary_text_and_button_contrast (test_v8_boundaries.V8Boundaries.test_primary_text_and_button_contrast) ... ok
+test_user_selected_asset_is_packaged_unchanged (test_v8_boundaries.V8Boundaries.test_user_selected_asset_is_packaged_unchanged) ... ok
+test_EKI_maturity_can_lose_principal (test_virtual_trial.TrialRegression.test_EKI_maturity_can_lose_principal) ... ok
+test_as_of_earlier_does_not_know_future_KO (test_virtual_trial.TrialRegression.test_as_of_earlier_does_not_know_future_KO) ... ok
+test_daily_ko_not_monthly (test_virtual_trial.TrialRegression.test_daily_ko_not_monthly) ... ok
+test_lockup_must_be_shorter_than_term (test_virtual_trial.TrialRegression.test_lockup_must_be_shorter_than_term) ... ok
+test_missing_first_month_raises (test_virtual_trial.TrialRegression.test_missing_first_month_raises) ... ok
+test_missing_stock_and_duplicate_dates (test_virtual_trial.TrialRegression.test_missing_stock_and_duplicate_dates) ... ok
+test_month_text_only (test_virtual_trial.TrialRegression.test_month_text_only) ... ok
+test_no_lookahead_after_sparse_data (test_virtual_trial.TrialRegression.test_no_lookahead_after_sparse_data) ... ok
+test_rebase_from_one_source_only (test_virtual_trial.TrialRegression.test_rebase_from_one_source_only) ... ok
+test_symbol_input_requires_max_five (test_virtual_trial.TrialRegression.test_symbol_input_requires_max_five) ... ok
+
+----------------------------------------------------------------------
+Ran 37 tests in 0.087s
+
+OK (skipped=1)
+
+All Python files parsed successfully.
