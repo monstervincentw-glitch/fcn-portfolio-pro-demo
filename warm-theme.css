@@ -1,1 +1,30 @@
-html,body,.stApp{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif;color:#48382c}.stApp{background:#faf6ef}section[data-testid="stSidebar"]{background:#f5ead9}h1,h2,h3{color:#604528}.fcn-banner{background:linear-gradient(115deg,#f3e2c9,#fff8ee);padding:20px 26px;border-radius:18px;margin-bottom:20px}.fcn-banner h1{color:#604528}.fcn-banner p{color:#735b46}.fcn-eyebrow{letter-spacing:.11em;color:#906a37}.fcn-section{margin:16px 0 10px}.fcn-section strong{font-size:1.1rem}.fcn-section p{color:#806e5b}.stButton button{border-radius:11px}[data-testid="stMetric"]{background:#fffcf7;border:1px solid #eadbca;padding:15px;border-radius:14px}
+/* FCN Portfolio Pro V8.1 design restoration — applied AFTER streamlit_app.py base CSS */
+:root {--fcn-ink:#403529;--fcn-muted:#867665;--fcn-border:#E7D9C5;
+       --fcn-navy:#493929;--fcn-teal:#946328;--fcn-bg:#FAF6EF;--fcn-paper:#FAF6EF;
+       --fcn-card:#FFFCF7;--fcn-gold:#946328;}
+html,body,.stApp {font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif !important;color:#403529 !important;}
+.stApp {background:#FAF6EF !important;}
+h1,h2,h3,.stApp h1,.stApp h2,.stApp h3 {color:#493929 !important;}
+[data-testid="stSidebar"],section[data-testid="stSidebar"] {background:#F3E8D7 !important;border-right:1px solid #E4D4BC !important;}
+[data-testid="stSidebar"] div[role="radiogroup"] label:hover {background:#EBDDCA !important;}
+[data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) {background:#E8D6BB !important;}
+.fcn-banner {background:linear-gradient(116deg,#F1E1CA,#FBF1E4) !important;color:#4F3B26 !important;
+    box-shadow:0 9px 23px rgba(115,75,25,.06) !important;}
+.fcn-banner h1 {color:#593E27 !important;}.fcn-banner p {color:#765D42 !important;}
+.fcn-eyebrow {color:#916C36 !important;}.fcn-section strong {color:#493929 !important;}
+.fcn-section p,.fcn-small,[data-testid="stMetricLabel"] {color:#8A7764 !important;}
+[data-testid="stMetric"] {background:#FFFCF7 !important;border:1px solid #E8D6BE !important;
+    box-shadow:0 5px 22px rgba(111,75,36,.055) !important;border-radius:17px !important;}
+[data-testid="stMetricValue"] {color:#604525 !important;}
+[data-testid="stForm"], [data-testid="stExpander"],.fcn-panel {background:#FFFCF7 !important;border-color:#E7D9C5 !important;}
+[data-testid="stDataFrame"] {border-color:#E7D9C5 !important;}
+[data-baseweb="select"]>div,[data-baseweb="input"]>div {border-radius:12px !important;
+    border-color:#E4D6C1 !important;}
+[data-testid="stTabs"] button[aria-selected="true"] {color:#976229 !important;border-bottom-color:#AC7437 !important;}
+button[kind="primary"],button[kind="primaryFormSubmit"],
+.stButton button[kind="primary"],div[data-testid="stFormSubmitButton"] button[kind="primary"] {
+    background:#946328 !important;border-color:#946328 !important;color:white !important;}
+button[kind="primary"]:hover,button[kind="primaryFormSubmit"]:hover {
+    background:#7B501F !important;border-color:#7B501F !important;}
+[data-testid="stAlert"] {border-radius:13px !important;}
+@media (max-width:750px){.fcn-banner {padding:16px 20px !important;}}

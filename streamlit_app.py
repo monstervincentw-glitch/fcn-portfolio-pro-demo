@@ -306,6 +306,10 @@ elif page=="📈 FCN 商品":
         cc=p.get('product_currency') or 'USD'
         data.append({"商品":p['product_id'],"幣別":cc,"狀態":p.get('model_state'),"分類":p.get('monitor_group'),"參與客戶":p.get('customer_ids'),"累計申購":p.get('invested_'+cc.lower(),0),"模型未回本金":p.get('estimated_outstanding_'+cc.lower()),"KO日期":date_str(p.get('ko_date')),"到期日":date_str(p.get('maturity_date'))})
     st.dataframe(pd.DataFrame(data) if data else pd.DataFrame(columns=['商品','幣別','狀態','分類']),use_container_width=True,hide_index=True)
+    if not data:
+        st.info("此篩選目前沒有符合的商品。可切換『全部商品』確認來源資料；日常監控只顯示存續中的 FCN。")
+    else:
+        st.caption(f"目前顯示 {len(data)} 檔商品；商品分類依私人 Google Sheets 原始狀態對應，沒有改寫總帳。")
     if data:
         chosen_product=st.selectbox("開啟商品詳情",[r['商品'] for r in data])
         p=next(x for x in PRODUCTS if x['product_id']==chosen_product)
