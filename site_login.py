@@ -96,10 +96,9 @@ def gate(config: dict, app_mode: str = "demo", bank_approved: bool = False) -> N
 
     limit = limiter()
 
-    # V8.5.6: one responsive layout, not independently positioned fragments.
+    # V8.5.8: one responsive layout, not independently positioned fragments.
     # Current warm_theme.py already embeds the original Shiba PNG and warm CSS.
     from warm_theme import hero_image
-    import base64
     st.markdown(r"""
 <style>
 /* Scoped to the PIN page. No absolute/fixed positions or dependence on assets/. */
@@ -163,44 +162,61 @@ def gate(config: dict, app_mode: str = "demo", bank_approved: bool = False) -> N
 <div class="fcn-login-unified" aria-hidden="true"></div>
 """, unsafe_allow_html=True)
 
-    # V8.5.7: full-bleed artwork in the entire login viewport, not a separate card.
-    # Keep the existing st.columns, heading and PIN form EXACTLY where they were.
-    # The old st.image stays in the document only as a layout spacer (visibility:hidden).
-    # The image source comes from warm_theme.hero_image(), which is embedded locally.
-    _full_page_shiba = base64.b64encode(hero_image()).decode("ascii")
-    st.markdown("""<style>
-.stApp:has(.fcn-login-unified) {
-    --fcn-shiba-art:url('data:image/png;base64,""" + _full_page_shiba + """');
-    background-image:
-        linear-gradient(90deg, rgba(250,246,239,0) 0%,
-            rgba(250,246,239,.02) 38%,
-            rgba(250,246,239,.60) 64%,
-            rgba(250,246,239,.88) 100%),
-        var(--fcn-shiba-art) !important;
-    background-position:left center !important;
-    background-size:cover !important;
-    background-repeat:no-repeat !important;
-    background-attachment:fixed !important;
-    min-height:100vh !important;
+    # Full-screen native image: NOT a CSS background URL. If styling fails,
+    # Streamlit still renders the original V8.1 Shiba in the left column.
+    st.markdown(r"""
+<style>
+/* V8.5.8: preserve exactly the V8.5.6 login column/form DOM and PIN rules. */
+.stApp:has(.fcn-login-unified) [data-testid="stImage"] {
+    min-height:480px !important;   /* preserve right-hand card's vertical location */
 }
-/* Keep the image element's intrinsic space to preserve the PIN card's coordinates. */
 .stApp:has(.fcn-login-unified) [data-testid="stImage"] img {
-    visibility:hidden !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    display:block !important;
+    position:fixed !important;
+    inset:0 auto auto 0 !important;
+    width:100vw !important;
+    height:100vh !important;
+    min-height:100vh !important;
+    max-width:none !important;
+    max-height:none !important;
+    aspect-ratio:auto !important;
+    object-fit:cover !important;
+    object-position:27% center !important;
+    border-radius:0 !important;
     box-shadow:none !important;
+    z-index:1 !important;
+    pointer-events:none !important;
+}
+/* Keep the unchanged right-side card ABOVE the real full-screen image. */
+.stApp:has(.fcn-login-unified) [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child {
+    position:relative !important;
+    z-index:3 !important;
+}
+.stApp:has(.fcn-login-unified) [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child [data-testid="stVerticalBlockBorderWrapper"] {
+    background:rgba(255,251,246,.95) !important;
+    backdrop-filter:blur(7px);
+    border-radius:14px !important;
+}
+/* The image, not the page background, is the visually full-bleed artwork. */
+.stApp:has(.fcn-login-unified) [data-testid="stMain"],
+.stApp:has(.fcn-login-unified) [data-testid="stAppViewContainer"] {
+    background:transparent !important;
 }
 @media (max-width:750px) {
-    .stApp:has(.fcn-login-unified) {
-        background-position:23% center !important;
-        background-image:
-            linear-gradient(180deg,rgba(250,246,239,.08) 0%,
-                rgba(250,246,239,.42) 48%, rgba(250,246,239,.91) 100%),
-            var(--fcn-shiba-art) !important;
-        background-attachment:scroll !important;
+    .stApp:has(.fcn-login-unified) [data-testid="stImage"] {
+        min-height:clamp(110px,25vh,200px) !important;
     }
-    /* On narrow screens, skip the invisible image spacer so the PIN remains reachable. */
-    .stApp:has(.fcn-login-unified) [data-testid="stImage"] {display:none !important;}
+    .stApp:has(.fcn-login-unified) [data-testid="stImage"] img {
+        object-position:29% center !important;
+    }
+    .stApp:has(.fcn-login-unified) [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child [data-testid="stVerticalBlockBorderWrapper"] {
+        background:rgba(255,251,246,.97) !important;
+    }
 }
-</style>""", unsafe_allow_html=True)
+</style>
+""", unsafe_allow_html=True)
 
     left, right = st.columns([1.06, 0.94], gap="large", vertical_alignment="center")
     with left:
@@ -208,7 +224,7 @@ def gate(config: dict, app_mode: str = "demo", bank_approved: bool = False) -> N
         st.image(hero_image(), use_container_width=True)
     with right:
         with st.container(border=True):
-            st.markdown('''<div class="fcn-unified-heading"><span class="fcn-unified-eyebrow">FCN PORTFOLIO PRO · V8.5.7</span>
+            st.markdown('''<div class="fcn-unified-heading"><span class="fcn-unified-eyebrow">FCN PORTFOLIO PRO · V8.5.8</span>
 <h1>每一份投資，<br>都值得用心照看。</h1>
 <p>歡迎回到你的投資工作台</p></div>''', unsafe_allow_html=True)
             if mode == "demo":
