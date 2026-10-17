@@ -187,7 +187,7 @@ with st.sidebar:
         st.warning("**虛構資料 DEMO** · 沒有連接真實 Google Sheets", icon="🔒")
     else:
         st.caption("Google Sheets 服務帳號僅在伺服器端唯讀使用；不需在銀行電腦登入 Google")
-    page = st.radio("功能選單", ["🏠 投資總覽", "🧭 顧問工作台", "🔎 股票曝險", "👥 客戶投資", "📈 FCN 商品", "🧪 FCN 歷史試打", "📝 例外處理", "🛡️ 銀行驗收"], label_visibility="collapsed")
+    page = st.radio("功能選單", ["🧭 顧問工作台", "📈 FCN 商品", "🧪 FCN 歷史試打", "🔎 股票曝險", "🏠 投資總覽", "👥 客戶投資", "📝 例外處理", "🛡️ 銀行驗收"], index=0, label_visibility="collapsed")
     st.divider()
     st.caption("標準 HTTPS ｜ Microsoft Edge ｜ USD / EUR / JPY")
 
