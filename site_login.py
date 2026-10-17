@@ -99,6 +99,7 @@ def gate(config: dict, app_mode: str = "demo", bank_approved: bool = False) -> N
     # V8.5.6: one responsive layout, not independently positioned fragments.
     # Current warm_theme.py already embeds the original Shiba PNG and warm CSS.
     from warm_theme import hero_image
+    import base64
     st.markdown(r"""
 <style>
 /* Scoped to the PIN page. No absolute/fixed positions or dependence on assets/. */
@@ -162,13 +163,52 @@ def gate(config: dict, app_mode: str = "demo", bank_approved: bool = False) -> N
 <div class="fcn-login-unified" aria-hidden="true"></div>
 """, unsafe_allow_html=True)
 
+    # V8.5.7: full-bleed artwork in the entire login viewport, not a separate card.
+    # Keep the existing st.columns, heading and PIN form EXACTLY where they were.
+    # The old st.image stays in the document only as a layout spacer (visibility:hidden).
+    # The image source comes from warm_theme.hero_image(), which is embedded locally.
+    _full_page_shiba = base64.b64encode(hero_image()).decode("ascii")
+    st.markdown("""<style>
+.stApp:has(.fcn-login-unified) {
+    --fcn-shiba-art:url('data:image/png;base64,""" + _full_page_shiba + """');
+    background-image:
+        linear-gradient(90deg, rgba(250,246,239,0) 0%,
+            rgba(250,246,239,.02) 38%,
+            rgba(250,246,239,.60) 64%,
+            rgba(250,246,239,.88) 100%),
+        var(--fcn-shiba-art) !important;
+    background-position:left center !important;
+    background-size:cover !important;
+    background-repeat:no-repeat !important;
+    background-attachment:fixed !important;
+    min-height:100vh !important;
+}
+/* Keep the image element's intrinsic space to preserve the PIN card's coordinates. */
+.stApp:has(.fcn-login-unified) [data-testid="stImage"] img {
+    visibility:hidden !important;
+    box-shadow:none !important;
+}
+@media (max-width:750px) {
+    .stApp:has(.fcn-login-unified) {
+        background-position:23% center !important;
+        background-image:
+            linear-gradient(180deg,rgba(250,246,239,.08) 0%,
+                rgba(250,246,239,.42) 48%, rgba(250,246,239,.91) 100%),
+            var(--fcn-shiba-art) !important;
+        background-attachment:scroll !important;
+    }
+    /* On narrow screens, skip the invisible image spacer so the PIN remains reachable. */
+    .stApp:has(.fcn-login-unified) [data-testid="stImage"] {display:none !important;}
+}
+</style>""", unsafe_allow_html=True)
+
     left, right = st.columns([1.06, 0.94], gap="large", vertical_alignment="center")
     with left:
         # Native image element is INSIDE the same horizontal layout as the PIN card.
         st.image(hero_image(), use_container_width=True)
     with right:
         with st.container(border=True):
-            st.markdown('''<div class="fcn-unified-heading"><span class="fcn-unified-eyebrow">FCN PORTFOLIO PRO · V8.5.6</span>
+            st.markdown('''<div class="fcn-unified-heading"><span class="fcn-unified-eyebrow">FCN PORTFOLIO PRO · V8.5.7</span>
 <h1>每一份投資，<br>都值得用心照看。</h1>
 <p>歡迎回到你的投資工作台</p></div>''', unsafe_allow_html=True)
             if mode == "demo":
