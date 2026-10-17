@@ -18,6 +18,8 @@ from sheets_backend import SheetsReader, SheetConnectionError, validate_masked_p
 from site_login import gate, logout
 from demo_data import make_demo
 from advisor_analytics import summarize_portfolio, stock_exposures, rank_quality_issues
+from risk_monitor import active_product, parse_terms, market_risks
+from sheets_backend import sheet_id_from_url
 from chart_render import build_stock_chart
 from warm_theme import apply_theme
 
@@ -161,15 +163,65 @@ if page == "🧪 FCN 歷史試打":
     st.stop()
 
 if page == "🧭 顧問工作台":
-    st.subheader("今日商品風險與資料品質")
-    summary = summarize_portfolio(CUSTOMERS, HOLDINGS, PRODUCTS)
-    cols=st.columns(4)
-    for c,(label,value) in zip(cols,[('商品數',summary['products']),('持倉筆數',summary['holdings']),('待補來源',summary['missing_sources']),('需確認資料',summary['quality_flags'])]):
-        c.metric(label, str(value))
-    st.caption("風險排序只能根據已連線且有日期標記的行情計算；沒有最新價格就不提供假的 KI 距離。")
-    issues=rank_quality_issues(PRODUCTS, HOLDINGS)
-    if issues: st.dataframe(pd.DataFrame(issues),use_container_width=True,hide_index=True)
-    else: st.success("目前沒有可從唯讀資料推定的品質問題。")
+    st.subheader("🔔 FCN 比價與 KI 風險預警")
+    st.caption("只看執行中商品的真實日期行情。接近或低於 KI 水位，不等於合約已敲入；EKI/AKI 須依條款、觀察日及銀行確認。")
+    col_a,col_b=st.columns(2)
+    with col_a:
+        ahead=st.slider("即將觀察（天內）",min_value=7,max_value=60,value=30,step=1)
+    with col_b:
+        buffer=st.slider("接近 KI：距 KI 水位（百分點）",min_value=2,max_value=25,value=10,step=1)
+    today=dt.datetime.now(dt.timezone(dt.timedelta(hours=8))).date()
+    snapshots={}
+    held_ids={str(row.get('product_id') or '').strip() for row in HOLDINGS}
+    monitored=[product for product in PRODUCTS if product.get('product_id') in held_ids]
+    for product in monitored:
+        if not active_product(product):
+            continue
+        pid=product['product_id']
+        if MODE == 'demo':
+            chart, settings=demo_chart(pid)
+            terms={'ki':(settings or {}).get('ki'),'ki_type':'示範',
+                   'ko_start':(settings or {}).get('ko_start'),'period_ends':[],'final_eval':product.get('final_eval_date')}
+            snapshots[pid]=(chart,settings,terms)
+        elif product.get('source_url'):
+            chart, settings = pd.DataFrame(columns=['stock','date','ratio']), None
+            terms={}
+            try:
+                chart,settings=READER.product_chart(product)
+            except SheetConnectionError:
+                pass
+            sheet_id=sheet_id_from_url(product.get('source_url'))
+            if sheet_id:
+                try:
+                    terms=parse_terms(READER.read(sheet_id,"'商品條款'!A1:F42"))
+                except SheetConnectionError:
+                    pass
+            snapshots[pid]=(chart,settings,terms)
+    result=market_risks(monitored,DATA.get('coupons',[]),snapshots,today,
+                        days_ahead=ahead,ki_buffer_points=float(buffer))
+    metrics=st.columns(4)
+    for target,(label,value) in zip(metrics,[('低於 KI 水位',result['below']),
+                        ('接近 KI 水位',result['near']),('近期觀察期末商品',result['imminent']),
+                        ('有效標的行情數',result['market_count'])]):
+        target.metric(label,str(value))
+    if MODE == 'demo':
+        st.warning('此頁目前是虛構 DEMO 行情，不得視為真實商品預警。')
+    if result['alerts']:
+        st.dataframe(pd.DataFrame(result['alerts']),use_container_width=True,hide_index=True,
+                     column_config={"最新水位 %":st.column_config.NumberColumn(format="%.2f"),
+                                    "KI 水位 %":st.column_config.NumberColumn(format="%.2f"),
+                                    "距 KI 百分點":st.column_config.NumberColumn(format="%+.2f")})
+    else:
+        st.info('已取得的有效行情中，沒有符合目前篩選條件的市場預警；不代表所有持倉皆安全。')
+    st.caption('行情截至各列「行情日」，為日收盤比較值，不是即時盤中報價。配息期末日期僅供提醒，實際 KO／KI 比價日期及敲入條件須依合約核實。')
+    backlog=[p['product_id'] for p in monitored if not p.get('source_url')]
+    with st.expander(f"📁 產品資料待補（{len(backlog)} 檔；不是市場風險警報）",expanded=False):
+        st.write('這些持倉已建檔，但尚缺商品說明書或完整條款。無法算 KI 距離時不會假設門檻或價格。')
+        st.write('、'.join(sorted(backlog)) if backlog else '目前沒有待補商品檔。')
+    if result['pending'] or result['stale']:
+        with st.expander('📅 行情尚未連線或已過期（另列，不併入市場風險）',expanded=False):
+            if result['pending']: st.write('無法取得必要價格／條款：'+'、'.join(result['pending']))
+            if result['stale']: st.write('行情超過 7 天或無效：'+'、'.join(result['stale']))
 elif page == "🔎 股票曝險":
     st.subheader("股票曝險搜尋")
     st.caption("從現有授權 FCN Chart 分析標的關聯；只有已授權來源才會列入，結果不包含未連線商品。")

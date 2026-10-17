@@ -96,50 +96,36 @@ def gate(config: dict, app_mode: str = "demo", bank_approved: bool = False) -> N
 
     limit = limiter()
 
-    # Two-pane login: the Shiba illustration stays separate from form text.
-    # This UI-only change does not alter PIN checks, lockout, or session expiry.
-    from warm_theme import login_intro, login_visual
+    # Original V8.1 lucky-Shiba full-page background; the PIN logic below is unchanged.
+    from warm_theme import login_intro
     login_intro()
-    illustration, sign_in = st.columns([1.08, .92], gap="large", vertical_alignment="center")
-    with illustration:
-        login_visual()
-    with sign_in:
-        with st.container(border=True):
-            st.markdown(
-                '<div class="fcn-login-card-head">'
-                '<div class="fcn-login-kicker">安全登入 · PRIVATE WORKSPACE</div>'
-                '<h1>🔒 FCN Portfolio Pro</h1>'
-                '<p>輸入六位數 PIN，即可進入投資工作台。<br>'
-                '不需要在瀏覽器登入 Google 帳號。</p></div>',
-                unsafe_allow_html=True,
-            )
-            if mode == "demo":
-                st.info("目前為虛構資料展示模式，不含真實客戶資料。")
-            elif mode == "diagnostic":
-                st.info("登入後只檢查試算表欄位，不顯示投資資料。")
-            else:
-                st.caption("資料由網站伺服器從私人 Google Sheets 唯讀取得。")
+    if mode == "demo":
+        st.info("目前為虛構資料展示模式，不含真實客戶資料。")
+    elif mode == "diagnostic":
+        st.info("登入後只檢查試算表欄位，不顯示投資資料。")
+    else:
+        st.caption("資料由網站伺服器從私人 Google Sheets 唯讀取得。")
 
-            remaining = limit.blocked()
-            if remaining:
-                st.error(f"輸入錯誤次數過多，請約 {max(1, (remaining + 59) // 60)} 分鐘後再試。")
-                st.stop()
+    remaining = limit.blocked()
+    if remaining:
+        st.error(f"輸入錯誤次數過多，請約 {max(1, (remaining + 59) // 60)} 分鐘後再試。")
+        st.stop()
 
-            with st.form("fcn_pin_login", clear_on_submit=True):
-                candidate = st.text_input(
-                    "6 位數字 PIN", type="password", max_chars=6,
-                    placeholder="請輸入 6 位數字"
-                )
-                submitted = st.form_submit_button("登入 FCN Portfolio Pro", type="primary", use_container_width=True)
+    with st.form("fcn_pin_login", clear_on_submit=True):
+        candidate = st.text_input(
+            "6 位數字 PIN", type="password", max_chars=6,
+            placeholder="請輸入 6 位數字"
+        )
+        submitted = st.form_submit_button("登入 FCN Portfolio Pro", type="primary", use_container_width=True)
 
-            if submitted:
-                valid = pin_matches(candidate, pin)
-                limit.record(valid)
-                if valid:
-                    st.session_state["fcn_authorized_session"] = fingerprint
-                    st.session_state["fcn_last_activity"] = time.monotonic()
-                    st.rerun()
-                st.error("PIN 不正確，請重新輸入。")
+    if submitted:
+        valid = pin_matches(candidate, pin)
+        limit.record(valid)
+        if valid:
+            st.session_state["fcn_authorized_session"] = fingerprint
+            st.session_state["fcn_last_activity"] = time.monotonic()
+            st.rerun()
+        st.error("PIN 不正確，請重新輸入。")
     st.stop()
 
 

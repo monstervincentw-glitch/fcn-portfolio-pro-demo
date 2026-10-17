@@ -89,117 +89,69 @@ def apply_theme() -> None:
 
 
 LOGIN_LAYOUT_CSS = r"""
-/* Login-only layout.  Never change the dashboard/page after PIN authorization. */
-.stApp:has(.fcn-login-marker) { background: #faf5ed !important; }
+/* V8.1 original: full-page lucky Shiba artwork, not an image card. */
+.stApp:has(.fcn-login-marker) section[data-testid="stSidebar"] { display:none !important; }
+.stApp:has(.fcn-login-marker) { background-color:#faf3e8 !important; }
 .stApp:has(.fcn-login-marker) .block-container {
-    max-width: 1280px !important;
-    padding: clamp(3.3rem, 6vh, 5.1rem) 2.3rem 3rem !important;
-    min-height: 100vh;
+    box-sizing:border-box; width:min(100%, 580px) !important; max-width:580px !important;
+    margin-left:auto !important; margin-right:clamp(16px,5vw,100px) !important;
+    padding:clamp(5rem,12vh,9rem) 20px 2.5rem !important;
+    min-height:100vh !important;
 }
-.stApp:has(.fcn-login-marker) section[data-testid="stSidebar"] { display: none !important; }
-.stApp:has(.fcn-login-marker) .fcn-login-marker { display: none !important; }
-.stApp:has(.fcn-login-marker) .fcn-login-hero {
-    width: 100%; min-height: min(72vh, 680px);
-    position: relative; display: flex; flex-direction: column;
-    justify-content: space-between; overflow: hidden;
-    border-radius: 28px; padding: 25px 28px 32px;
-    background-position: center 42%; background-size: cover;
-    box-shadow: 0 22px 55px rgba(78,49,22,.13);
+.stApp:has(.fcn-login-marker) .fcn-login-marker { display:none !important; }
+.stApp:has(.fcn-login-marker) .fcn-login-heading {
+    padding:20px 22px 12px; border-radius:20px;
+    background:rgba(255,251,244,.84); backdrop-filter:blur(8px);
+    box-shadow:0 12px 45px rgba(115,81,42,.09);
+    margin-bottom:17px !important;
 }
-.stApp:has(.fcn-login-marker) .fcn-login-hero__badge {
-    display: inline-block; max-width: fit-content;
-    color: #654521; background: rgba(255,250,239,.90);
-    font-weight: 800; letter-spacing: .13em; font-size: .71rem;
-    border-radius: 999px; padding: .55rem .95rem;
+.stApp:has(.fcn-login-marker) .fcn-login-heading .fcn-eyebrow {
+    display:block; letter-spacing:.14em; font-size:.70rem; color:#876133 !important; margin-bottom:12px;
 }
-.stApp:has(.fcn-login-marker) .fcn-login-hero__message {
-    background: rgba(61,39,21,.75); color:#fffdf8 !important;
-    border-radius: 18px; padding: 18px 20px; max-width: 440px;
-    backdrop-filter: blur(7px);
+.stApp:has(.fcn-login-marker) .fcn-login-heading h1 {
+    color:#4a3525 !important; font-size:clamp(1.55rem,2.7vw,2.4rem) !important;
+    line-height:1.37 !important; margin:0 0 12px !important; font-weight:800 !important;
 }
-.stApp:has(.fcn-login-marker) .fcn-login-hero__message h2 {
-    margin:0 !important; color:#fffdf8 !important;
-    font-size:clamp(1.45rem,2.15vw,2.15rem) !important;
-    line-height:1.43 !important; letter-spacing:.015em;
-}
-.stApp:has(.fcn-login-marker) .fcn-login-hero__message p {
-    color:#ffedcf !important; font-size:.93rem !important;
-    line-height:1.5; margin:.52rem 0 0;
-}
-.stApp:has(.fcn-login-marker) [data-testid="stVerticalBlockBorderWrapper"]:has(.fcn-login-card-head) {
-    background: rgba(255,253,249,.99) !important;
-    border: 1px solid #e9d8bd !important;
-    border-radius: 23px !important;
-    padding: clamp(14px, 2.6vw, 28px) !important;
-    box-shadow: 0 18px 48px rgba(94,62,25,.08) !important;
-}
-.stApp:has(.fcn-login-marker) .fcn-login-card-head { margin-bottom: 5px; }
-.stApp:has(.fcn-login-marker) .fcn-login-card-head .fcn-login-kicker {
-    color:#9b6a2d; letter-spacing:.17em; font-size:.72rem;
-    font-weight:800; margin-bottom:14px;
-}
-.stApp:has(.fcn-login-marker) .fcn-login-card-head h1 {
-    margin:0 !important; color:#503920 !important;
-    font-size:clamp(1.55rem,2.4vw,2.17rem) !important;
-    line-height:1.36 !important; font-weight:800;
-}
-.stApp:has(.fcn-login-marker) .fcn-login-card-head p {
-    color:#7e6b55 !important; margin:.8rem 0 .45rem;
-    font-size:.93rem !important; line-height:1.7;
-}
+.stApp:has(.fcn-login-marker) .fcn-login-heading p { color:#6e5338 !important; font-size:.98rem !important; margin:0 !important; }
 .stApp:has(.fcn-login-marker) [data-testid="stForm"] {
-    box-shadow:none !important; background:transparent !important;
-    border:0 !important; padding:0 !important;
+    background:rgba(255,253,250,.96) !important; border:1px solid #e8d6b9 !important;
+    box-shadow:0 15px 52px rgba(115,81,42,.13) !important;
+    border-radius:20px !important; padding:22px 25px !important;
 }
 .stApp:has(.fcn-login-marker) [data-testid="stFormSubmitButton"] button {
-    width:100%; min-height:46px; border-radius:12px !important;
-    background:#956526 !important; border-color:#956526 !important;
-    color:white !important; font-weight:750;
+    background:#946328 !important; border-color:#946328 !important; color:#fff !important;
+    border-radius:11px !important; min-height:45px;
 }
-.stApp:has(.fcn-login-marker) [data-testid="stFormSubmitButton"] button:hover {
-    background:#754d1c !important; border-color:#754d1c !important;
-}
-.stApp:has(.fcn-login-marker) [data-testid="stAlert"] {
-    border-radius:12px !important; padding: .65rem .8rem !important;
-}
-@media(max-width:900px) {
-    .stApp:has(.fcn-login-marker) .block-container { padding:3.1rem 1.1rem 2rem !important; }
-    .stApp:has(.fcn-login-marker) .fcn-login-hero {
-        min-height:300px; background-position:center 35%; padding:16px 18px;
-        border-radius:19px;
+.stApp:has(.fcn-login-marker) [data-testid="stFormSubmitButton"] button:hover { background:#775022 !important; }
+.stApp:has(.fcn-login-marker) [data-testid="stAlert"] { background:rgba(255,250,240,.96) !important; border-radius:13px !important; }
+/* Show entire Shiba artwork on top of narrow screens, with PIN below. */
+@media(max-width:800px) {
+    .stApp:has(.fcn-login-marker) { background-size:100% auto !important; background-position:center 3rem !important; background-repeat:no-repeat !important; }
+    .stApp:has(.fcn-login-marker) .block-container {
+        margin:0 auto !important; max-width:600px !important; width:100% !important;
+        padding:clamp(255px,53vw,410px) 15px 35px !important; min-height:100vh !important;
     }
-    .stApp:has(.fcn-login-marker) .fcn-login-hero__message {max-width:380px;padding:12px 14px;}
-    .stApp:has(.fcn-login-marker) .fcn-login-hero__message h2 {font-size:1.35rem !important;}
-}
-@media(max-width:530px) {
-    .stApp:has(.fcn-login-marker) .block-container { padding:2.9rem .75rem 1.5rem !important; }
-    .stApp:has(.fcn-login-marker) .fcn-login-hero { min-height:215px; }
-    .stApp:has(.fcn-login-marker) .fcn-login-hero__badge { font-size:.56rem; padding:.35rem .55rem; }
-    .stApp:has(.fcn-login-marker) .fcn-login-hero__message { max-width:92%; padding:10px 12px; }
-    .stApp:has(.fcn-login-marker) .fcn-login-hero__message h2 {font-size:1.12rem !important;}
-    .stApp:has(.fcn-login-marker) .fcn-login-hero__message p {font-size:.74rem !important;}
+    .stApp:has(.fcn-login-marker) .fcn-login-heading h1 { font-size:1.5rem !important; }
+    .stApp:has(.fcn-login-marker) [data-testid="stForm"] { padding:18px !important; }
 }
 """
 
 
 def login_intro() -> None:
-    """Register scoped responsive styles without adding extra login headings."""
+    """Restore the original V8.1 full-bleed lucky-Shiba login (not a two-column card)."""
     import streamlit as st
     st.markdown('<span class="fcn-login-marker" aria-hidden="true"></span>', unsafe_allow_html=True)
-    st.markdown('<style>' + LOGIN_LAYOUT_CSS + '</style>', unsafe_allow_html=True)
-
-
-def login_visual() -> None:
-    """Draw the standalone decorative Shiba panel beside the actual PIN form."""
-    import streamlit as st
     st.markdown(
-        '<div class="fcn-login-hero" style="background-image:'
-        'linear-gradient(180deg,rgba(255,248,231,.12) 0%,rgba(56,36,15,.03) 58%,rgba(56,36,15,.12) 100%),'
-        'url(\'' + hero_uri() + '\')">'
-        '<span class="fcn-login-hero__badge">FCN PORTFOLIO PRO · V8.5</span>'
-        '<div class="fcn-login-hero__message"><h2>每一份投資，<br>都值得用心照看。</h2>'
-        '<p>歡迎回到你的投資工作台</p></div></div>',
-        unsafe_allow_html=True,
+        "<style>"
+        + '.stApp:has(.fcn-login-marker){background-image:linear-gradient(90deg,rgba(250,246,239,.02) 28%,rgba(250,246,239,.22) 60%,rgba(250,246,239,.45)),url("'
+        + hero_uri()
+        + '") !important;background-size:cover;background-position:left center;background-attachment:fixed;background-repeat:no-repeat;}'
+        + LOGIN_LAYOUT_CSS + "</style>", unsafe_allow_html=True
+    )
+    st.markdown(
+        '<div class="fcn-login-heading"><span class="fcn-eyebrow">FCN PORTFOLIO PRO · V8.1 經典柴犬版</span>'
+        '<h1>每一份投資，<br>都值得用心照看。</h1>'
+        '<p>歡迎回到你的投資工作台</p></div>', unsafe_allow_html=True
     )
 
 
