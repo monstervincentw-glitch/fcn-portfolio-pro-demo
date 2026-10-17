@@ -57,40 +57,6 @@ button[kind="primary"]:hover,button[kind="primaryFormSubmit"]:hover {
   .block-container { padding-top:1.7rem !important; }
 }
 
-/* Keep title comfortably below the browser header on the Shiba login page. */
-.stApp:has(.fcn-login-marker) .block-container {
-  padding-top:clamp(5.5rem,11vh,8rem) !important;
-  padding-bottom:3.4rem !important;
-  min-height:100vh !important;
-}
-.stApp:has(.fcn-login-marker) .fcn-login-heading { margin-top:5px !important; margin-bottom:20px !important; }
-.stApp:has(.fcn-login-marker) .fcn-login-heading .fcn-eyebrow {
-  margin-bottom:13px !important; padding-top:3px !important; letter-spacing:.14em;
-}
-.stApp:has(.fcn-login-marker) .fcn-login-heading h1 {
-  font-size:clamp(1.8rem,3vw,2.7rem) !important; line-height:1.38 !important;
-}
-.stApp:has(.fcn-login-marker) [data-testid="stForm"] {
-  padding:25px 29px !important;
-  border:1px solid rgba(224,204,175,.9) !important;
-  box-shadow:0 18px 55px rgba(112,75,29,.13) !important;
-}
-.stApp:has(.fcn-login-marker) [data-testid="stAlert"] {
-  background:#F7E9D1 !important; color:#705126 !important;
-  border:1px solid #E7CCA0 !important; border-radius:13px !important;
-}
-.stApp:has(.fcn-login-marker) [data-testid="stAlert"] * { color:inherit !important; }
-
-/* Smaller screens: do not force desktop sidebar or push the form off-screen. */
-@media (max-width:900px) {
-  .stApp:has(.fcn-login-marker) .block-container { padding:40vh 5% 3.5rem !important; }
-  .stApp:has(.fcn-login-marker) [data-testid="stForm"] { padding:20px !important; }
-}
-@media (max-width:540px) {
-  .stApp:has(.fcn-login-marker) .block-container { padding-top:39vh !important; }
-  .stApp:has(.fcn-login-marker) .fcn-login-heading h1 { font-size:1.48rem !important; }
-  .fcn-banner { padding:14px 18px !important; }
-}
 @media (prefers-reduced-motion:reduce) { * { animation:none !important; transition:none !important; } }
 """
 
@@ -122,14 +88,119 @@ def apply_theme() -> None:
     st.markdown("<style>" + css + "\n" + POLISH_CSS + "</style>", unsafe_allow_html=True)
 
 
+LOGIN_LAYOUT_CSS = r"""
+/* Login-only layout.  Never change the dashboard/page after PIN authorization. */
+.stApp:has(.fcn-login-marker) { background: #faf5ed !important; }
+.stApp:has(.fcn-login-marker) .block-container {
+    max-width: 1280px !important;
+    padding: clamp(3.3rem, 6vh, 5.1rem) 2.3rem 3rem !important;
+    min-height: 100vh;
+}
+.stApp:has(.fcn-login-marker) section[data-testid="stSidebar"] { display: none !important; }
+.stApp:has(.fcn-login-marker) .fcn-login-marker { display: none !important; }
+.stApp:has(.fcn-login-marker) .fcn-login-hero {
+    width: 100%; min-height: min(72vh, 680px);
+    position: relative; display: flex; flex-direction: column;
+    justify-content: space-between; overflow: hidden;
+    border-radius: 28px; padding: 25px 28px 32px;
+    background-position: center 42%; background-size: cover;
+    box-shadow: 0 22px 55px rgba(78,49,22,.13);
+}
+.stApp:has(.fcn-login-marker) .fcn-login-hero__badge {
+    display: inline-block; max-width: fit-content;
+    color: #654521; background: rgba(255,250,239,.90);
+    font-weight: 800; letter-spacing: .13em; font-size: .71rem;
+    border-radius: 999px; padding: .55rem .95rem;
+}
+.stApp:has(.fcn-login-marker) .fcn-login-hero__message {
+    background: rgba(61,39,21,.75); color:#fffdf8 !important;
+    border-radius: 18px; padding: 18px 20px; max-width: 440px;
+    backdrop-filter: blur(7px);
+}
+.stApp:has(.fcn-login-marker) .fcn-login-hero__message h2 {
+    margin:0 !important; color:#fffdf8 !important;
+    font-size:clamp(1.45rem,2.15vw,2.15rem) !important;
+    line-height:1.43 !important; letter-spacing:.015em;
+}
+.stApp:has(.fcn-login-marker) .fcn-login-hero__message p {
+    color:#ffedcf !important; font-size:.93rem !important;
+    line-height:1.5; margin:.52rem 0 0;
+}
+.stApp:has(.fcn-login-marker) [data-testid="stVerticalBlockBorderWrapper"]:has(.fcn-login-card-head) {
+    background: rgba(255,253,249,.99) !important;
+    border: 1px solid #e9d8bd !important;
+    border-radius: 23px !important;
+    padding: clamp(14px, 2.6vw, 28px) !important;
+    box-shadow: 0 18px 48px rgba(94,62,25,.08) !important;
+}
+.stApp:has(.fcn-login-marker) .fcn-login-card-head { margin-bottom: 5px; }
+.stApp:has(.fcn-login-marker) .fcn-login-card-head .fcn-login-kicker {
+    color:#9b6a2d; letter-spacing:.17em; font-size:.72rem;
+    font-weight:800; margin-bottom:14px;
+}
+.stApp:has(.fcn-login-marker) .fcn-login-card-head h1 {
+    margin:0 !important; color:#503920 !important;
+    font-size:clamp(1.55rem,2.4vw,2.17rem) !important;
+    line-height:1.36 !important; font-weight:800;
+}
+.stApp:has(.fcn-login-marker) .fcn-login-card-head p {
+    color:#7e6b55 !important; margin:.8rem 0 .45rem;
+    font-size:.93rem !important; line-height:1.7;
+}
+.stApp:has(.fcn-login-marker) [data-testid="stForm"] {
+    box-shadow:none !important; background:transparent !important;
+    border:0 !important; padding:0 !important;
+}
+.stApp:has(.fcn-login-marker) [data-testid="stFormSubmitButton"] button {
+    width:100%; min-height:46px; border-radius:12px !important;
+    background:#956526 !important; border-color:#956526 !important;
+    color:white !important; font-weight:750;
+}
+.stApp:has(.fcn-login-marker) [data-testid="stFormSubmitButton"] button:hover {
+    background:#754d1c !important; border-color:#754d1c !important;
+}
+.stApp:has(.fcn-login-marker) [data-testid="stAlert"] {
+    border-radius:12px !important; padding: .65rem .8rem !important;
+}
+@media(max-width:900px) {
+    .stApp:has(.fcn-login-marker) .block-container { padding:3.1rem 1.1rem 2rem !important; }
+    .stApp:has(.fcn-login-marker) .fcn-login-hero {
+        min-height:300px; background-position:center 35%; padding:16px 18px;
+        border-radius:19px;
+    }
+    .stApp:has(.fcn-login-marker) .fcn-login-hero__message {max-width:380px;padding:12px 14px;}
+    .stApp:has(.fcn-login-marker) .fcn-login-hero__message h2 {font-size:1.35rem !important;}
+}
+@media(max-width:530px) {
+    .stApp:has(.fcn-login-marker) .block-container { padding:2.9rem .75rem 1.5rem !important; }
+    .stApp:has(.fcn-login-marker) .fcn-login-hero { min-height:215px; }
+    .stApp:has(.fcn-login-marker) .fcn-login-hero__badge { font-size:.56rem; padding:.35rem .55rem; }
+    .stApp:has(.fcn-login-marker) .fcn-login-hero__message { max-width:92%; padding:10px 12px; }
+    .stApp:has(.fcn-login-marker) .fcn-login-hero__message h2 {font-size:1.12rem !important;}
+    .stApp:has(.fcn-login-marker) .fcn-login-hero__message p {font-size:.74rem !important;}
+}
+"""
+
+
 def login_intro() -> None:
+    """Register scoped responsive styles without adding extra login headings."""
     import streamlit as st
-    st.markdown('<span class="fcn-login-marker"></span>', unsafe_allow_html=True)
-    st.markdown("<style>.stApp:has(.fcn-login-marker){background-image:linear-gradient(90deg,transparent 35%,rgba(250,246,239,.18) 65%,rgba(250,246,239,.45)),url('"
-                + hero_uri() + "');background-size:cover;background-position:left center;background-attachment:fixed}</style>", unsafe_allow_html=True)
-    st.markdown('<div class="fcn-login-heading"><span class="fcn-eyebrow">FCN PORTFOLIO PRO · V8.1</span>'
-                '<h1>每一份投資，<br>都值得用心照看。</h1>'
-                '<p>歡迎回到你的投資工作台</p></div>', unsafe_allow_html=True)
+    st.markdown('<span class="fcn-login-marker" aria-hidden="true"></span>', unsafe_allow_html=True)
+    st.markdown('<style>' + LOGIN_LAYOUT_CSS + '</style>', unsafe_allow_html=True)
+
+
+def login_visual() -> None:
+    """Draw the standalone decorative Shiba panel beside the actual PIN form."""
+    import streamlit as st
+    st.markdown(
+        '<div class="fcn-login-hero" style="background-image:'
+        'linear-gradient(180deg,rgba(255,248,231,.12) 0%,rgba(56,36,15,.03) 58%,rgba(56,36,15,.12) 100%),'
+        'url(\'' + hero_uri() + '\')">'
+        '<span class="fcn-login-hero__badge">FCN PORTFOLIO PRO · V8.5</span>'
+        '<div class="fcn-login-hero__message"><h2>每一份投資，<br>都值得用心照看。</h2>'
+        '<p>歡迎回到你的投資工作台</p></div></div>',
+        unsafe_allow_html=True,
+    )
 
 
 def page_intro(title: str, subtitle: str, eyebrow: str = "PORTFOLIO WORKSPACE") -> None:

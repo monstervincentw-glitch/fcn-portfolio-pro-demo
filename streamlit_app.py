@@ -19,7 +19,7 @@ from site_login import gate, logout
 from demo_data import make_demo
 from advisor_analytics import summarize_portfolio, stock_exposures, rank_quality_issues
 from chart_render import build_stock_chart
-from warm_theme import apply_theme, login_intro
+from warm_theme import apply_theme
 
 st.set_page_config(page_title="FCN Portfolio Pro｜正式整合版", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
 st.markdown("""<style>
@@ -70,7 +70,6 @@ def section(name):
         # Do not expose an unprotected DEMO when Secrets are absent.
         return {}
 
-login_intro() if "fcn_authorized_session" not in st.session_state else None
 gate(section("site_login"), section("app").get("mode", "demo"),
      bank_approved=section("app").get("bank_approved") is True)  # PIN before ANY Sheets read.
 
