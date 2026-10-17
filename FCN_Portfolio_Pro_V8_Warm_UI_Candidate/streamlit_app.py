@@ -263,6 +263,7 @@ elif page=="📈 FCN 商品":
         elif p.get("source_url"):
             st.caption("原始 Chart 已嵌入上方，不需要銀行電腦開啟 Google Sheets。")
 elif page=="🧪 虛擬試打":
+    from market_trial_page import render_market_trial; render_market_trial(); st.stop()
     st.markdown('<div class="fcn-section"><span class="fcn-eyebrow">SCENARIO STUDIO</span><strong>FCN 虛擬試打</strong><p>設定條款，探索歷史情境下的走勢與模型結果。</p></div>', unsafe_allow_html=True)
     st.info("以通用最終 V2 的最多 5 檔、月配息、閉鎖期、KO / KI / Strike 架構建模。"
             "不寫入 Google Sheets、不新增客戶持倉；價格僅取自已授權商品 Chart，並非即時報價。")
