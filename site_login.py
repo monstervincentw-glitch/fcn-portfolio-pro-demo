@@ -97,6 +97,7 @@ def gate(config: dict, app_mode: str = "demo", bank_approved: bool = False) -> N
     limit = limiter()
 
     # Original V8.1 lucky-Shiba full-page background; the PIN logic below is unchanged.
+    st.caption("版本 V8.5.5 · 正式修復版")
     from warm_theme import login_intro
     login_intro()
     if mode == "demo":
@@ -134,3 +135,4 @@ def logout() -> None:
     st.session_state.pop("fcn_authorized_session", None)
     st.session_state.pop("fcn_last_activity", None)
     st.rerun()
+

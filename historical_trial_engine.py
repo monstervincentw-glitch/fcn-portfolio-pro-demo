@@ -291,3 +291,4 @@ def simulate_history(prices: pd.DataFrame, params: TrialInputs, as_of=None) -> d
         "ko_start":(_first_from(panel.index,ko_observation_start,max_days=7) or ko_observation_start).date(),
         "chart":price_records,"coupon_steps":coupon_steps,"observations":observations,
     }
+

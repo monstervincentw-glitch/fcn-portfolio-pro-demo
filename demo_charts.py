@@ -185,3 +185,4 @@ def chart_sheet_rows(rows: Sequence[Sequence]):
     if not records:
         return empty, None
     return pd.DataFrame(records), {"ko": ko, "strike": strike, "ki": ki, "ko_start": ko_start}
+

@@ -343,3 +343,4 @@ if __name__ == "__main__":
     except Exception as exc:
         print(f"FCN price update FAILED: {exc}", file=sys.stderr)
         sys.exit(1)
+

@@ -11,6 +11,9 @@ from datetime import date, datetime, timedelta
 from math import isfinite
 from typing import Any
 import pandas as pd
+import re
+import unicodedata
+from demo_utils import is_active_product
 
 
 def _day(x: Any) -> date | None:
@@ -43,13 +46,7 @@ def _pct(x: Any) -> float | None:
 
 
 def active_product(product: dict) -> bool:
-    state = str(product.get("model_state") or "")
-    group = str(product.get("monitor_group") or "")
-    if any(s in state for s in ("已提前KO", "已到期", "結束", "已贖回")):
-        return False
-    if any(s in group for s in ("歷史歸檔", "結束後", "條款待建檔")):
-        return False
-    return "執行中" in state or "持續監控" in group or "日常監控" in group
+    return is_active_product(product)
 
 
 def parse_terms(rows: list[list] | None) -> dict:
@@ -62,13 +59,13 @@ def parse_terms(rows: list[list] | None) -> dict:
     for row in rows:
         if not row:
             continue
-        key = str(row[0] or "").strip()
+        key = re.sub(r"\s+", "", unicodedata.normalize("NFKC", str(row[0] or ""))).upper()
         val = row[1] if len(row) > 1 else None
-        if "KI 門檻" in key:
+        if any(label in key for label in ("KI門檻", "KI水位", "KI障礙")):
             result["ki"] = _pct(val)
-        elif "KI 類型" in key:
+        elif "KI類型" in key:
             result["ki_type"] = str(val or "未記載").strip()
-        elif "KO 開始觀察日" in key:
+        elif "KO開始觀察日" in key:
             result["ko_start"] = _day(val)
         elif "期末評價日" in key:
             result["final_eval"] = _day(val)
@@ -111,6 +108,8 @@ def market_risks(products: list[dict], coupons: list[dict], snapshots: dict,
     warnings = []
     pending = []
     stale = []
+    missing_ki = []
+    observations = []
     market_count = 0
     for product in products:
         pid = str(product.get("product_id") or "").strip()
@@ -126,12 +125,19 @@ def market_risks(products: list[dict], coupons: list[dict], snapshots: dict,
         days = (obs_day-today).days if obs_day else None
         upcoming = days is not None and 0 <= days <= days_ahead
         ki_type = str(terms.get("ki_type") or "未記載")
-        # KI is monitored only if contract explicitly identifies an EKI/AKI type.
-        # A chart's decorative KI line alone is insufficient to assert a trigger.
-        ki = (terms.get("ki") if terms.get("ki") is not None else settings.get("ki")) if ki_type.upper() in {"EKI", "AKI"} else None
+        # Display observed barrier distance even when contractual trigger type is unknown.
+        # This is a level comparison, never a determination that KI has triggered.
+        ki = terms.get("ki") if terms.get("ki") is not None else settings.get("ki")
+        ki_source = "商品條款" if terms.get("ki") is not None else "Chart 水位（條款待核對）"
+        type_key = re.sub(r"[\s_-]+", "", unicodedata.normalize("NFKC", ki_type)).upper()
+        no_ki = type_key in {"NONKI", "NOKI", "無KI", "無敲入"}
+        if no_ki:
+            ki = None
         if ki is not None:
             try:
                 ki = float(ki)
+                if not isfinite(ki) or ki <= 0:
+                    ki = None
             except (TypeError, ValueError):
                 ki = None
         if chart is None or chart.empty:
@@ -161,6 +167,13 @@ def market_risks(products: list[dict], coupons: list[dict], snapshots: dict,
                 continue
             market_count+=1
             gap=ratio-ki if ki is not None and ki>0 else None
+            if gap is None and not no_ki:
+                missing_ki.append(f"{pid}/{symbol}")
+            observation={"FCN":pid,"標的":symbol,"行情日":d.isoformat(),
+                         "最新水位 %":round(ratio,2),"KI 水位 %":round(ki,2) if ki is not None else None,
+                         "距 KI 百分點":round(gap,2) if gap is not None else None,
+                         "KI 類型":ki_type,"KI 來源":ki_source if ki is not None else ("不適用（無 KI 條款）" if no_ki else "未取得")}
+            observations.append(observation)
             if gap is not None and gap<=0:
                 status="低於 KI 水位（不代表已觸發 KI）";rank=0
             elif gap is not None and gap<=ki_buffer_points:
@@ -174,7 +187,7 @@ def market_risks(products: list[dict], coupons: list[dict], snapshots: dict,
                              "距 KI 百分點":round(gap,2) if gap is not None else None,
                              "下次觀察期末":str(obs_day) if obs_day else "—",
                              "距觀察期末(天)":days,"預警":status,
-                             "說明":(obs_note+"；" if obs_note else "")+f"KI類型：{ki_type}", "_rank":rank})
+                             "說明":(obs_note+"；" if obs_note else "")+f"KI類型：{ki_type}；來源：{ki_source}；僅比較水位，不判定敲入", "_rank":rank})
     warnings.sort(key=lambda r:(r["_rank"],r["距 KI 百分點"] if r["距 KI 百分點"] is not None else 999,
                                 r["距觀察期末(天)"] if r["距觀察期末(天)"] is not None else 999,r["FCN"]))
     below=sum(x["_rank"]==0 for x in warnings)
@@ -183,4 +196,6 @@ def market_risks(products: list[dict], coupons: list[dict], snapshots: dict,
     for r in warnings:
         r.pop("_rank",None)
     return {"alerts":warnings,"below":below,"near":near,"imminent":imminent,
-            "market_count":market_count,"pending":sorted(set(pending)),"stale":sorted(set(stale))}
+            "market_count":market_count,"pending":sorted(set(pending)),"stale":sorted(set(stale)),
+            "missing_ki":sorted(set(missing_ki)),"observations":observations}
+

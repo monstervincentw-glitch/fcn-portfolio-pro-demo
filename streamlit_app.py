@@ -21,9 +21,9 @@ from advisor_analytics import summarize_portfolio, stock_exposures, rank_quality
 from risk_monitor import active_product, parse_terms, market_risks
 from sheets_backend import sheet_id_from_url
 from chart_render import build_stock_chart
-from warm_theme import apply_theme
+from warm_theme import apply_theme, style_chart
 
-st.set_page_config(page_title="FCN Portfolio Pro｜正式整合版", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="FCN Portfolio Pro｜V8.5.5 修復版", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
 st.markdown("""<style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700&display=swap');
 :root{--fcn-ink:#1b3045;--fcn-muted:#62798d;--fcn-border:#e0e8ef;--fcn-navy:#132c43;--fcn-teal:#0b7885;--fcn-bg:#f5f8fb}
@@ -140,6 +140,7 @@ def display_status(raw):
 
 with st.sidebar:
     st.markdown("### ◈ FCN Portfolio Pro")
+    st.caption("V8.5.5 · 正式修復版")
     st.caption("銀行 Edge 專用 · " + ("私人資料唯讀模式" if MODE == "live" else "相容性驗收版"))
     st.success("🔒 6 位數 PIN 已驗證 · 唯讀模式" if MODE != "demo" else "🔒 6 位數 PIN 已驗證 · 虛構資料 DEMO")
     st.button("安全登出", on_click=logout, use_container_width=True)
@@ -193,7 +194,7 @@ if page == "🧭 顧問工作台":
             sheet_id=sheet_id_from_url(product.get('source_url'))
             if sheet_id:
                 try:
-                    terms=parse_terms(READER.read(sheet_id,"'商品條款'!A1:F42"))
+                    terms=parse_terms(READER.read(sheet_id,"'商品條款'!A1:F100"))
                 except SheetConnectionError:
                     pass
             snapshots[pid]=(chart,settings,terms)
@@ -218,6 +219,10 @@ if page == "🧭 顧問工作台":
     with st.expander(f"📁 產品資料待補（{len(backlog)} 檔；不是市場風險警報）",expanded=False):
         st.write('這些持倉已建檔，但尚缺商品說明書或完整條款。無法算 KI 距離時不會假設門檻或價格。')
         st.write('、'.join(sorted(backlog)) if backlog else '目前沒有待補商品檔。')
+    if result["missing_ki"]:
+        st.warning("以下標的未取得有效 KI 水位，未納入 KI 距離統計：" + "、".join(result["missing_ki"]))
+    with st.expander("全部有效行情與 KI 距離", expanded=False):
+        st.dataframe(pd.DataFrame(result["observations"]), use_container_width=True, hide_index=True)
     if result['pending'] or result['stale']:
         with st.expander('📅 行情尚未連線或已過期（另列，不併入市場風險）',expanded=False):
             if result['pending']: st.write('無法取得必要價格／條款：'+'、'.join(result['pending']))
@@ -291,14 +296,14 @@ elif page in ("🏠 投資總覽","👥 客戶投資"):
             else:
                 st.info("這檔 FCN 尚無可計算的合約配息期，不能將空白當成已領取 0 元。")
 elif page=="📈 FCN 商品":
-    st.markdown('<div class="fcn-section"><strong>跨客戶 FCN 商品監控</strong><p>以商品代號搜尋，或切換監控、待建檔與歷史歸檔</p></div>', unsafe_allow_html=True)
+    st.markdown('<div class="fcn-section"><strong>跨客戶 FCN 商品監控</strong><p>日常監控含存續中與結束後三個月追蹤；可切換全部商品、待建檔與歷史歸檔</p></div>', unsafe_allow_html=True)
     types=["日常監控","全部商品","待建檔","歷史歸檔"]
     a,b=st.columns([1,2])
     with a:view=st.selectbox("顯示範圍",types)
     with b:term=st.text_input("搜尋商品代號",placeholder="例如 DEMO01")
     data=[]
     for p in PRODUCTS:
-        group=product_group(p)
+        group=product_group(p, today=dt.datetime.now(dt.timezone(dt.timedelta(hours=8))).date())
         if view=="日常監控" and group!="日常監控":continue
         if view=="待建檔" and group!="待建檔":continue
         if view=="歷史歸檔" and group!="歷史歸檔":continue
@@ -307,7 +312,7 @@ elif page=="📈 FCN 商品":
         data.append({"商品":p['product_id'],"幣別":cc,"狀態":p.get('model_state'),"分類":p.get('monitor_group'),"參與客戶":p.get('customer_ids'),"累計申購":p.get('invested_'+cc.lower(),0),"模型未回本金":p.get('estimated_outstanding_'+cc.lower()),"KO日期":date_str(p.get('ko_date')),"到期日":date_str(p.get('maturity_date'))})
     st.dataframe(pd.DataFrame(data) if data else pd.DataFrame(columns=['商品','幣別','狀態','分類']),use_container_width=True,hide_index=True)
     if not data:
-        st.info("此篩選目前沒有符合的商品。可切換『全部商品』確認來源資料；日常監控只顯示存續中的 FCN。")
+        st.info("此篩選目前沒有符合的商品。可切換『全部商品』確認來源資料；日常監控包含存續中及結束後三個月內的 FCN。")
     else:
         st.caption(f"目前顯示 {len(data)} 檔商品；商品分類依私人 Google Sheets 原始狀態對應，沒有改寫總帳。")
     if data:
@@ -341,7 +346,7 @@ elif page=="📈 FCN 商品":
                 st.info("請至少選擇一個連結標的。")
             else:
                 stock_plot=build_stock_chart(chart_view, settings, selected_stocks)
-                st.altair_chart(stock_plot,use_container_width=True)
+                st.altair_chart(style_chart(stock_plot),use_container_width=True)
                 cols = st.columns(3)
                 for box,key,label in zip(cols,("ko","strike","ki"),("KO 門檻","Strike 執行價","KI 門檻")):
                     box.metric(label, "—" if settings.get(key) is None else f"{settings[key]:.1f}%")
@@ -376,3 +381,4 @@ else:
 st.divider()
 st.caption("FCN Portfolio Pro · " + ("私人 Google Sheets 唯讀模式（需銀行正式核准）" if MODE=="live" else "Streamlit 相容性驗收版 · 虛構資料")
            + " · USD / EUR / JPY")
+

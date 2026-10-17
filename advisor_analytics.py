@@ -21,3 +21,4 @@ def rank_quality_issues(products, holdings):
 def stock_exposures(product_to_symbols, symbol):
     key=symbol.strip().upper()
     return sorted([p for p,stocks in product_to_symbols.items() if key in {str(s).upper() for s in stocks}])
+

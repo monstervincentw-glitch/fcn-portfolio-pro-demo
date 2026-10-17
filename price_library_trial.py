@@ -286,3 +286,4 @@ def render_trial() -> None:
     st.subheader("V2 模型配息期間明細")
     st.dataframe(pd.DataFrame(trial["coupon_steps"]), hide_index=True, use_container_width=True)
     st.caption("本工具僅為個人歷史情境研究，不代表實際金融商品、銀行結算或可成交報價。")
+

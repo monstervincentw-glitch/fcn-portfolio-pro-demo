@@ -97,3 +97,4 @@ class PriceUpdaterIntegrationTest(unittest.TestCase):
             self.assertEqual(api.logs[0][1][4],526)
             upd.run(api,dt.datetime(2026,10,20,3,15,tzinfo=dt.timezone.utc))
             self.assertEqual(len(api.logs),1)
+

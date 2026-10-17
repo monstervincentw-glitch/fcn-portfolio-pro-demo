@@ -230,3 +230,4 @@ class SheetsReader:
             return pd.DataFrame(columns=["date", "stock", "ratio"]), None
         # Only one chosen product is read at a time, from its private Chart sheet.
         return chart_sheet_rows(self.read(source, "'Chart'!N11:W1000"))
+

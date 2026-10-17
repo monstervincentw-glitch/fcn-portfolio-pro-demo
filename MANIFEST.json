@@ -1,0 +1,29 @@
+{
+  "version": "V8.5.5",
+  "base_commit": "ae417f3d021ad183503ec8e7a5dadf85476fd1ef",
+  "sha256": {
+    "advisor_analytics.py": "5e591b582ad82dff5eb2f5eef86479274bd0ef3924a37d4f96cb4144ed5ce02b",
+    "chart_render.py": "232a81c85f9df1694517c869585d107a89d521461d668c5f0b05b63dd958bd35",
+    "demo_charts.py": "3a005a327430d8929a468b7762d298b638d2101c5c63f6cfaa7630034f10d503",
+    "demo_data.py": "205a8774b1fa566c748aac268d8a143b178e57ab786da56853cd609e8c3d9d3f",
+    "demo_utils.py": "9bd9accb22f7095d4dd0164286d1df6e1e1b54c2731fc01bf05fb823d4196d50",
+    "historical_trial_engine.py": "eca9f6911a0e1a0dd432a7be40dea579a6eb0bace42f29ff71cdaeadb0884d67",
+    "price_library_trial.py": "bc5f6215e2bfd9c4eb4d0a7adeb2a0b913e7dc25597d64891b7bcffad22862e2",
+    "README_更新部署.md": "919ecfc133c60a7da070fd8ed8dae3bd57c967c30cb5eab1da1a87bd10cb8c2c",
+    "requirements.txt": "5a558ab225bfd589b21f366aa61dc4e5ff8bdc4c8aa6a0fd88f2a750583bf23d",
+    "risk_monitor.py": "a080e172effa8416bce285f00ec65250192c43526fb3b46c9850595ceaf3f67b",
+    "sheets_backend.py": "7a2a54c0d3e927833512972fee868b34d367346f2bc249a1fee750708a76cc28",
+    "site_login.py": "5adceb74ac7b58a007b476c0e797a5230c01f499624f98686adca46588846a7b",
+    "streamlit_app.py": "da6eb882ed1e081395edbbdafde43840bcb70e805ccaa0ba26b2bb89d36d7c6f",
+    "VALIDATION.txt": "6f2fac6c3558dbc2a8254653f4b9fc2b47056facb01d7dc79d08078145656974",
+    "virtual_trial.py": "eedf6737583c1d9aa7866b86a8629da99769402b5665a71387b9e6f41a77482f",
+    "warm_theme.py": "1bee00608b5b84c16c4db1f379c3fd6459d32b76481d086004396469e646e073",
+    ".streamlit/config.toml": "e8e2d457b5bad4e8151201932991fda5d4a257ddb7a014d0a4a5521d462d4a7d",
+    "assets/shiba-login-v8-1.jpg": "c56abaaba6adee959acd37b49d292b72ba68d538b26fa2ed0794dfe89cc4cede",
+    "assets/warm-theme.css": "86d08689ed3ea354e13971b60aae571672a4c8b1682a5894c9163dc84a150f3f",
+    "tests/test_release_fixes.py": "c69b74c426ace5bf579a86375b4602205c2038678c86d0ce5fbe88e661184eae",
+    "tests/test_stock_auto_update.py": "e462d4a60c71f506722a22cc29d8141f3d7cc7e98fa51664e0b1d2b199b029ce",
+    "tools/update_stock_prices.py": "0ee10229cdc6da98ba045bf3552c2d6dcb3625ad28d877b245512a59e49c2841",
+    ".github/workflows/update_stock_prices.yml": "f2b6c4909f9a7174bf3d2727de78d6585e33cca3fc74f87eea10f542bf4fa43b"
+  }
+}

@@ -4,7 +4,7 @@ The underlying stock lines are never filtered by barrier-only color domains.
 from __future__ import annotations
 import pandas as pd
 import altair as alt
-PALETTE=['#2575a9','#9253b6','#d7772b','#23876c','#bf5069']
+PALETTE=['#986127','#547C70','#B65F4D','#76668D','#497C91']
 BARRIERS={'ko':('KO','#20977e'),'strike':('Strike','#e79b32'),'ki':('KI','#d45165')}
 
 def build_stock_chart(data,settings,stocks):
@@ -37,3 +37,4 @@ def build_stock_chart(data,settings,stocks):
             obs=alt.Chart(pd.DataFrame({'date':[dt],'event':['KO觀察起日']})).mark_rule(color='#64748b',strokeDash=[2,4]).encode(x='date:T',tooltip=['event:N','date:T'])
             chart=chart+obs
     return chart.properties(height=390).interactive()
+
