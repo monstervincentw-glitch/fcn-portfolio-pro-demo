@@ -1,0 +1,11 @@
+.streamlit/secrets.toml
+__pycache__/
+.pytest_cache/
+*.pyc
+.env
+
+# Never commit Google service account keys
+*service-account*.json
+*service_account*.json
+credentials.json
+secrets.json

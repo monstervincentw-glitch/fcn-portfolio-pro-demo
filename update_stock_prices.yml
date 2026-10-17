@@ -1,0 +1,28 @@
+name: FCN 股價庫每日自動更新
+on:
+  schedule:
+    # 03:15 UTC = 美國東部夏令時間 23:15／冬令時間 22:15
+    - cron: '15 3 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fcn-price-library-update
+  cancel-in-progress: false
+jobs:
+  update-prices:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install updater dependencies
+        run: pip install 'google-auth>=2.30,<3' 'requests>=2.31,<3'
+      - name: Incremental GoogleFinance close update
+        env:
+          FCN_PRICE_WRITER_JSON: ${{ secrets.FCN_PRICE_WRITER_JSON }}
+        run: python tools/update_stock_prices.py

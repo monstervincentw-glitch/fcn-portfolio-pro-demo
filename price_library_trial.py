@@ -17,7 +17,7 @@ import streamlit as st
 from dateutil.relativedelta import relativedelta
 
 from sheets_backend import SheetsReader, SheetConnectionError
-from virtual_trial import TrialInputs, TrialDataError, parse_symbols, simulate_history
+from historical_trial_engine import TrialInputs, TrialDataError, parse_symbols, simulate_history
 
 # A spreadsheet ID is only a locator, not a credential. Access remains restricted
 # by sharing the workbook Viewer with the existing gcp_service_account.
@@ -146,6 +146,26 @@ def fetch_library_prices(
         raise PriceLibraryError("讀取股價庫遭拒或失敗。請確認新股價庫已分享給正式站服務帳號（檢視者），且 Sheets API 可用。") from None
 
 
+def latest_available_day(service_account: dict[str, Any]) -> dt.date:
+    """Read latest persisted trading day instead of showing a frozen hardcoded date."""
+    if not service_account:
+        raise PriceLibraryError("無股價庫憑證。")
+    reader = SheetsReader.from_secrets(service_account, PRICE_LIBRARY_ID)
+    cells = reader.read(PRICE_LIBRARY_ID, f"'{PRICE_TAB}'!A2:A")
+    parsed = []
+    for cell in cells:
+        if cell:
+            try:
+                parsed.append(dt.date.fromisoformat(str(cell[0]).strip()))
+            except ValueError:
+                raise PriceLibraryError("股價庫交易日期格式錯誤。") from None
+    if not parsed:
+        raise PriceLibraryError("股價庫無交易日期。")
+    if parsed != sorted(set(parsed)):
+        raise PriceLibraryError("股價庫交易日期重複或亂序。")
+    return parsed[-1]
+
+
 def verify_explicit_pricing_date(frame: pd.DataFrame, symbols: tuple[str, ...], day: dt.date) -> None:
     subset = frame.loc[frame["date"].dt.date == day]
     if set(subset["stock"].tolist()) != set(symbols):
@@ -164,9 +184,15 @@ def _secret_section(name: str) -> dict[str, Any]:
 def render_trial() -> None:
     st.subheader("🧪 FCN 自由試打｜真實美股歷史股價")
     st.caption("個人歷史情境研究 · 優先從獨立 Google Sheets 股價庫讀取已儲存收盤價；不呼叫 Massive、不修改任何試算表。")
-    st.info("股價資料庫從 2024/01/02 起回填，最近成功回填至 2026/10/16。固定歷史數值不代表每日自動更新已啟用。")
-
     svc = _secret_section("gcp_service_account")
+    if svc:
+        try:
+            latest = latest_available_day(svc)
+            st.info(f"股價庫最早從 2024/01/02 開始；目前最新成功匯入的交易日：{latest.isoformat()}。若未更新，請檢查 GitHub Actions 的股價更新作業。")
+        except (PriceLibraryError, SheetConnectionError):
+            st.warning("目前無法確認股價庫最後交易日，請檢查股價庫的分享權限及排程狀態。")
+    else:
+        st.warning("股價庫尚未連線，請檢查 [gcp_service_account] Secrets。")
     if st.button("🔎 先檢查股價庫讀取權限"):
         try:
             reader = SheetsReader.from_secrets(svc, PRICE_LIBRARY_ID)

@@ -1,37 +1,22 @@
-"""Pure presentation helpers for SYNTHETIC demo data (no personal or cloud identifiers)."""
-import math
-
-CURRENCIES = ('USD', 'EUR', 'JPY')
-
-def num(value):
-    try:
-        n=float(value)
-        return n if math.isfinite(n) else None
-    except (ValueError,TypeError):
-        return None
-
-def currency_summary(rows):
-    out={}
-    for cc in CURRENCIES:
-        subset=[r for r in rows if r.get('currency')==cc]
-        modeled=[r for r in subset if num(r.get('estimated_outstanding')) is not None]
-        pending=[r for r in subset if num(r.get('estimated_outstanding')) is None]
-        total=lambda rows,key:sum(num(r.get(key)) or 0 for r in rows)
-        out[cc]={
-            'count':len(subset),
-            'invested':total(subset,'invested_amount'),
-            'returned':total(subset,'estimated_principal_total'),
-            'coupon':total(subset,'estimated_coupon_total'),
-            'outstanding':total(modeled,'estimated_outstanding'),
-            'pending_principal':total(pending,'invested_amount'),
-            'pending_count':len(pending),
-            'pnl':total(subset,'estimated_pnl'),
-        }
-    return out
+"""Aggregation helpers for display; do not conflate currencies."""
+def num(v):
+    try:return float(v) if v not in ('',None) else None
+    except (ValueError,TypeError):return None
 
 def product_group(p):
-    x=str(p.get('visibility_flag') or '')
-    if '待建檔' in x:return '待建檔'
-    if '顯示中' in x:return '日常監控'
-    if '超過三個月' in x:return '歷史歸檔'
-    return '其他'
+    return str(p.get('monitor_group') or '待建檔')
+
+def currency_summary(rows):
+    output={c:dict(invested=0.,returned=0.,outstanding=0.,coupon=0.,pending_count=0,pending_principal=0.,count=0) for c in ('USD','EUR','JPY')}
+    for r in rows:
+        d=output.get(r.get('currency'))
+        if d is None:continue
+        principal=num(r.get('invested_amount')) or 0
+        d['count']+=1;d['invested']+=principal
+        if num(r.get('estimated_outstanding')) is None:
+            d['pending_count']+=1;d['pending_principal']+=principal
+        else:
+            d['outstanding']+=num(r.get('estimated_outstanding')) or 0
+        d['returned']+=num(r.get('estimated_principal_total')) or 0
+        d['coupon']+=num(r.get('estimated_coupon_total')) or 0
+    return output
