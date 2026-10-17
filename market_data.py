@@ -45,8 +45,14 @@ def _symbols(symbols: tuple[str, ...]) -> tuple[str, ...]:
 def _rows(payload: object, symbol: str, start: date, end: date) -> list[dict]:
     if not isinstance(payload, dict):
         raise MarketFeedError(f"{symbol} 的行情格式異常，請稍後重試。")
-    if payload.get("status") == "ERROR" or payload.get("error"):
+    if payload.get("status") not in (None, "OK", "DELAYED") or payload.get("error"):
         raise MarketFeedError(f"{symbol} 行情服務回報錯誤；請確認代號與訂閱權限。")
+    if payload.get("ticker") and str(payload["ticker"]).upper() != symbol:
+        raise MarketFeedError(f"{symbol} 行情回傳的股票代號不一致，已停止試打。")
+    if payload.get("adjusted") is False:
+        raise MarketFeedError(f"{symbol} 行情不是拆股調整序列，已停止避免價格基準混用。")
+    if payload.get("next_url"):
+        raise MarketFeedError(f"{symbol} 行情資料尚有下一頁，為避免缺價造成 KO 誤判，已停止。")
     items = payload.get("results")
     if not isinstance(items, list) or not items:
         raise MarketFeedError(f"{symbol} 在指定區間沒有有效歷史收盤價，可能是代號、上市時間或方案限制。")
@@ -97,9 +103,12 @@ def fetch_daily_closes(
                 params={"adjusted": "true", "sort": "asc", "limit": 50000},
                 headers={"Authorization": f"Bearer {api_key.strip()}"},
                 timeout=(5, 18),
+                allow_redirects=False,  # Do not forward Authorization to a redirected destination.
             )
         except requests.RequestException:
             raise MarketFeedError(f"{symbol} 行情連線失敗，請檢查網路與 API 服務狀態。") from None
+        if 300 <= response.status_code < 400:
+            raise MarketFeedError("行情 API 出現非預期轉址，已停止以保護 API 金鑰。")
         if response.status_code in (401, 403):
             raise MarketFeedError("行情 API 無法授權，請檢查訂閱方案及 Secrets（不要提供金鑰）。")
         if response.status_code == 429:
@@ -107,9 +116,10 @@ def fetch_daily_closes(
         if response.status_code >= 400:
             raise MarketFeedError(f"{symbol} 行情 API 暫時無法提供資料（HTTP {response.status_code}）。")
         try:
-            records.extend(_rows(response.json(), symbol, start, end))
+            payload = response.json()
         except (ValueError, requests.RequestException):
             raise MarketFeedError(f"{symbol} 行情回應內容無法解析。") from None
+        records.extend(_rows(payload, symbol, start, end))
     frame = pd.DataFrame(records).sort_values(["date", "stock"]).reset_index(drop=True)
     common = frame.pivot(index="date", columns="stock", values="ratio")
     shared = common.dropna().index

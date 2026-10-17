@@ -17,11 +17,11 @@ from virtual_trial import TrialInputs, TrialDataError, parse_symbols, simulate_h
 from warm_theme import COLORS, LEVEL_COLORS, page_intro, style_chart
 
 
-def _market_key() -> str:
+def _market_config() -> dict:
     try:
-        return str(st.secrets.get("market_data", {}).get("api_key", ""))
+        return dict(st.secrets.get("market_data", {}))
     except Exception:
-        return ""
+        return {}
 
 
 def render_market_trial() -> None:
@@ -73,7 +73,10 @@ def render_market_trial() -> None:
             params = TrialInputs(symbols,chosen,int(tenor),int(lock),float(coupon),float(principal),
                                  float(ko),float(strike),float(ki) if ki_mode != "Non-KI" else None,ki_mode)
             params.validate()
-            api_key = _market_key()
+            market_config = _market_config()
+            if market_config.get("license_approved") is not True:
+                raise MarketFeedError("尚未確認行情資料商的公司／商業用途授權，請由管理員核准後設定 market_data.license_approved。")
+            api_key = str(market_config.get("api_key", ""))
             # Fetch from the chosen day through maturity + settlement buffer; only
             # data up to today is requested. The simulator prevents look-ahead.
             expected_issue = chosen + dt.timedelta(days=9)  # generous search buffer, not contractual issue date
@@ -91,8 +94,12 @@ def render_market_trial() -> None:
         return
     trial,params,meta=st.session_state["v82_market_trial"]
     page_intro("試打結果",trial["status"],"V2 HISTORICAL SIMULATION")
-    if dt.date.today() > meta.last_date + dt.timedelta(days=7):
-        st.warning("行情資料日期已超過七天，請確認供應商與方案。")
+    # Historical trials intentionally stop fetching at the contract's horizon.
+    # Compare completeness against that horizon, not against today's date.
+    if trial["scheduled_maturity"] <= dt.date.today() and trial["principal_return_pct"] is None:
+        st.warning("歷史期末已過，但尚未取得足以判定本金回收的完整行情；請檢查商品上市日及行情覆蓋。")
+    if trial["scheduled_maturity"] > dt.date.today() and (dt.date.today() - meta.last_date).days > 5:
+        st.warning("此存續情境的最新可取得行情落後超過 5 天，請確認方案時效、代號及交易所日曆。")
     st.caption(f"資料商：{meta.provider}｜{meta.adjustment}｜最後交易日：{meta.last_date}｜"
                f"共同交易日：{meta.observed_common_days}。無行情日期不會補造收盤價。")
     a,b,c=st.columns(3)
@@ -102,7 +109,10 @@ def render_market_trial() -> None:
     if trial['total_profit_amount'] is not None:
         st.metric("模型淨損益（USD）",f"USD {trial['total_profit_amount']:,.2f}")
     else:
-        st.info("尚無足夠行情觀察到 KO 或期末，不顯示確定的本金和總損益。")
+        theoretical = params.annual_coupon_pct * params.term_months / 12.0
+        st.metric("假設持有滿期票息上限（不含本金損益）", f"{theoretical:.4f}%")
+        st.caption("此為年化票息 × 合約月數 / 12 的假設上限，不代表未來必然領取，且不包含可能的本金損失。")
+        st.info("尚無足夠行情觀察到 KO 或期末，不能給出確定的本金及總損益。")
     st.caption(f"期初定價：{trial['pricing_date']}｜推估起息：{trial['estimated_issue_date']}｜"
                f"預定期末：{trial['scheduled_maturity']}｜KO：{trial['ko_date'] or '尚未發生或資料不足'}")
     frame=trial['chart']
