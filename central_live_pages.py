@@ -215,6 +215,20 @@ def product_overview(catalog: Catalog, ledger_products: list[dict], *, today: dt
     return result
 
 
+def reference_chart_payload(points: list[dict], legs: tuple[dict, ...],
+                            product: dict) -> tuple[pd.DataFrame, dict]:
+    """Build V2 reference guides independent of the bank-verified alert gate.
+
+    The caller MUST explicitly label this as unverified visualization. The
+    returned chart guides are not evidence of KO/KI triggering or settlement.
+    """
+    rows = history_as_relative(points, legs, product)
+    display = pd.DataFrame.from_records(rows, columns=["date", "stock", "ratio"])
+    if not display.empty:
+        display["date"] = pd.to_datetime(display["date"])
+    return display, barriers_for_chart(product)
+
+
 def render_product_page(reader, holdings: list[dict], ledger_products: list[dict]) -> None:
     import altair as alt
     import streamlit as st
@@ -304,19 +318,45 @@ def render_product_page(reader, holdings: list[dict], ledger_products: list[dict
             else:
                 st.warning("定價期間沒有可用行情，無法畫正規化比價。")
         else:
-            st.warning("中央行情目前尚未完成時效、契約或拆股／可比性核對：僅展示歷史原始收盤價，不標示 KO／KI 觸發或計算緩衝。")
-            illustrative=st.checkbox("以期初價 100% 顯示未核對的相對走勢（僅資料視覺化）", value=False)
+            st.warning(
+                "中央條款、行情時效或公司行動尚未核實。為保留原 V2 檢核功能，"
+                "可在相對走勢上顯示 KO／Strike／KI 水平參考線與 KO 開始觀察日垂直參考線。"
+                "所有線條皆為中央參數『待核對』示意，不代表已觸發 KO／KI、"
+                "銀行已確認結算或可用於交易決策。"
+            )
+            illustrative=st.checkbox(
+                "顯示 V2 檢核圖：KO／Strike／KI 水平線＋KO 開始觀察日縱線（待核對）",
+                value=True, key="central_unverified_reference_chart",
+            )
             if illustrative:
-                display=pd.DataFrame(history_as_relative(hist,legs,prod))
+                display, reference_levels = reference_chart_payload(hist, legs, prod)
                 if not display.empty:
-                    display["date"]=pd.to_datetime(display["date"])
-                    st.altair_chart((alt.Chart(display).mark_line().encode(
-                        x=alt.X("date:T",title="交易日期"),
-                        y=alt.Y("ratio:Q",title="相對期初價（%）— 未核對",scale=alt.Scale(zero=False)),
-                        color=alt.Color("stock:N",title="股票"),
-                        tooltip=[alt.Tooltip("date:T",format="%Y/%m/%d"),"stock:N","ratio:Q"]
-                    ).properties(height=330).interactive()),use_container_width=True)
-                    st.caption("示意百分比使用中央庫提供的合約期初價；尚未核對公司行動，絕不可用於 KO/KI/Strike 判斷。")
+                    # Use the SAME layered renderer as the verified path. The
+                    # simplified unverified Altair line omitted ALL guides.
+                    # This restores guides as visual references, never alerts.
+                    stock_chart=build_stock_chart(
+                        display, reference_levels,
+                        sorted(display["stock"].dropna().unique().tolist()),
+                    )
+                    st.altair_chart(stock_chart, use_container_width=True)
+                    legend=[]
+                    for code_, label_ in (("ko", "KO"), ("strike", "Strike"), ("ki", "KI")):
+                        level_=reference_levels.get(code_)
+                        if level_ is not None:
+                            legend.append(f"{label_} {level_:.2f}%")
+                    ko_begin=reference_levels.get("ko_start")
+                    if ko_begin:
+                        legend.append(f"KO 開始觀察日 {ko_begin.isoformat()}")
+                    if legend:
+                        st.caption("**虛線參考值（待核對）**："+" ｜ ".join(legend))
+                    else:
+                        st.caption("中央資料尚無有效的 KO／Strike／KI 或 KO 開始觀察日期參數。")
+                    if ko_begin and not (display["date"].min().date() <= ko_begin <= display["date"].max().date()):
+                        st.info("KO 開始觀察日超出目前股價繪圖區間，因此縱線不在畫面內；日期仍列於上方參考值。")
+                    st.caption(
+                        "示意百分比使用中央庫期初價；價格可比性／拆股口徑或條款未核實。"
+                        "參考線不是敲入、敲出或銀行實際交割的認定。"
+                    )
                 else:
                     st.info("此商品定價期間尚無可比的歷史行情。")
             else:
