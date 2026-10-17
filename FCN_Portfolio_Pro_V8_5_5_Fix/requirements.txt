@@ -1,0 +1,8 @@
+streamlit>=1.48,<2
+pandas>=2.2,<3
+altair>=5,<7
+google-auth>=2.30,<3
+requests>=2.31,<3
+python-dateutil>=2.9,<3
+pytest>=8,<10
+
