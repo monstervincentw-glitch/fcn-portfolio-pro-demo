@@ -1,8 +1,6 @@
 """FCN Portfolio Pro · Google Sheets read-only connector.
 
 
-
-
 All pages are protected by a server-side six-digit PIN gate before read.
 Google Sheets remain read-only and LIVE mode requires explicit policy approval.
 No credential is stored in source code.
@@ -11,8 +9,6 @@ from __future__ import annotations
 import datetime as dt
 import html
 from collections import defaultdict
-
-
 
 
 import pandas as pd
@@ -25,16 +21,13 @@ from site_login import gate, logout
 from demo_data import make_demo
 from advisor_analytics import summarize_portfolio, stock_exposures, rank_quality_issues
 from risk_monitor import active_product, parse_terms, market_risks
-from fcn_action_queue import action_queue, queue_summary
-from fcn_market_watch import summarize_chart
 from sheets_backend import sheet_id_from_url
 from chart_render import build_stock_chart
 from warm_theme import apply_theme, style_chart
+from central_live_pages import render_dashboard, render_exposure, render_product_page
 
 
-
-
-st.set_page_config(page_title="FCN Portfolio Pro｜V8.7 行情快照版", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="FCN Portfolio Pro｜V8.5.5 修復版", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
 st.markdown("""<style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700&display=swap');
 :root{--fcn-ink:#1b3045;--fcn-muted:#62798d;--fcn-border:#e0e8ef;--fcn-navy:#132c43;--fcn-teal:#0b7885;--fcn-bg:#f5f8fb}
@@ -73,11 +66,7 @@ h2{margin-top:1.15rem}h3{font-size:1.12rem}
 </style>""", unsafe_allow_html=True)
 
 
-
-
 apply_theme()
-
-
 
 
 def section(name):
@@ -90,12 +79,8 @@ def section(name):
         return {}
 
 
-
-
 gate(section("site_login"), section("app").get("mode", "demo"),
      bank_approved=section("app").get("bank_approved") is True)  # PIN before ANY Sheets read.
-
-
 
 
 APP = section("app")
@@ -103,8 +88,6 @@ MODE = str(APP.get("mode", "demo")).strip().lower()
 if MODE not in ("demo", "diagnostic", "live"):
     st.error("不支援的資料模式；為保護客戶資料，網站已停止。")
     st.stop()
-
-
 
 
 READER = None
@@ -144,8 +127,6 @@ else:
     DATA = make_demo()
 
 
-
-
 CUSTOMERS = DATA["customers"]
 HOLDINGS = DATA["holdings"]
 PRODUCTS = DATA["products"]
@@ -155,18 +136,12 @@ if not CUSTOMERS:
     st.stop()
 
 
-
-
 def money(value, currency="USD"):
     return "—" if value is None else f"{currency} {value:,.2f}" if currency != "JPY" else f"JPY {value:,.0f}"
 
 
-
-
 def date_str(x):
     return x.strftime("%Y/%m/%d") if isinstance(x, (dt.date,dt.datetime)) else "—"
-
-
 
 
 def display_status(raw):
@@ -177,11 +152,9 @@ def display_status(raw):
     return raw
 
 
-
-
 with st.sidebar:
     st.markdown("### ◈ FCN Portfolio Pro")
-    st.caption("V8.7 · 行情快照版")
+    st.caption("V8.5.5 · 正式修復版")
     st.caption("銀行 Edge 專用 · " + ("私人資料唯讀模式" if MODE == "live" else "相容性驗收版"))
     st.success("🔒 6 位數 PIN 已驗證 · 唯讀模式" if MODE != "demo" else "🔒 6 位數 PIN 已驗證 · 虛構資料 DEMO")
     st.button("安全登出", on_click=logout, use_container_width=True)
@@ -189,56 +162,36 @@ with st.sidebar:
         st.warning("**虛構資料 DEMO** · 沒有連接真實 Google Sheets", icon="🔒")
     else:
         st.caption("Google Sheets 服務帳號僅在伺服器端唯讀使用；不需在銀行電腦登入 Google")
-    page = st.radio("功能選單", ["🧭 顧問工作台", "🚩 風險待辦", "📈 FCN 商品", "🧪 FCN 歷史試打", "🔎 股票曝險", "🏠 投資總覽", "👥 客戶投資", "📝 例外處理", "🛡️ 銀行驗收"], index=0, label_visibility="collapsed")
+    page = st.radio("功能選單", ["🧭 顧問工作台", "📈 FCN 商品", "🧪 FCN 歷史試打", "🔎 股票曝險", "🏠 投資總覽", "👥 客戶投資", "📝 例外處理", "🛡️ 銀行驗收"], index=0, label_visibility="collapsed")
     st.divider()
     st.caption("標準 HTTPS ｜ Microsoft Edge ｜ USD / EUR / JPY")
-
-
 
 
 st.markdown('<div class="fcn-banner"><div class="fcn-eyebrow">Structured Notes · Portfolio Intelligence</div><h1>FCN Portfolio Pro</h1><p>投資組合總覽 ／ FCN 商品監控 ／ 真實歷史股價試打</p></div>', unsafe_allow_html=True)
 if MODE == "demo":
     st.warning("目前為銀行電腦**畫面及互動驗收版**，所有名稱、價格與金額均為虛構，不含銀行或客戶資料。", icon="🧪")
 else:
-    st.info("資料來源：私人 Google Sheets（伺服器端唯讀）。配息與本金是**依合約推定**，並非銀行實際入帳證明。", icon="🔒")
-
-
+    st.info("商品條款／連結標的／商品走勢／商品分類：中央參數庫；客戶持倉與現金流：原總帳（伺服器端唯讀）。模型推定非銀行入帳證明。", icon="🔒")
 
 
 if page == "🧪 FCN 歷史試打":
+    if MODE == "live":
+        st.caption("獨立歷史試打工具仍使用原 526 檔股票歷史股價庫；不替代中央 FCN 商品條款資料。")
     from price_library_trial import render_trial
     render_trial()
     st.stop()
 
 
-
-
-if page == "🚩 風險待辦":
-    st.subheader("🚩 FCN 待辦與資料異常")
-    st.caption("依已連接的商品主檔與持倉推定資料建立待辦；不是即時行情、KO/KI 事件認定或銀行入帳證明。")
-    local_today = dt.datetime.now(dt.timezone(dt.timedelta(hours=8))).date()
-    horizon = st.select_slider("近期到期觀察視窗（天）", options=[7, 14, 21, 30], value=14)
-    items = action_queue(PRODUCTS, HOLDINGS, today=local_today, due_within_days=horizon)
-    summary = queue_summary(items)
-    c1, c2, c3, c4 = st.columns(4)
-    for col, label in zip((c1, c2, c3, c4), ("高", "中", "低", "涉及商品數")):
-        col.metric(("高優先待查" if label == "高" else "中優先提醒" if label == "中" else "低優先檢視" if label == "低" else "涉及 FCN 商品"), summary[label])
-    selected = st.multiselect("待辦優先級", ["高", "中", "低"], default=["高", "中", "低"])
-    visible = [item for item in items if item["優先級"] in selected]
-    if visible:
-        st.dataframe(pd.DataFrame(visible), hide_index=True, use_container_width=True)
-        st.download_button("下載目前篩選的待辦 CSV", pd.DataFrame(visible).to_csv(index=False).encode("utf-8-sig"),
-                           file_name="fcn_review_queue.csv", mime="text/csv")
-    else:
-        st.info("目前沒有符合這些條件的待辦。注意：不代表已完成行情風險與入帳驗證。")
-    st.info("系統不以缺少報價推斷安全，也不以推定入帳日判斷實際未付款；正式異常覆寫仍在私人 Google Sheets 進行。")
-elif page == "🧭 顧問工作台":
+if page == "🧭 顧問工作台":
+    if MODE == "live":
+        # Central-source cutover: never fall back to legacy per-FCN workbooks.
+        render_dashboard(READER, HOLDINGS)
+        st.stop()
     # FCN Dashboard V2: count unique FCN products, never underlying stock lines.
     st.subheader("📋 FCN 商品狀態總覽")
     st.caption("一個 FCN 代號算一檔；即使連結三檔股票，或有多位客戶申購，同一商品也只計一次。")
     today = dt.datetime.now(dt.timezone(dt.timedelta(hours=8))).date()
     three_months_ago = (pd.Timestamp(today) - pd.DateOffset(months=3)).date()
-
 
     def dashboard_date(value):
         if isinstance(value, dt.datetime):
@@ -255,7 +208,6 @@ elif page == "🧭 顧問工作台":
         parsed = pd.to_datetime(value, errors="coerce")
         return parsed.date() if pd.notna(parsed) else None
 
-
     # 只統計已出現在客戶持倉的 FCN；以商品代號去重，不按客戶或連結股票計數。
     held_ids = {str(h.get("product_id") or "").strip() for h in HOLDINGS}
     products_by_id = {str(p.get("product_id") or "").strip(): p for p in PRODUCTS
@@ -263,7 +215,6 @@ elif page == "🧭 顧問工作台":
     group_labels = ("🔒 閉鎖中", "📊 比價中", "🏁 近三個月出場", "📅 近兩週到期")
     lists = {label: [] for label in group_labels}
     unknown = []
-
 
     for pid, product in sorted(products_by_id.items()):
         state = str(product.get("model_state") or "")
@@ -275,7 +226,6 @@ elif page == "🧭 顧問工作台":
         is_matured = "已到期" in state or (maturity is not None and maturity < today)
         has_exited = is_ko or is_matured
 
-
         if has_exited:
             actual_event_day = exit_date or (ko_date if is_ko else maturity)
             # 如商品已結束，但來源日期缺漏，避免把日期不明的商品硬塞進近期清單。
@@ -286,17 +236,14 @@ elif page == "🧭 顧問工作台":
                 })
             continue
 
-
         if "待建檔" in state or "待建檔" in monitor_group or not maturity:
             unknown.append((pid, "商品條款／到期日不足"))
             continue
-
 
         if today <= maturity <= today + dt.timedelta(days=14):
             lists["📅 近兩週到期"].append({
                 "FCN 代號": pid, "參考日期": maturity.isoformat(), "事件／狀態": "合約到期日"
             })
-
 
         # 閉鎖期界線一定依商品合約 KO 開始觀察日，不用第一檔股票的走勢推算。
         ko_start = None
@@ -319,7 +266,6 @@ elif page == "🧭 顧問工作台":
                 "FCN 代號": pid, "參考日期": ko_start.isoformat(), "事件／狀態": "KO 已開始觀察"
             })
 
-
     descriptions = {
         "🔒 閉鎖中": "KO 開始觀察日尚未到，仍處於閉鎖期。",
         "📊 比價中": "已進入 KO 觀察期，且尚未確認提前出場或到期。",
@@ -334,7 +280,6 @@ elif page == "🧭 顧問工作台":
             if st.button("查看 FCN 代號", key="fcn_advisor_show_" + label, use_container_width=True):
                 st.session_state["fcn_advisor_selected_group"] = label
 
-
     chosen = st.session_state.get("fcn_advisor_selected_group", group_labels[0])
     if chosen not in lists:
         chosen = group_labels[0]
@@ -345,17 +290,19 @@ elif page == "🧭 顧問工作台":
     else:
         st.info("此分類目前沒有可確認的 FCN。")
 
-
     if unknown:
         with st.expander(f"資料待補／分類未確定：{len(unknown)} 檔 FCN（不計入閉鎖或比價）"):
             st.dataframe(pd.DataFrame([{"FCN 代號": pid, "原因": why} for pid, why in unknown]),
                          hide_index=True, use_container_width=True)
             st.caption("未取得合約 KO 開始觀察日時，不自行猜測閉鎖期或比價期。")
 
-
     st.caption("「近兩週到期」可同時屬於「比價中」，四項統計不能相加當作總持倉數。")
     st.info("點開上述清單查看 FCN 代號後，可至左側「📈 FCN 商品」查閱各商品條款、連結股票與 KI／KO 走勢。顧問工作台不顯示參與客戶。")
 elif page == "🔎 股票曝險":
+    if MODE == "live":
+        # Central-source cutover: never fall back to legacy per-FCN workbooks.
+        render_exposure(READER, HOLDINGS)
+        st.stop()
     st.subheader("股票曝險搜尋")
     st.caption("從現有授權 FCN Chart 分析標的關聯；只有已授權來源才會列入，結果不包含未連線商品。")
     q=st.text_input("股票代號（例如 NVDA）",value="").strip().upper()
@@ -373,8 +320,6 @@ elif page == "🔎 股票曝險":
             st.caption('多幣別本金不直接加總；此清單不代表全部商品都有授權行情。')
         else: st.info('授權商品中沒有找到此標的；也可能部分商品尚未連線。')
 elif page in ("🏠 投資總覽","👥 客戶投資"):
-
-
 
 
     st.markdown('<div class="fcn-section"><strong>客戶選擇</strong><p>切換客戶查看幣別摘要與完整歷史持倉</p></div>', unsafe_allow_html=True)
@@ -427,6 +372,10 @@ elif page in ("🏠 投資總覽","👥 客戶投資"):
             else:
                 st.info("這檔 FCN 尚無可計算的合約配息期，不能將空白當成已領取 0 元。")
 elif page=="📈 FCN 商品":
+    if MODE == "live":
+        # Central-source cutover: never fall back to legacy per-FCN workbooks.
+        render_product_page(READER, HOLDINGS, PRODUCTS)
+        st.stop()
     st.markdown('<div class="fcn-section"><strong>跨客戶 FCN 商品監控</strong><p>日常監控含存續中與結束後三個月追蹤；可切換全部商品、待建檔與歷史歸檔</p></div>', unsafe_allow_html=True)
     types=["日常監控","全部商品","待建檔","歷史歸檔"]
     a,b=st.columns([1,2])
@@ -470,32 +419,6 @@ elif page=="📈 FCN 商品":
             else:
                 st.caption("來源：此 FCN 私人 Google Sheets「Chart」工作表。不是交易所直接報價，更新頻率依原試算表。")
             settings = settings or {}
-            st.subheader("🔬 Chart 觀測值監控｜Worst-of 與門檻距離")
-            st.caption("使用已載入的 Google Sheets Chart；不抓取即時行情，也不自動認定觸發 KI 或 KO。100 代表期初價格的 100%。")
-            value_cols = [c for c in chart_data.columns if c not in ('date','stock') and pd.api.types.is_numeric_dtype(chart_data[c])]
-            if not value_cols:
-                st.info("找不到數值欄位；須由資料提供者指定 100 基準的相對價格欄位。")
-            else:
-                suggested = next((c for c in value_cols if c.lower() in ('normalized_pct','relative_pct','index_100','price_pct','normalized')), value_cols[0])
-                value_col = st.selectbox("選擇期初=100的相對價格欄位（請確認單位）", value_cols,
-                                         index=value_cols.index(suggested), key='price_field_'+chosen_product)
-                confirmed = st.checkbox("我已確認此欄位以 100 代表期初價格（不是美元原價或 0–1 比率）", value=False,
-                                        key='price_confirm_'+chosen_product)
-                max_age = st.select_slider("資料過期提醒（日曆天；週末可能誤報）", options=[1,3,5,7], value=5,
-                                           key='stale_'+chosen_product)
-                if confirmed:
-                    try:
-                        watch_rows, watch_info = summarize_chart(chart_data, settings, value_column=value_col, stale_days=max_age)
-                        if watch_rows:
-                            k1,k2,k3=st.columns(3)
-                            k1.metric("Worst-of 最新相對價格",f"{watch_info['worst']:.2f}%")
-                            k2.metric("最弱標的",watch_info['worst_stock'])
-                            k3.metric("資料截至",watch_info['asof'])
-                            st.dataframe(pd.DataFrame(watch_rows), hide_index=True, use_container_width=True)
-                            for msg in watch_info['warnings']:
-                                st.warning(msg) if ('不同' in msg or '距今' in msg or '缺漏' in msg) else st.caption(msg)
-                    except (ValueError, KeyError, TypeError) as exc:
-                        st.error(f"無法計算快照：{exc}")
             stocks = sorted(chart_data["stock"].unique().tolist())
             selected_stocks = st.multiselect("圖表顯示標的", stocks, default=stocks, key="chart_stocks_" + chosen_product)
             chart_view = chart_data[chart_data["stock"].isin(selected_stocks)]
@@ -536,8 +459,6 @@ else:
     checklist=["銀行 Edge 開啟 *.streamlit.app，無憑證警示或公司政策阻擋", "選單、中文字體、表格與圖表可正常顯示", "客戶切換後數字變動；USD/EUR/JPY 不直接加總", "商品日常監控／全部商品／待建檔切換正常", "商品詳情、頁面重新整理均正常", "網站登入方式符合銀行資訊安全政策，不需在銀行電腦安裝程式", "資料處理與部署環境符合銀行規範（公開DEMO僅使用虛構資料）", "正式資料的取用已經過銀行資訊安全核准"]
     for i,item in enumerate(checklist,1):st.checkbox(f"{i}. {item}",key=f"check_{i}")
     st.caption("畫面上的勾選僅供測試人員記錄，不會寫入雲端。")
-
-
 
 
 st.divider()
