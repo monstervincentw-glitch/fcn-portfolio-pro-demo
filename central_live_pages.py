@@ -95,7 +95,7 @@ def _snapshot(reader):
 def render_dashboard(reader,holdings):
     import streamlit as st
     st.subheader('🧭 FCN 商品監控工作台｜中央即時計算')
-    st.caption('商品一檔只計一次；最新行情來自既有成分股股價庫，為收盤價而非盤中報價。')
+    st.caption('依中央商品日期分類閉鎖／比價，KO 由 V2 模型判定；資料不足仍留在原監控分類並標示試算狀態。股價為收盤價。')
     catalog,models=_snapshot(reader)
     if models is None:return
     groups={name:[] for name in ('閉鎖中','比價中','近三個月出場','近兩週到期','資料不足')}
@@ -105,7 +105,8 @@ def render_dashboard(reader,holdings):
         if not m:
             groups['資料不足'].append({'FCN':pid,'狀態':'商品尚未輸入中央庫','資料日期':'—'})
             continue
-        entry={'FCN':pid,'狀態':m.state,'資料日期':_day(m.latest_date),
+        entry={'FCN':pid,'狀態':m.state,'試算資料':'待補' if m.issues else '完整',
+               '資料日期':_day(m.latest_date),
                'KO 日':_day(m.ko_date),'最差標的':m.worst_ticker or '—'}
         category=m.category
         if category in groups:groups[category].append(entry)
@@ -154,7 +155,7 @@ def render_product_page(reader,holdings,ledger_products):
     st.caption('商品條款與配息期取中央參數庫；收盤價共用歷史試打的成分股股價庫。無銀行核約或行情人工確認門檻。')
     catalog,models=_snapshot(reader)
     if models is None:return
-    names=['日常監控','全部商品','資料不足','歷史歸檔']
+    names=['日常監控','閉鎖中','比價中','近三個月出場','全部商品','資料不足','歷史歸檔']
     a,b=st.columns([1,2])
     with a:scope=st.selectbox('顯示範圍',names,key='central_p_scope')
     with b:search=st.text_input('搜尋商品代號',key='central_p_search').strip().upper()
@@ -162,15 +163,17 @@ def render_product_page(reader,holdings,ledger_products):
     for pid,p in sorted(catalog.products.items()):
         m=models[pid]
         if scope=='日常監控' and m.category not in ('閉鎖中','比價中','近兩週到期','近三個月出場'):continue
+        if scope in ('閉鎖中','比價中','近三個月出場') and m.category!=scope:continue
         if scope=='資料不足' and m.category!='資料不足':continue
         if scope=='歷史歸檔' and m.category!='歷史歸檔':continue
         if search and search not in pid:continue
         rows.append({'FCN':pid,'幣別':p.get('currency'),'狀態':m.state,
+                     '試算資料':'待補' if m.issues else '完整',
                      '最近行情':_day(m.latest_date),'最差標的':m.worst_ticker or '—',
                      '最差相對期初':_pct(m.worst_ratio) if m.worst_ratio is not None else '—',
                      'KO 日':_day(m.ko_date),'到期日':_day(m.maturity_day)})
     st.dataframe(pd.DataFrame(rows),hide_index=True,use_container_width=True)
-    st.caption(f'中央商品庫 {len(models)} 檔；目前顯示 {len(rows)} 檔。')
+    st.caption(f'中央商品庫 {len(models)} 檔；目前顯示 {len(rows)} 檔。閉鎖／比價依商品日期與 V2 KO 判定；必要數值缺漏僅影響試算，不隱藏商品。')
     if not rows:return
     pid=st.selectbox('開啟商品詳情',[r['FCN'] for r in rows],key='central_p_selected')
     p=catalog.products[pid]; m=models[pid]

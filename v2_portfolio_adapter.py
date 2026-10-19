@@ -20,20 +20,29 @@ def load_models(reader, *, today=None):
     # 1 central batch instead of multiple sequential requests.
     catalog, holidays, periods, input_rules = load_model_inputs(reader)
     tickers={leg['ticker'] for legs in catalog.legs.values() for leg in legs}
+    market_failure = None
     try:
         # Header request + one multi-column batch from EXISTING 526-stock library.
         market, latest, symbols=load_market_matrix(reader,tickers)
     except Exception as exc:
-        raise ValueError('成分股歷史股價庫讀取失敗：'+str(exc)) from None
+        # Product lifecycle must remain visible if the price feed is unavailable.
+        market, latest, symbols = {}, None, set()
+        market_failure = '成分股歷史股價庫讀取失敗：' + str(exc)
     models={}
     for pid, product in catalog.products.items():
         model=model_one(product,catalog.legs.get(pid,()),periods.get(pid,()),
                         market,holidays,input_rules.get(pid),today=today)
-        absent=sorted({leg['ticker'] for leg in catalog.legs.get(pid,()) if leg['ticker'] not in symbols})
-        if absent and not any('未收錄' in issue for issue in model.issues):
-            model.issues.append('股票未收錄於現有成分股股價庫：'+'、'.join(absent))
-            model.state='資料不足'; model.category='資料不足'
-            model.principal_ratio=None; model.earned_coupon_rate=None
+        if market_failure:
+            model.issues.append(market_failure)
+        else:
+            absent=sorted({leg['ticker'] for leg in catalog.legs.get(pid,()) if leg['ticker'] not in symbols})
+            if absent and not any('未收錄' in issue for issue in model.issues):
+                model.issues.append('股票未收錄於現有成分股股價庫：'+'、'.join(absent))
+                model.principal_ratio=None
+                model.earned_coupon_rate=None
+                model.forecast_coupon_rate=None
+                model.ko_date=None
+                # Do not relabel contractually active FCN as '資料不足'.
         # Historical closes are shared with the independent history-trial page.
         for leg in catalog.legs.get(pid,()):
             ticker=leg['ticker']
@@ -114,7 +123,7 @@ def enrich_new_holdings(reader, holdings):
         h['v2_state']=m.state
         if m.issues:
             h['v2_issues']='；'.join(m.issues)
-            h['estimated_settlement_state']='中央模型資料不足'
+            h['estimated_settlement_state']='中央 V2：'+m.state+'（部分試算資料待補）'
             continue
         if capital is None:
             h['v2_issues']='客戶持倉本金缺漏'

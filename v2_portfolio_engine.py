@@ -118,17 +118,17 @@ def calculate_v2(*, pricing_date: date, ko_start: date, final_eval: date,
         ratios={t:float(quotes[t])/float(initial_prices[t]) for t in initial_prices}
         latest=ratios
         if ki_type=='AKI' and any(x<=ki_barrier for x in ratios.values()): aki=True
-        # Original V2 remembers KO hits from the first available trading day,
-        # including days before contractual KO observation begins. Redemption
-        # remains prohibited until ko_start.
-        if ko_type=='記憶式':
-            for t,r in ratios.items():
-                touched[t] |= r>=ko_barrier
-        if ko_start<=day<=final_eval and ko_date is None:
-            if ko_type=='記憶式':
-                knocked=all(touched.values())
-            else: knocked=all(r>=ko_barrier for r in ratios.values())
-            if knocked: ko_date=day
+        # FCN V2 rule: the KO memory window begins ONLY on ko_start.
+        # Hits in the initial locked period do not count toward future KO.
+        if ko_start <= day <= final_eval and ko_date is None:
+            if ko_type == '記憶式':
+                for t, r in ratios.items():
+                    touched[t] |= r >= ko_barrier
+                knocked = all(touched.values())
+            else:
+                knocked = all(r >= ko_barrier for r in ratios.values())
+            if knocked:
+                ko_date = day
         if ko_date: break
     if missing:
         return V2Result('行情缺漏',None,None,None,None,(),None,None,
