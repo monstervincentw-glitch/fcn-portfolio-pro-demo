@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from typing import Iterable, Mapping
+from math import isfinite
 
 @dataclass(frozen=True)
 class CouponPeriod:
@@ -53,11 +54,37 @@ def trading_days(start: date, end: date, holidays: Iterable[date] = ()) -> int:
                for i in range((end-start).days+1))
 
 
+def validate_coupon_periods(periods: Iterable[CouponPeriod], holidays: Iterable[date] = ()) -> tuple[CouponPeriod, ...]:
+    """Validate exact supplied dates; never roll dates to a payment calendar."""
+    periods = tuple(periods)
+    closed = tuple(holidays)
+    if not periods or len(periods) > 12:
+        raise ValueError('配息期數缺漏或超過12期')
+    previous = None
+    for expected, p in enumerate(periods, start=1):
+        if type(p.number) is not int or p.number != expected:
+            raise ValueError('配息期編號缺漏、重複或順序錯誤')
+        if not all(isinstance(d, date) for d in (p.start, p.end, p.payment)):
+            raise ValueError(f'第{p.number}期起訖／付款日期缺漏')
+        if not p.start <= p.end <= p.payment:
+            raise ValueError(f'第{p.number}期起訖／付款日期順序錯誤')
+        if previous is not None:
+            if p.start <= previous:
+                raise ValueError(f'第{p.number}期與前期重疊')
+            if trading_days(previous+timedelta(days=1), p.start-timedelta(days=1), closed):
+                raise ValueError(f'第{p.number}期前缺少交易日覆蓋')
+        if not trading_days(p.start, p.end, closed):
+            raise ValueError(f'第{p.number}期沒有交易日')
+        previous = p.end
+    return periods
+
+
 def v2_coupon_periods(periods: Iterable[CouponPeriod], annual_rate: float, *,
                       ko_date: date | None = None, as_of: date | None = None,
                       holidays: Iterable[date] = ()) -> list[CouponResult]:
     as_of=as_of or date.today()
     closed=tuple(holidays)
+    periods=validate_coupon_periods(periods, closed)
     output=[]
     for p in periods:
         if p.end<p.start: raise ValueError(f'Period {p.number}: end before start')
@@ -72,11 +99,20 @@ def v2_coupon_periods(periods: Iterable[CouponPeriod], annual_rate: float, *,
     return output
 
 
+def _finite_number(value):
+    if isinstance(value, bool): return None
+    try: number = float(value)
+    except (TypeError, ValueError, OverflowError): return None
+    return number if isfinite(number) else None
+
+
 def _rate(value):
     if value is None or str(value).strip()=='': return None
-    try: v=float(str(value).strip().replace('%',''))
-    except (TypeError,ValueError): return None
-    return v/100 if v>1 else v
+    if isinstance(value, bool): return None
+    raw = str(value).strip()
+    v = _finite_number(raw.replace('%', ''))
+    if v is None: return None
+    return v/100 if '%' in raw or v>1 else v
 
 
 def calculate_v2(*, pricing_date: date, ko_start: date, final_eval: date,
@@ -92,20 +128,23 @@ def calculate_v2(*, pricing_date: date, ko_start: date, final_eval: date,
     Prices must be exact trading-date closes, never nearest-day substitutions.
     """
     today=as_of or date.today(); issues=[]; periods=tuple(periods); holidays=tuple(holidays)
-    if not all((pricing_date,ko_start,final_eval)) or final_eval<pricing_date or ko_start>final_eval:
+    if not all((pricing_date,ko_start,final_eval)) or not pricing_date<=ko_start<=final_eval:
         issues.append('商品日期缺漏或順序錯誤')
-    if not initial_prices or any(not isinstance(x,(int,float)) or x<=0 for x in initial_prices.values()):
+    if not initial_prices or any(_finite_number(x) is None or _finite_number(x)<=0 for x in initial_prices.values()):
         issues.append('期初價格缺漏')
+    ko_barrier=_rate(ko_barrier); strike=_rate(strike); ki_barrier=_rate(ki_barrier)
+    annual_rate=_rate(annual_rate)
     if ko_type not in ('記憶式','非記憶式'): issues.append('KO 類型不完整')
     if ki_type not in ('AKI','EKI','Non-KI'): issues.append('KI 類型不完整')
     if ki_type!='Non-KI' and (ki_barrier is None or ki_barrier<=0): issues.append('KI 門檻缺漏')
-    if ko_barrier<=0 or strike<=0 or annual_rate<0: issues.append('商品比率錯誤')
-    if not periods or len(periods)>12 or any(not all((p.start,p.end,p.payment)) or p.end<p.start for p in periods):
-        issues.append('完整配息期間起訖日／配息日缺漏')
+    if (ko_barrier is None or strike is None or annual_rate is None
+            or ko_barrier<=0 or strike<=0 or annual_rate<0): issues.append('商品比率錯誤')
+    try:
+        validate_coupon_periods(periods, holidays)
+    except ValueError as exc:
+        issues.append(str(exc))
     if not holiday_calendar_complete: issues.append('交易所休市日清單尚未確認完整')
     if issues: return V2Result('資料不足',None,None,None,None,(),None,None,tuple(issues))
-    ko_barrier=_rate(ko_barrier); strike=_rate(strike); ki_barrier=_rate(ki_barrier)
-    annual_rate=_rate(annual_rate)
     closed=set(holidays); ko_date=None; touched={ticker:False for ticker in initial_prices}
     aki=False; latest=None; missing=[]
     stop=min(final_eval,today)
@@ -113,7 +152,7 @@ def calculate_v2(*, pricing_date: date, ko_start: date, final_eval: date,
         day=pricing_date+timedelta(days=i)
         if day.weekday()>=5 or day in closed: continue
         quotes=daily_prices.get(day,{})
-        if any(t not in quotes or quotes[t] is None or float(quotes[t])<=0 for t in initial_prices):
+        if any(_finite_number(quotes.get(t)) is None or _finite_number(quotes.get(t))<=0 for t in initial_prices):
             missing.append(day); continue
         ratios={t:float(quotes[t])/float(initial_prices[t]) for t in initial_prices}
         latest=ratios
@@ -138,7 +177,7 @@ def calculate_v2(*, pricing_date: date, ko_start: date, final_eval: date,
     else: ki_touched=None
     if ko_date is None and today>=final_eval:
         final_prices=daily_prices.get(final_eval,{})
-        if any(t not in final_prices or not final_prices[t] for t in initial_prices):
+        if any(_finite_number(final_prices.get(t)) is None or _finite_number(final_prices.get(t))<=0 for t in initial_prices):
             return V2Result('行情缺漏',None,ki_touched,None,None,(),None,None,('最終評價日行情缺漏',))
         latest={t:float(final_prices[t])/float(initial_prices[t]) for t in initial_prices}
         if ki_type=='EKI': ki_touched=any(x<=ki_barrier for x in latest.values())

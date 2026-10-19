@@ -121,6 +121,18 @@ def model_one(product, legs, periods, price_matrix, holidays, rule=None, *, toda
     m.maturity_day = to_day(product.get('maturity_date'))
     _date_lifecycle(m, today)
 
+    # Compare the same central batch's raw inputs and derived API dates. This is
+    # data integrity, never an approval gate or an alternate coupon calculation.
+    rule = rule or {}
+    for source, derived in [('期初訂價日','pricing_date'), ('起息日','issue_date'),
+                            ('KO開始觀察日','ko_start_date'), ('期末評價日','final_eval_date'),
+                            ('到期／交割日','maturity_date')]:
+        if source in rule and to_day(rule[source]) != to_day(product.get(derived)):
+            m.issues.append(f'中央輸入／API日期不一致：{source}')
+    expected_count = as_positive_number(product.get('coupon_period_count'))
+    if expected_count is not None and expected_count != len(periods):
+        m.issues.append('中央API配息期數與實際期間不一致')
+
     m.coupon_mode = coupon_style(rule or {})
     m.ko_observation = '每交易日觀察；KO 記憶從觀察起日開始，不計閉鎖期'
     ko_barrier = ratio(product.get('ko_barrier_ratio'))
@@ -158,11 +170,15 @@ def model_one(product, legs, periods, price_matrix, holidays, rule=None, *, toda
     coupon_periods = []
     seen = set()
     for item in periods:
-        if len(item) < 4 or not isinstance(item[0], int) or item[0] in seen:
+        if len(item) < 4 or type(item[0]) is not int or item[0]<1 or item[0] in seen:
             m.issues.append('中央配息期編號無效或重複')
             continue
         n, beg, end, payment = item[:4]
         seen.add(n)
+        names = [f'第{n}期{x}' for x in ('起日','止日','付款日')]
+        if any(name in rule for name in names):
+            if [beg,end,payment] != [to_day(rule.get(name)) for name in names]:
+                m.issues.append(f'中央第{n}期來源／API日期不一致')
         if not (beg and end and payment and beg <= end <= payment):
             m.issues.append(f'中央第 {n} 期計息起訖／付款日期不完整')
             continue
@@ -171,6 +187,12 @@ def model_one(product, legs, periods, price_matrix, holidays, rule=None, *, toda
         m.issues.append('中央配息期不存在或不完整')
     if len(coupon_periods) > 12:
         m.issues.append('中央配息期超過 12 期')
+    issue_day = to_day(product.get('issue_date'))
+    if coupon_periods and issue_day:
+        if coupon_periods[0].start != issue_day:
+            m.issues.append('中央首期起日與起息日不一致')
+        if coupon_periods[-1].end != m.final_eval:
+            m.issues.append('中央末期止日與期末評價日不一致')
 
     # A quote's absence can block KO/P&L, but must NOT block lifecycle display.
     quotes = {day: value for day, value in (price_matrix or {}).items()

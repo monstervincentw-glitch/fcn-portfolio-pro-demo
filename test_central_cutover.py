@@ -130,7 +130,7 @@ def test_untrusted_bank_review_strings_do_not_gate_calculation():
 
 
 def test_existing_historical_trial_untouched():
-    s=(Path(__file__).parent/'streamlit_app.py').read_text()
+    s=(Path(__file__).parent/'streamlit_app.py').read_text(encoding='utf-8')
     assert 'from price_library_trial import render_trial' in s
     assert 'render_trial()' in s
     assert 'render_trial()' in s
@@ -138,7 +138,7 @@ def test_existing_historical_trial_untouched():
 
 def test_production_has_no_old_v2_workbook_or_duplicate_quote_updater():
     here=Path(__file__).parent
-    source='\n'.join((here/f).read_text() for f in (
+    source='\n'.join((here/f).read_text(encoding='utf-8') for f in (
         'v2_portfolio_adapter.py','central_catalog.py','fcn_central_model.py',
         'central_live_pages.py'))
     assert '1pc2O3CB4vp1Tq0CcgfngitpVQsbb64ibSucL3fKFI44' not in source
@@ -146,7 +146,7 @@ def test_production_has_no_old_v2_workbook_or_duplicate_quote_updater():
     assert 'contract_review_state' not in source
     assert 'quote_review' not in source
     assert not (here/'tools/update_central_prices.py').exists()
-    workflow=(here/'.github/workflows/fcn_stock_library_daily.yml').read_text()
+    workflow=(here/'.github/workflows/fcn_stock_library_daily.yml').read_text(encoding='utf-8')
     assert 'python update_stock_prices.py' in workflow
     assert 'FCN_PRICE_WRITER_JSON' in workflow
     assert not (here/'.github/workflows/fcn_central_daily.yml').exists()

@@ -228,12 +228,16 @@ def parse_periods(rows):
         if len(row)<3: continue
         pid=str(row[1] or '').strip()
         if not pid: continue
-        try: ix=int(row[2])
-        except (ValueError,TypeError): continue
+        try:
+            raw=float(row[2])
+            ix=int(raw) if raw.is_integer() and not isinstance(row[2],bool) else None
+        except (ValueError,TypeError,OverflowError): ix=None
         groups.setdefault(pid,[]).append((ix,to_day(row[3] if len(row)>3 else None),
                                             to_day(row[4] if len(row)>4 else None),
                                             to_day(row[5] if len(row)>5 else None)))
-    return {pid:sorted(v) for pid,v in groups.items()}
+    # Retain malformed rows so model_one reports the affected product, rather
+    # than silently calculating a shorter coupon schedule.
+    return {pid:sorted(v,key=lambda p:p[0] if p[0] is not None else -1) for pid,v in groups.items()}
 
 
 def load_periods(reader,sheet_id=CENTRAL_CATALOG_ID):

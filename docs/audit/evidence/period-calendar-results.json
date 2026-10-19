@@ -1,0 +1,492 @@
+{
+  "products": [
+    {
+      "product_id": "SA94",
+      "issue": "2025-10-29",
+      "ko_start": "2025-12-01",
+      "ko_equals_first_end": true,
+      "periods": [
+        {
+          "number": 1,
+          "start": "2025-10-29",
+          "end": "2025-12-01",
+          "payment": "2025-12-04",
+          "trading_days": 23,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 2,
+          "start": "2025-12-02",
+          "end": "2025-12-29",
+          "payment": "2026-01-02",
+          "trading_days": 19,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 3,
+          "start": "2025-12-30",
+          "end": "2026-01-29",
+          "payment": "2026-02-03",
+          "trading_days": 21,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        }
+      ],
+      "gaps": [],
+      "errors": []
+    },
+    {
+      "product_id": "SB04",
+      "issue": "2025-12-16",
+      "ko_start": "2026-01-16",
+      "ko_equals_first_end": true,
+      "periods": [
+        {
+          "number": 1,
+          "start": "2025-12-16",
+          "end": "2026-01-16",
+          "payment": "2026-01-22",
+          "trading_days": 22,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 2,
+          "start": "2026-01-20",
+          "end": "2026-02-17",
+          "payment": "2026-02-20",
+          "trading_days": 20,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 3,
+          "start": "2026-02-18",
+          "end": "2026-03-16",
+          "payment": "2026-03-19",
+          "trading_days": 19,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        }
+      ],
+      "gaps": [
+        {
+          "before_period": 2,
+          "dates": [
+            "2026-01-17",
+            "2026-01-18",
+            "2026-01-19"
+          ],
+          "uncovered_trading_days": []
+        }
+      ],
+      "errors": []
+    },
+    {
+      "product_id": "SP43",
+      "issue": "2026-02-02",
+      "ko_start": "2026-03-02",
+      "ko_equals_first_end": true,
+      "periods": [
+        {
+          "number": 1,
+          "start": "2026-02-02",
+          "end": "2026-03-02",
+          "payment": "2026-03-05",
+          "trading_days": 20,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 2,
+          "start": "2026-03-03",
+          "end": "2026-04-02",
+          "payment": "2026-04-08",
+          "trading_days": 23,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 3,
+          "start": "2026-04-06",
+          "end": "2026-05-04",
+          "payment": "2026-05-07",
+          "trading_days": 21,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        }
+      ],
+      "gaps": [
+        {
+          "before_period": 3,
+          "dates": [
+            "2026-04-03",
+            "2026-04-04",
+            "2026-04-05"
+          ],
+          "uncovered_trading_days": []
+        }
+      ],
+      "errors": []
+    },
+    {
+      "product_id": "SQ29",
+      "issue": "2026-05-19",
+      "ko_start": "2026-06-22",
+      "ko_equals_first_end": true,
+      "periods": [
+        {
+          "number": 1,
+          "start": "2026-05-19",
+          "end": "2026-06-22",
+          "payment": "2026-06-25",
+          "trading_days": 23,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 2,
+          "start": "2026-06-23",
+          "end": "2026-07-20",
+          "payment": "2026-07-23",
+          "trading_days": 19,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 3,
+          "start": "2026-07-21",
+          "end": "2026-08-19",
+          "payment": "2026-08-24",
+          "trading_days": 22,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        }
+      ],
+      "gaps": [],
+      "errors": []
+    },
+    {
+      "product_id": "SR50",
+      "issue": "2026-08-21",
+      "ko_start": "2026-09-21",
+      "ko_equals_first_end": true,
+      "periods": [
+        {
+          "number": 1,
+          "start": "2026-08-21",
+          "end": "2026-09-21",
+          "payment": "2026-09-24",
+          "trading_days": 21,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 2,
+          "start": "2026-09-22",
+          "end": "2026-10-21",
+          "payment": "2026-10-26",
+          "trading_days": 22,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 3,
+          "start": "2026-10-22",
+          "end": "2026-11-23",
+          "payment": "2026-11-27",
+          "trading_days": 23,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        }
+      ],
+      "gaps": [],
+      "errors": []
+    },
+    {
+      "product_id": "SAE9",
+      "issue": "2026-10-07",
+      "ko_start": "2026-11-09",
+      "ko_equals_first_end": true,
+      "periods": [
+        {
+          "number": 1,
+          "start": "2026-10-07",
+          "end": "2026-11-09",
+          "payment": "2026-11-13",
+          "trading_days": 24,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 2,
+          "start": "2026-11-10",
+          "end": "2026-12-07",
+          "payment": "2026-12-10",
+          "trading_days": 19,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 3,
+          "start": "2026-12-08",
+          "end": "2027-01-07",
+          "payment": "2027-01-12",
+          "trading_days": 21,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        }
+      ],
+      "gaps": [],
+      "errors": []
+    },
+    {
+      "product_id": "SR67",
+      "issue": "2026-09-15",
+      "ko_start": "2026-10-15",
+      "ko_equals_first_end": true,
+      "periods": [
+        {
+          "number": 1,
+          "start": "2026-09-15",
+          "end": "2026-10-15",
+          "payment": "2026-10-20",
+          "trading_days": 23,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 2,
+          "start": "2026-10-16",
+          "end": "2026-11-16",
+          "payment": "2026-11-19",
+          "trading_days": 22,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 3,
+          "start": "2026-11-17",
+          "end": "2026-12-15",
+          "payment": "2026-12-18",
+          "trading_days": 20,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        }
+      ],
+      "gaps": [],
+      "errors": []
+    },
+    {
+      "product_id": "SB19",
+      "issue": "2026-01-13",
+      "ko_start": "2026-02-13",
+      "ko_equals_first_end": true,
+      "periods": [
+        {
+          "number": 1,
+          "start": "2026-01-13",
+          "end": "2026-02-13",
+          "payment": "2026-02-19",
+          "trading_days": 23,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 2,
+          "start": "2026-02-17",
+          "end": "2026-03-13",
+          "payment": "2026-03-18",
+          "trading_days": 19,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 3,
+          "start": "2026-03-16",
+          "end": "2026-04-13",
+          "payment": "2026-04-16",
+          "trading_days": 20,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        }
+      ],
+      "gaps": [
+        {
+          "before_period": 2,
+          "dates": [
+            "2026-02-14",
+            "2026-02-15",
+            "2026-02-16"
+          ],
+          "uncovered_trading_days": []
+        },
+        {
+          "before_period": 3,
+          "dates": [
+            "2026-03-14",
+            "2026-03-15"
+          ],
+          "uncovered_trading_days": []
+        }
+      ],
+      "errors": []
+    },
+    {
+      "product_id": "SP34",
+      "issue": "2025-12-31",
+      "ko_start": "2026-02-02",
+      "ko_equals_first_end": true,
+      "periods": [
+        {
+          "number": 1,
+          "start": "2025-12-31",
+          "end": "2026-02-02",
+          "payment": "2026-02-05",
+          "trading_days": 22,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 2,
+          "start": "2026-02-03",
+          "end": "2026-03-02",
+          "payment": "2026-03-05",
+          "trading_days": 19,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 3,
+          "start": "2026-03-03",
+          "end": "2026-03-31",
+          "payment": "2026-04-06",
+          "trading_days": 21,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        }
+      ],
+      "gaps": [],
+      "errors": []
+    },
+    {
+      "product_id": "SM25",
+      "issue": "2026-06-05",
+      "ko_start": "2026-07-06",
+      "ko_equals_first_end": true,
+      "periods": [
+        {
+          "number": 1,
+          "start": "2026-06-05",
+          "end": "2026-07-06",
+          "payment": "2026-07-08",
+          "trading_days": 20,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 2,
+          "start": "2026-07-07",
+          "end": "2026-08-05",
+          "payment": "2026-08-07",
+          "trading_days": 22,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 3,
+          "start": "2026-08-06",
+          "end": "2026-09-08",
+          "payment": "2026-09-10",
+          "trading_days": 23,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        }
+      ],
+      "gaps": [],
+      "errors": []
+    },
+    {
+      "product_id": "SQ59",
+      "issue": "2026-06-05",
+      "ko_start": "2026-07-06",
+      "ko_equals_first_end": true,
+      "periods": [
+        {
+          "number": 1,
+          "start": "2026-06-05",
+          "end": "2026-07-06",
+          "payment": "2026-07-09",
+          "trading_days": 20,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 2,
+          "start": "2026-07-07",
+          "end": "2026-08-05",
+          "payment": "2026-08-10",
+          "trading_days": 22,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        },
+        {
+          "number": 3,
+          "start": "2026-08-06",
+          "end": "2026-09-08",
+          "payment": "2026-09-11",
+          "trading_days": 23,
+          "closed_endpoints": [],
+          "payment_on_exchange_closed": false
+        }
+      ],
+      "gaps": [],
+      "errors": []
+    }
+  ],
+  "missing_products": [
+    "SA13",
+    "SA17",
+    "SA23",
+    "SA36",
+    "SA41",
+    "SA48",
+    "SA49",
+    "SA57",
+    "SA70",
+    "SA85",
+    "SA92",
+    "SA99",
+    "SAE8",
+    "SB11",
+    "SB23",
+    "SP10",
+    "SP62",
+    "SQ78",
+    "SR24"
+  ],
+  "source_calls": [
+    [
+      "1peKhu1Nt8UuCiCnajGqC9bT_GXyL3qCzQBO3z-VzzOI",
+      "'API_商品條款_V1'!A1:X150"
+    ],
+    [
+      "1peKhu1Nt8UuCiCnajGqC9bT_GXyL3qCzQBO3z-VzzOI",
+      "'API_標的_V1'!A1:M501"
+    ],
+    [
+      "1peKhu1Nt8UuCiCnajGqC9bT_GXyL3qCzQBO3z-VzzOI",
+      "'配息期'!A1:I1201"
+    ],
+    [
+      "1peKhu1Nt8UuCiCnajGqC9bT_GXyL3qCzQBO3z-VzzOI",
+      "'市場休市日'!A1:C400"
+    ],
+    [
+      "1peKhu1Nt8UuCiCnajGqC9bT_GXyL3qCzQBO3z-VzzOI",
+      "'商品完整參數輸入'!A1:CJ101"
+    ]
+  ]
+}
