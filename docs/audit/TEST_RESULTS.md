@@ -1,5 +1,10 @@
 # 測試結果
 
+## 本階段最新狀態｜2026-10-19
+最新：169 passed in 2.01s，0 failed；新增 27 項 KO 持倉與六頁 AppTest，首次有 12 個失敗反例。測試使用虛構客戶；既有 142 項保留。真實行情尚待下一單位。詳見 KO_LINKAGE.md。
+
+以下保留先前交接記錄，最新段落優先。
+
 ## 最新結果｜2026-10-19｜GitHub 恢復＋V2 本金邊界
 - 遠端讀回：恢復提交 e768a50 與原 cb3e895 的 tree 同為 c6a05e0ae8351a4843161b2996bf7b6793738f11；fetch 後 git diff 為空，所有測試及 docs/audit 檔完整。
 - 新增 test_v2_redemption.py：27 項合成行情案例，包含 AKI/EKI/Non-KI、Strike、相對最差標的、提前 KO、缺價及 105% 門檻。最終反例修正前 20 passed／7 failed。

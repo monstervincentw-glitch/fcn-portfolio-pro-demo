@@ -1,4 +1,11 @@
 # 資料流與模組盤點
+
+## 本輪追蹤｜2026-10-19
+正式分支：PIN gate → SheetsReader.portfolio（原客戶總帳）→ enrich_new_holdings → load_model_inputs（中央五表同批）＋load_market_matrix（既有526股價庫）→ model_one → calculate_v2。每商品只算一次，依投入本金展開客戶模型金額；每次 rerun 清除舊 snapshot/error/model 欄。
+
+顧問工作台／FCN 商品／股票曝險共用當次 product-only snapshot；投資總覽／客戶投資使用同次 enriched HOLDINGS。六頁前都經原 PIN；歷史試打走原 price_library_trial.render_trial，保留其獨立歷史試打用途，不作正式商品來源。
+
+KO 後引擎停止觀察，模型圖表、報價和最差標的截止事件日；模型出場與收款分開。總帳原 returned_principal_amount、received_coupon_amount 直接顯示但不改寫，缺值不推算成實收。歷史持倉不按事件日期刪除；按日曆三個月分近期／歷史商品。六頁 AppTest 及限制詳見 KO_LINKAGE.md。
 日期：2026-10-19；基準 Commit SHA：858b8d941029c82997b1e372ddea49c182242fe6；狀態：IN_PROGRESS（靜態盤點完成，逐頁執行待驗）
 
 正式根目錄入口 streamlit_app.py；封存 FCN_PortfolioPro_V8_5/ 與 FCN_Portfolio_Pro_V8_5_5_Fix/ 不作正式入口。pages/01_📚_中央商品庫.py 為額外 Streamlit 頁。

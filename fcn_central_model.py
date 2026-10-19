@@ -9,6 +9,7 @@ import datetime as dt
 from dataclasses import dataclass, field
 from math import isfinite
 from typing import Any
+from demo_utils import recent_end
 from central_catalog import as_positive_number, to_day
 from v2_portfolio_engine import CouponPeriod, calculate_v2, trading_days
 
@@ -95,7 +96,7 @@ def _date_lifecycle(m, today):
         m.category = '比價中'
         m.state = '到期結算期間'
     else:
-        m.category = '近三個月出場' if (today - m.maturity_day).days <= 93 else '歷史歸檔'
+        m.category = '近三個月出場' if recent_end({'end_event_date':m.maturity_day},today) else '歷史歸檔'
         m.state = '已到期（模型尚無 KO 結果）'
 
 
@@ -204,18 +205,16 @@ def model_one(product, legs, periods, price_matrix, holidays, rule=None, *, toda
     latest_day = available_days[-1]
     if m.pricing_day and latest_day < m.pricing_day:
         m.issues.append('成分股價庫尚未涵蓋商品定價日')
-    if m.final_eval and today >= m.final_eval and latest_day < m.final_eval:
-        m.issues.append('共用股價庫尚未涵蓋最終評價日')
 
     # Show any available close-history even when another model input is missing.
     if m.pricing_day:
         upper = min(latest_day, m.final_eval or latest_day)
         last_seen = {}
         for day in available_days:
-            if day < m.pricing_day or day > upper:
+            if day < m.pricing_day or day > upper or day.weekday()>=5 or day in holidays:
                 continue
             day_quotes = quotes[day] or {}
-            if not initial or any(day_quotes.get(t) is None for t in initial):
+            if not initial or any(as_positive_number(day_quotes.get(t)) is None for t in initial):
                 continue
             for t, start_price in initial.items():
                 pct = float(day_quotes[t]) / start_price
@@ -250,8 +249,13 @@ def model_one(product, legs, periods, price_matrix, holidays, rule=None, *, toda
     m.earned_coupon_rate = v2.coupon_total_rate
     m.principal_ratio = v2.principal_recovery_ratio
     if v2.ko_date:
+        # Freeze every model display at the same event that stops the engine.
+        m.price_history = [r for r in m.price_history if r['date'] <= v2.ko_date]
+        m.latest_date = v2.ko_date
+        event_ratios = {t:float(quotes[v2.ko_date][t])/p for t,p in initial.items()}
+        m.worst_ticker = min(event_ratios, key=event_ratios.get)
         m.state = '模型提前 KO'
-        m.category = '近三個月出場' if (today-v2.ko_date).days <= 93 else '歷史歸檔'
+        m.category = '近三個月出場' if recent_end({'end_event_date':v2.ko_date},today) else '歷史歸檔'
     elif today >= m.final_eval and as_of < m.final_eval:
         m.issues.append('末日收盤價尚未取得；不能推定到期贖回')
         return _incomplete(m)
