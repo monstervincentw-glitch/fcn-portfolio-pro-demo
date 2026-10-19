@@ -1,5 +1,8 @@
 # 資料流與模組盤點
 
+## 本輪最終交接｜2026-10-19
+真實行情驗證已走與網站相同 load_model_inputs／load_market_matrix／load_models／calculate_v2 路徑，EvidenceReader 僅離線重播讀回快照。原庫列號488～587與五檔實價保存作證據；正式reader不讀稽核快照。第一單位完成後才開始三檔核對；客戶總帳未做寫入，未讀取或保存客戶交易值。下一步僅網站版本／視覺操作驗收，詳見 NEXT_STEPS.md。
+
 ## 本輪追蹤｜2026-10-19
 正式分支：PIN gate → SheetsReader.portfolio（原客戶總帳）→ enrich_new_holdings → load_model_inputs（中央五表同批）＋load_market_matrix（既有526股價庫）→ model_one → calculate_v2。每商品只算一次，依投入本金展開客戶模型金額；每次 rerun 清除舊 snapshot/error/model 欄。
 

@@ -1,5 +1,12 @@
 # 稽核成果重建與推送
 
+## KO聯動與三檔實價保存包（最新）
+使用上一層 FCN-ko-linkage-delivery-20261019.zip；內含最新完整 fcn-audit-latest.bundle、原始9份Patch、recovery分支自858b8d9起全部Patch、交接與實價證據、鎖定依賴、MANIFEST.json／SHA256SUMS.txt。保留所有舊保存包與本地提交備份分支。
+
+下方新版 clone 指令仍適用（分支 codex-audit-recovery）。安裝相同Python3.12鎖定依賴後預期184項通過；Streamlit AppTest需要允許本機loopback socket。若沙箱阻擋請在正常授權的本機環境跑測試，不跳過或降低測試。實價重播指令：python scripts/audit_ko_market.py。
+
+最新版README、Commit SHA及Bundle SHA256以保存包MANIFEST.json為準；原始和recovery兩組Patch不能混合套用。main不曾合併或部署。本輪Sheets寫入0次，沒有需要重放的資料寫入。
+
 ## 最新保存包｜2026-10-19
 使用 FCN-recovery-v2-delivery-20261019.zip；內含 fcn-audit-latest.bundle、原始 9 份 Patch、本輪 recovery 分支全部 Patch、鎖定依賴清單、交接文件及 MANIFEST.json／SHA256SUMS.txt。原始 audit/fcn-20261019（cb3e895）與本輪 audit/v2-local-20261019 均保留。舊保存包未刪除。
 
