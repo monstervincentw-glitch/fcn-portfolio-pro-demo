@@ -1,4 +1,15 @@
 # 稽核進度
+
+## 最新狀態｜GitHub 恢復與 V2 本金邊界
+日期：2026-10-19。本單位 DONE；全案 IN_PROGRESS。以下最新狀態優先於歷史記錄。
+
+GitHub Connector 寫入成功，F-008 遠端保存阻礙解除；分支 codex-audit-recovery、[草稿 PR #1](https://github.com/monstervincentw-glitch/fcn-portfolio-pro-demo/pull/1)。原 cb3e895 與遠端 e768a50 的 tree 完全一致，16 個交接／證據檔與 6 個測試檔已讀回；原始 9 個 Commit 仍完整保留於 Bundle。終端機推送仍缺憑證，main 未修改、未部署。
+
+新增 27 項 V2 合成反例並修正 F-013：正規化比率超過 1 時被再次除以 100，會造成錯誤提早 KO。全套 142 passed in 1.23s，0 failed。沒有 Sheets 寫入、UI/PIN/客戶歷史紀錄修改。完整證據、SHA 對照與驗收限制見 RECOVERY_V2.md；最終 Commit 由 git log -1 與交付包 MANIFEST.json 確認。
+
+下一單位：檢查提前 KO 後模型／持倉顯示欄位一致性，再以共用股價庫驗證 SB04、SP43、SB19 實際逐日結果；19 檔缺條款繼續保留。
+
+## 以下為歷史進度
 日期：2026-10-19（Asia/Taipei）
 基準 Commit SHA：858b8d941029c82997b1e372ddea49c182242fe6
 

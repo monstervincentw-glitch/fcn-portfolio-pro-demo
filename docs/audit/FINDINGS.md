@@ -1,4 +1,13 @@
 # 缺失紀錄
+
+## 最新覆蓋｜2026-10-19
+F-008 DONE（遠端保存）：Connector 已可建立分支並提交，成果在 codex-audit-recovery／草稿 PR #1。終端機登入憑證仍缺少，但不阻止保存。main 未修改。
+
+F-013 DONE（V2 比率重複縮放）：中央 105% KO 正規化為 1.05 後，引擎再次除以 100，誤判提早 KO 並少算票息。引擎數值統一視為比率、明確 % 字串才縮放。27 項合成反例，修正前 7 failed／20 passed，修正後全套 142 passed。涵蓋 Strike、KI、年化率及中央模型整合。詳見 RECOVERY_V2.md。
+
+F-006 整體仍 IN_PROGRESS：KI/本金合成邊界已驗證，實際 11 檔行情及模型顯示／持倉轉接欄位尚未全面驗收。F-012 未來休市日錯誤尚未修改。沒有 Sheets 新寫入。
+
+## 以下為歷史發現
 日期：2026-10-19；基準 Commit SHA：858b8d941029c82997b1e372ddea49c182242fe6
 
 - F-001 IN_PROGRESS：預設 pytest 同時收集封存測試，模組撞名；根目錄 test_stock_auto_update.py 引用不存在的 tools；test_release_fixes 引用不存在 hero_uri；兩個 read_text 未指定 UTF-8，Windows cp950 失敗。

@@ -1,4 +1,19 @@
 # 接續工作
+
+## 最新續跑位置｜2026-10-19（優先於下方歷史記錄）
+已完成 GitHub 遠端恢復與 V2 比率／本金邊界；全案仍 IN_PROGRESS。
+
+目前使用 codex-audit-recovery，草稿 PR #1 已建立，main 未變動。原 cb3e895／9 個提交保留在 audit/fcn-20261019 及 Bundle。遠端等內容恢復提交 e768a50；本次新修改另存 audit/v2-local-20261019 並同步 recovery。最終 SHA 看 git log -1 與交付包 MANIFEST.json。Connector 可寫入；終端機無登入憑證不再阻礙保存。
+
+全套 142 passed in 1.23s，0 failed。已完成 11 檔／25 標的／33 配息期來源與公式/API一致性；本次新增 27 項 KI／本金／比率反例。勿重做已完成修復。本輪 Sheets 寫入 0 次，原備份及讀回證據保留。
+
+下一個最小單位：先讀 RECOVERY_V2.md，檢查 fcn_central_model.py 的 price_history／worst_ticker 與 KO 日期，以及 v2_portfolio_adapter.py 的舊估值欄位清除。新增可重現反例，有錯才改。接著從既有共用股價庫唯讀載入 SB04、SP43、SB19 的應有交易日與收盤價，逐日核對 KO/KI/Strike／本金。缺價列出，不可用合成價冒充實際驗收，再擴至其餘 8 檔。19 檔缺條款保持缺漏。
+
+尚未完成：實際行情全面稽核、六頁線上驗收／部署 SHA、F-005 既有 bank_approved 路徑、F-007 舊 Chart 可達性／持倉欄位、F-012 中央 2027-12-31 休市記錄。不得更動客戶實際收款、歷史交易、UI/PIN 或建立第二股價庫。F-012 若另案修正須備份與讀回，不能滾動契約指定日期。
+
+每單位完成測試、交接文件、Commit、Connector 同步 recovery 及核對 tree，再更新完整 Bundle／Patch。最新交付為上一層 FCN-recovery-v2-delivery-20261019.zip 及 fcn-audit-latest.bundle，重建見 RESTORE.md。停止於此最小單位，不宣稱全案驗收。
+
+## 以下為歷史交接（其中 BLOCKED 與測試數已由上述覆蓋）
 日期：2026-10-19；狀態：IN_PROGRESS；本階段基準Commit SHA：f1e6521638279dd5e82a578818fffc94cb5f1455。
 
 - 最後成功完成階段：配息期、營業日與API一致性 DONE（11檔33期，本地程式）；詳見COUPON_CALENDAR.md。F-009/010/011關閉。

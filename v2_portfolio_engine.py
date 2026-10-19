@@ -107,12 +107,17 @@ def _finite_number(value):
 
 
 def _rate(value):
+    """Engine numbers are ratios (1.05 = 105%); only explicit % is scaled.
+
+    Sheet display-unit normalization belongs to the central-model boundary.
+    Scaling an already normalized ratio again can cause a premature KO.
+    """
     if value is None or str(value).strip()=='': return None
     if isinstance(value, bool): return None
     raw = str(value).strip()
     v = _finite_number(raw.replace('%', ''))
     if v is None: return None
-    return v/100 if '%' in raw or v>1 else v
+    return v/100 if '%' in raw else v
 
 
 def calculate_v2(*, pricing_date: date, ko_start: date, final_eval: date,
@@ -126,6 +131,9 @@ def calculate_v2(*, pricing_date: date, ko_start: date, final_eval: date,
 
     Missing daily prices invalidate settlement; do not treat a missing price as no KO/KI.
     Prices must be exact trading-date closes, never nearest-day substitutions.
+    Numeric rate/barrier arguments are ratios, including values above 1;
+    explicit percent strings are also accepted. Raw sheet units are normalized
+    by fcn_central_model before calling this engine.
     """
     today=as_of or date.today(); issues=[]; periods=tuple(periods); holidays=tuple(holidays)
     if not all((pricing_date,ko_start,final_eval)) or not pricing_date<=ko_start<=final_eval:

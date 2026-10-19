@@ -1,4 +1,13 @@
 # 測試結果
+
+## 最新結果｜2026-10-19｜GitHub 恢復＋V2 本金邊界
+- 遠端讀回：恢復提交 e768a50 與原 cb3e895 的 tree 同為 c6a05e0ae8351a4843161b2996bf7b6793738f11；fetch 後 git diff 為空，所有測試及 docs/audit 檔完整。
+- 新增 test_v2_redemption.py：27 項合成行情案例，包含 AKI/EKI/Non-KI、Strike、相對最差標的、提前 KO、缺價及 105% 門檻。最終反例修正前 20 passed／7 failed。
+- 修正比率重複縮放後執行 .venv/Scripts/python.exe -X utf8 -m pytest -q：142 passed in 1.23s，0 failed；原 115 項全部保留通過。
+- git diff --check 通過。合成案例不是實際商品結算驗收；本輪未寫入 Sheets、未部署網站。完整範圍見 RECOVERY_V2.md。
+- Bundle 還原與最終 SHA／SHA256 證據隨保存包 MANIFEST.json 交付。
+
+## 以下為歷史測試
 日期：2026-10-19；基準 Commit SHA：858b8d941029c82997b1e372ddea49c182242fe6；狀態：DONE（基準執行，非驗收通過）
 
 環境：Windows、Python 3.12 bundled runtime、repo .venv，依 requirements.txt 安裝；pytest 9.1.1、pandas 2.3.3、Streamlit 1.66.0。

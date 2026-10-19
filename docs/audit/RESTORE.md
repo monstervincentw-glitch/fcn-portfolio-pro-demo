@@ -1,5 +1,27 @@
 # 稽核成果重建與推送
 
+## 最新保存包｜2026-10-19
+使用 FCN-recovery-v2-delivery-20261019.zip；內含 fcn-audit-latest.bundle、原始 9 份 Patch、本輪 recovery 分支全部 Patch、鎖定依賴清單、交接文件及 MANIFEST.json／SHA256SUMS.txt。原始 audit/fcn-20261019（cb3e895）與本輪 audit/v2-local-20261019 均保留。舊保存包未刪除。
+
+新版重建（PowerShell、Git、Python 3.12）：
+
+```powershell
+git bundle verify ./fcn-audit-latest.bundle
+git clone -b codex-audit-recovery ./fcn-audit-latest.bundle fcn-restored
+Set-Location fcn-restored
+git log -1 --oneline
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r docs/audit/requirements-audit-lock.txt
+.\.venv\Scripts\python.exe -X utf8 -m pytest -q
+git remote set-url origin https://github.com/monstervincentw-glitch/fcn-portfolio-pro-demo.git
+```
+
+預期 142 passed；不包含憑證或客戶資料。Patch 亦可從基準 858b8d9 依序 git am 還原；原始／recovery 兩組是不同歷史，不可混用，優先 Bundle。
+
+GitHub 已有 codex-audit-recovery 與草稿 PR #1；Connector 可寫入，終端機仍缺憑證。不要照下方舊記錄另建重複 PR。不得直接推送或合併 main。復原後先讀 NEXT_STEPS.md；本輪沒改 Sheets，歷史 SA94 修正也不可盲目重放。
+
+## 以下為第一版保存記錄
+
 日期：2026-10-19；狀態：DONE（Bundle 已驗證）；保存基準 SHA：7b95b5e2b752a9741d2424ff14e93aca6e5e16eb。
 
 原始四個 Commit：dd43192、ab5b4d5、aa32d4d、7b95b5e。完整歷史檔 fcn-audit-20261019.bundle 位於專案 repo 的上一層；audit-patches/ 保存四份原始 Patch。Bundle 不含 .venv、Secrets 或客戶資料。
