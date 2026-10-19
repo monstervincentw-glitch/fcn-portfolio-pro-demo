@@ -25,6 +25,7 @@ from sheets_backend import sheet_id_from_url
 from chart_render import build_stock_chart
 from warm_theme import apply_theme, style_chart
 from central_live_pages import render_dashboard, render_exposure, render_product_page
+from v2_portfolio_adapter import enrich_new_holdings
 
 
 st.set_page_config(page_title="FCN Portfolio Pro｜V8.5.5 修復版", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
@@ -126,6 +127,9 @@ if MODE in ("diagnostic", "live"):
 else:
     DATA = make_demo()
 
+
+if MODE == "live":
+    DATA["holdings"] = enrich_new_holdings(READER, DATA["holdings"])
 
 CUSTOMERS = DATA["customers"]
 HOLDINGS = DATA["holdings"]
@@ -325,6 +329,10 @@ elif page in ("🏠 投資總覽","👥 客戶投資"):
     st.markdown('<div class="fcn-section"><strong>客戶選擇</strong><p>切換客戶查看幣別摘要與完整歷史持倉</p></div>', unsafe_allow_html=True)
     chosen=st.selectbox("客戶",[x["customer_id"] for x in CUSTOMERS],key="customer")
     rows=[x for x in HOLDINGS if x["customer_id"]==chosen]
+    if MODE == "live":
+        for item in rows:
+            if item.get("v2_issues"):
+                st.warning(f"{item['product_id']}：V2 資料尚未完整 — {item['v2_issues']}；沿用原總帳顯示值。")
     if page=="🏠 投資總覽":
         st.markdown('<div class="fcn-section"><strong>投資組合摘要</strong><p>每種幣別分別統計，模型推定與銀行實際入帳不得混淆</p></div>', unsafe_allow_html=True)
         groups=currency_summary(rows)
@@ -357,6 +365,10 @@ elif page in ("🏠 投資總覽","👥 客戶投資"):
                                 format_func=lambda h: next(f"{x['product_id']} · {x.get('currency','')} · {h}" for x in rows if x['holding_id']==h))
             holding=next(x for x in rows if x["holding_id"]==choice)
             periods=[x for x in DATA.get("coupons",[]) if x.get("商品代號")==holding["product_id"] and x.get("契約配息日")]
+            if holding.get("v2_coupon_schedule"):
+                st.caption("以下使用 V2 計算結果；非銀行實際入帳紀錄。")
+                st.dataframe(pd.DataFrame(holding["v2_coupon_schedule"]),hide_index=True,use_container_width=True)
+                periods=[]
             items=[]
             for r in periods:
                 rate=num(r.get("模型本期票息率"))
