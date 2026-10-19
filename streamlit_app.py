@@ -16,19 +16,23 @@ import altair as alt
 from demo_charts import demo_chart
 import streamlit as st
 from demo_utils import currency_summary, product_group, num
-from sheets_backend import SheetsReader, SheetConnectionError, validate_masked_portfolio
+from sheets_backend import SheetsReader, SheetConnectionError, validate_masked_portfolio, DATA_RANGES
 from site_login import gate, logout
 from demo_data import make_demo
 from advisor_analytics import summarize_portfolio, stock_exposures, rank_quality_issues
-from risk_monitor import active_product, parse_terms, market_risks
-from sheets_backend import sheet_id_from_url
+from risk_monitor import active_product, market_risks
 from chart_render import build_stock_chart
 from warm_theme import apply_theme, style_chart
 from central_live_pages import render_dashboard, render_exposure, render_product_page
 from v2_portfolio_adapter import enrich_new_holdings
 
+# Open-ended master ledger API ranges: newly added customer holdings automatically load.
+DATA_RANGES["customers"] = "'API_客戶'!A3:I"
+DATA_RANGES["holdings"] = "'API_持倉'!A3:AD"
+DATA_RANGES["products"] = "'API_商品'!A3:Z"
 
-st.set_page_config(page_title="FCN Portfolio Pro｜V8.5.5 修復版", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
+
+st.set_page_config(page_title="FCN Portfolio Pro｜V9.1 共用股價庫版", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
 st.markdown("""<style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700&display=swap');
 :root{--fcn-ink:#1b3045;--fcn-muted:#62798d;--fcn-border:#e0e8ef;--fcn-navy:#132c43;--fcn-teal:#0b7885;--fcn-bg:#f5f8fb}
@@ -158,29 +162,31 @@ def display_status(raw):
 
 with st.sidebar:
     st.markdown("### ◈ FCN Portfolio Pro")
-    st.caption("V8.5.5 · 正式修復版")
+    st.caption("V9.1 · 共用股價庫版")
     st.caption("銀行 Edge 專用 · " + ("私人資料唯讀模式" if MODE == "live" else "相容性驗收版"))
     st.success("🔒 6 位數 PIN 已驗證 · 唯讀模式" if MODE != "demo" else "🔒 6 位數 PIN 已驗證 · 虛構資料 DEMO")
     st.button("安全登出", on_click=logout, use_container_width=True)
+    if MODE == "live":
+        st.button("🔄 重新讀取中央資料", use_container_width=True, key="manual_refresh")
     if MODE == "demo":
         st.warning("**虛構資料 DEMO** · 沒有連接真實 Google Sheets", icon="🔒")
     else:
         st.caption("Google Sheets 服務帳號僅在伺服器端唯讀使用；不需在銀行電腦登入 Google")
-    page = st.radio("功能選單", ["🧭 顧問工作台", "📈 FCN 商品", "🧪 FCN 歷史試打", "🔎 股票曝險", "🏠 投資總覽", "👥 客戶投資", "📝 例外處理", "🛡️ 銀行驗收"], index=0, label_visibility="collapsed")
+    page = st.radio("功能選單", ["🧭 顧問工作台", "📈 FCN 商品", "🧪 FCN 歷史試打", "🔎 股票曝險", "🏠 投資總覽", "👥 客戶投資", "📝 例外處理", "🛠️ 系統狀態"], index=0, label_visibility="collapsed")
     st.divider()
     st.caption("標準 HTTPS ｜ Microsoft Edge ｜ USD / EUR / JPY")
 
 
-st.markdown('<div class="fcn-banner"><div class="fcn-eyebrow">Structured Notes · Portfolio Intelligence</div><h1>FCN Portfolio Pro</h1><p>投資組合總覽 ／ FCN 商品監控 ／ 真實歷史股價試打</p></div>', unsafe_allow_html=True)
+st.markdown('<div class="fcn-banner"><div class="fcn-eyebrow">Structured Notes · Portfolio Intelligence</div><h1>FCN Portfolio Pro</h1><p>投資組合總覽 ／ 中央 FCN 動態監控 ／ 成分股歷史試打</p></div>', unsafe_allow_html=True)
 if MODE == "demo":
     st.warning("目前為銀行電腦**畫面及互動驗收版**，所有名稱、價格與金額均為虛構，不含銀行或客戶資料。", icon="🧪")
 else:
-    st.info("商品條款／連結標的／商品走勢／商品分類：中央參數庫；客戶持倉與現金流：原總帳（伺服器端唯讀）。模型推定非銀行入帳證明。", icon="🔒")
+    st.info("商品條款／配息期：中央參數庫；歷史收盤價：與歷史試打共用既有成分股股價庫；客戶持倉：既有總帳。結果皆為模型估算。", icon="🔒")
 
 
 if page == "🧪 FCN 歷史試打":
     if MODE == "live":
-        st.caption("獨立歷史試打工具仍使用原 526 檔股票歷史股價庫；不替代中央 FCN 商品條款資料。")
+        st.caption("歷史試打沿用既有的 526 檔成分股歷史股價庫；正式商品監控亦共用相同收盤價資料。")
     from price_library_trial import render_trial
     render_trial()
     st.stop()
@@ -250,15 +256,8 @@ if page == "🧭 顧問工作台":
             })
 
         # 閉鎖期界線一定依商品合約 KO 開始觀察日，不用第一檔股票的走勢推算。
-        ko_start = None
-        if MODE == "live" and product.get("source_url"):
-            sid = sheet_id_from_url(product.get("source_url"))
-            if sid:
-                try:
-                    terms = parse_terms(READER.read(sid, "'商品條款'!A1:F100"))
-                    ko_start = dashboard_date(terms.get("ko_start"))
-                except SheetConnectionError:
-                    pass
+        # DEMO uses only demo product data; LIVE already routes to central_live_pages.
+        ko_start = dashboard_date(product.get("ko_start_date"))
         if ko_start is None:
             unknown.append((pid, "無法確認 KO 開始觀察日"))
         elif today < ko_start:
@@ -313,10 +312,7 @@ elif page == "🔎 股票曝險":
     if q:
         exposures=[]
         for p in PRODUCTS:
-            if MODE == "live":
-                try: chart,_=READER.product_chart(p)
-                except SheetConnectionError: continue
-            else: chart,_=demo_chart(p['product_id'])
+            chart,_=demo_chart(p['product_id'])
             if not chart.empty and q in chart.stock.astype(str).str.upper().unique():
                 exposures.append({'FCN':p['product_id'],'幣別':p.get('product_currency'),'分類':p.get('monitor_group'),'來源': '已授權 Chart' if MODE=='live' else 'DEMO'})
         if exposures:
@@ -332,7 +328,7 @@ elif page in ("🏠 投資總覽","👥 客戶投資"):
     if MODE == "live":
         for item in rows:
             if item.get("v2_issues"):
-                st.warning(f"{item['product_id']}：V2 資料尚未完整 — {item['v2_issues']}；沿用原總帳顯示值。")
+                st.warning(f"{item['product_id']}：V2 資料尚未完整 — {item['v2_issues']}；舊總帳模型值不作為本頁試算結果。")
     if page=="🏠 投資總覽":
         st.markdown('<div class="fcn-section"><strong>投資組合摘要</strong><p>每種幣別分別統計，模型推定與銀行實際入帳不得混淆</p></div>', unsafe_allow_html=True)
         groups=currency_summary(rows)
@@ -342,12 +338,12 @@ elif page in ("🏠 投資總覽","👥 客戶投資"):
                 data=groups[cc]
                 a,b=st.columns(2)
                 a.metric("歷史申購",money(data["invested"],cc))
-                b.metric("推定本金回收",money(data["returned"],cc))
+                b.metric("模型本金回收",("—" if data["pending_count"]==data["count"] and data["count"] else money(data["returned"],cc)))
                 c,d=st.columns(2)
                 c.metric("模型可估未回本金",money(data["outstanding"],cc))
-                d.metric("自動累計票息",money(data["coupon"],cc))
+                d.metric("中央模型票息",("—" if data["pending_count"]==data["count"] and data["count"] else money(data["coupon"],cc)))
                 if data["pending_count"]:
-                    st.info(f"另有 {data['pending_count']} 筆缺商品條款，涉及歷史申購 {money(data['pending_principal'],cc)}。**存續狀態未知**，不可把這些本金當成已返還。")
+                    st.info(f"另有 {data['pending_count']} 筆缺商品條款，涉及歷史申購 {money(data['pending_principal'],cc)}。**存續狀態待補**，不能從原總帳模型補數。")
                 elif not data["count"]:st.caption("這位客戶沒有此幣別的申購。")
         st.subheader("近期商品狀態")
         for r in rows: st.write(f"**{r['product_id']}** · {r['currency']} · {display_status(r.get('estimated_settlement_state'))}")
@@ -364,25 +360,12 @@ elif page in ("🏠 投資總覽","👥 客戶投資"):
             choice=st.selectbox("選擇客戶持倉", [r["holding_id"] for r in rows],
                                 format_func=lambda h: next(f"{x['product_id']} · {x.get('currency','')} · {h}" for x in rows if x['holding_id']==h))
             holding=next(x for x in rows if x["holding_id"]==choice)
-            periods=[x for x in DATA.get("coupons",[]) if x.get("商品代號")==holding["product_id"] and x.get("契約配息日")]
-            if holding.get("v2_coupon_schedule"):
-                st.caption("以下使用 V2 計算結果；非銀行實際入帳紀錄。")
-                st.dataframe(pd.DataFrame(holding["v2_coupon_schedule"]),hide_index=True,use_container_width=True)
-                periods=[]
-            items=[]
-            for r in periods:
-                rate=num(r.get("模型本期票息率"))
-                amount=(num(holding.get("invested_amount")) or 0)*rate if rate is not None else None
-                items.append({"期數":r.get("期數"),"契約配息日":date_str(r.get("契約配息日")),
-                    "系統推定入帳日":date_str(r.get("預估入帳日")),"本期票息率 (%)":rate * 100 if rate is not None else None,
-                    "推定票息金額":amount,"資料狀態":r.get("來源狀態")})
-            if items:
-                st.dataframe(pd.DataFrame(items), hide_index=True, use_container_width=True,
-                    column_config={"本期票息率 (%)":st.column_config.NumberColumn(format="%.4f"),
-                                   "推定票息金額":st.column_config.NumberColumn(format="%.2f")})
-                st.caption("本期票息以百分比顯示，例如 1.4225%。上表是依合約模型估算，未到預估入帳日的票息不代表已收到。")
+            schedule=holding.get("v2_coupon_schedule") or []
+            if schedule:
+                st.dataframe(pd.DataFrame(schedule), hide_index=True, use_container_width=True)
+                st.caption("所有日期與票息來自中央 V2 模型；未來情境票息不代表已收到。")
             else:
-                st.info("這檔 FCN 尚無可計算的合約配息期，不能將空白當成已領取 0 元。")
+                st.info("中央商品資料尚不足以產生逐期模型票息；不改用舊客戶總帳的配息估算。")
 elif page=="📈 FCN 商品":
     if MODE == "live":
         # Central-source cutover: never fall back to legacy per-FCN workbooks.
@@ -415,14 +398,7 @@ elif page=="📈 FCN 商品":
         
         st.divider()
         st.subheader("📉 連結標的走勢圖｜期初價格 = 100%")
-        if MODE == "live":
-            try:
-                chart_data, settings = READER.product_chart(p)
-            except SheetConnectionError:
-                chart_data, settings = pd.DataFrame(), None
-                st.warning("這份商品的 Chart 尚無讀取權限或暫時無法載入。請分享該商品檔給服務帳號（Viewer）。")
-        else:
-            chart_data, settings = demo_chart(chosen_product)
+        chart_data, settings = demo_chart(chosen_product)
         if chart_data.empty:
             st.info("此商品尚未建立完整條款或走勢資料，暫時無法顯示圖表。")
         else:
@@ -446,10 +422,7 @@ elif page=="📈 FCN 商品":
                 st.caption("折線以期初定價 = 100% 正規化；KO／KI／Strike 依商品模型。圖表最後資料日期："
                            + (str(pd.Timestamp(last).date()) if pd.notna(last) else "未知")
                            + "。此日期不等於即時行情報價時間。")
-        if MODE == "demo":
-            st.caption("圖表資料來源：虛構示範資料；尚未連接真實 Google Sheets 或即時行情服務。")
-        elif p.get("source_url"):
-            st.caption("原始 Chart 已嵌入上方，不需要銀行電腦開啟 Google Sheets。")
+        st.caption("圖表資料來源：虛構示範資料。此頁不連接正式資料。");
         from fcn_customer_panel import render_product_clients
         render_product_clients(chosen_product, HOLDINGS, mode=MODE)
 elif page=="📝 例外處理":
@@ -466,13 +439,15 @@ elif page=="📝 例外處理":
             for r in enabled]),hide_index=True,use_container_width=True)
         st.caption("若要更正，仍在私人 Google Sheets『異常覆寫』操作；網站目前不開放寫入。")
 else:
-    st.markdown('<div class="fcn-section"><strong>Microsoft Edge 驗收</strong><p>部署、相容性與資料安全檢核清單</p></div>', unsafe_allow_html=True)
-    st.markdown("**銀行電腦只需開啟 HTTPS 網址，不安裝任何外掛或軟體。**")
-    checklist=["銀行 Edge 開啟 *.streamlit.app，無憑證警示或公司政策阻擋", "選單、中文字體、表格與圖表可正常顯示", "客戶切換後數字變動；USD/EUR/JPY 不直接加總", "商品日常監控／全部商品／待建檔切換正常", "商品詳情、頁面重新整理均正常", "網站登入方式符合銀行資訊安全政策，不需在銀行電腦安裝程式", "資料處理與部署環境符合銀行規範（公開DEMO僅使用虛構資料）", "正式資料的取用已經過銀行資訊安全核准"]
-    for i,item in enumerate(checklist,1):st.checkbox(f"{i}. {item}",key=f"check_{i}")
-    st.caption("畫面上的勾選僅供測試人員記錄，不會寫入雲端。")
+    st.subheader("🛠️ 系統狀態｜中央聯動資料來源")
+    st.caption("商品監控與客戶報表均由伺服器唯讀載入；此頁不提供銀行核約、核價或結算確認功能。")
+    st.write("**商品條款與配息**：中央商品參數庫（API_商品條款_V1、API_標的_V1、配息期、商品完整參數輸入）。")
+    st.write("**客戶與持倉**：既有客戶總帳，依 product_id 自動匹配中央商品。")
+    st.write("**股價來源**：既有 526 檔成分股股價庫（收盤價矩陣）。歷史試打與正式商品監控共用股價，不複製行情。")
+    st.write("**每日行情**：原股價庫的 GitHub Actions 排程於美股收盤後增量更新同一份收盤價矩陣；網站僅唯讀。排程需完成 GitHub Secrets 設定後才會執行。")
+    st.info("如果商品顯示『資料不足』，請檢查中央必要條款或成分股庫是否包含該股票及完整歷史價；不會以舊商品表、其他來源或零值替補。")
 
 
 st.divider()
-st.caption("FCN Portfolio Pro · " + ("私人 Google Sheets 唯讀模式（需銀行正式核准）" if MODE=="live" else "Streamlit 相容性驗收版 · 虛構資料")
+st.caption("FCN Portfolio Pro · " + ("中央商品參數＋獨立客戶總帳（網站唯讀）" if MODE=="live" else "Streamlit 相容性驗收版 · 虛構資料")
            + " · USD / EUR / JPY")

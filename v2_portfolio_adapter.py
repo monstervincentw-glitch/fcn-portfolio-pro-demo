@@ -1,120 +1,138 @@
-"""Opt-in central catalog -> V2 -> new holdings. Never writes Google Sheets.
-Legacy products remain byte-for-byte untouched; incomplete new products retain ledger values.
+"""FCN model uses central terms plus the unchanged 526-stock library.
+
+One product model serves all customer holdings; no bank confirmation gates.
+No old V2/Data file, individual FCN Chart files or second daily price feed.
 """
 from __future__ import annotations
-from dataclasses import replace
-from datetime import date, datetime, timedelta, timezone
-from central_catalog import load_catalog, CENTRAL_CATALOG_ID
-from v2_portfolio_engine import CouponPeriod, calculate_v2, to_date
+from datetime import datetime, timezone, timedelta
+from central_catalog import (
+    load_catalog, load_market_matrix, load_holidays, load_periods,
+    load_input_rules, as_positive_number, to_day,
+)
+from fcn_central_model import model_one, ratio
 
-ORIGINAL_V2_ID = '1pc2O3CB4vp1Tq0CcgfngitpVQsbb64ibSucL3fKFI44'
-NEW_PRODUCT_IDS = frozenset(('SP34','SM25','SQ59'))  # Explicit rollout; legacy untouched.
 
-def _float(x):
-    try: return float(str(x).replace(',','').replace('%',''))
-    except (TypeError,ValueError): return None
+def load_models(reader, *, today=None):
+    """Build a single same-version snapshot of all central products.
 
-def _rows(reader, spreadsheet, tab, span):
-    raw=reader.read(spreadsheet,f"'{tab}'!{span}")
-    if not raw: return []
-    header=[str(x or '').strip() for x in raw[0]]
-    return [dict(zip(header, list(r)+[None]*max(0,len(header)-len(r)))) for r in raw[1:]]
+    Return (Catalog, models); one model per product, never one per customer.
+    """
+    catalog=load_catalog(reader)
+    tickers={leg['ticker'] for legs in catalog.legs.values() for leg in legs}
+    market, latest, symbols=load_market_matrix(reader,tickers)
+    holidays=load_holidays(reader)
+    periods=load_periods(reader)
+    input_rules=load_input_rules(reader)
+    models={}
+    for pid, product in catalog.products.items():
+        model=model_one(product,catalog.legs.get(pid,()),periods.get(pid,()),
+                        market,holidays,input_rules.get(pid),today=today)
+        absent=sorted({leg['ticker'] for leg in catalog.legs.get(pid,()) if leg['ticker'] not in symbols})
+        if absent and not any('未收錄' in issue for issue in model.issues):
+            model.issues.append('股票未收錄於現有成分股股價庫：'+'、'.join(absent))
+            model.state='資料不足'; model.category='資料不足'
+            model.principal_ratio=None; model.earned_coupon_rate=None
+        # Historical closes are shared with the independent history-trial page.
+        for leg in catalog.legs.get(pid,()):
+            ticker=leg['ticker']
+            day=next((date for date in sorted(market,reverse=True)
+                      if market[date].get(ticker) is not None),None)
+            close=market[day][ticker] if day else None
+            initial=as_positive_number(leg.get('initial_price'))
+            pct=close/initial if close and initial else None
+            model.quote_rows.append({
+                '股票':ticker,'收盤日期':day.isoformat() if day else '—',
+                '最新收盤價':close,'期初價':initial,
+                '相對期初':round(pct*100,2) if pct else None,
+                '距 KO':round((pct/ratio(product.get('ko_barrier_ratio'))-1)*100,2)
+                          if pct and ratio(product.get('ko_barrier_ratio')) else None,
+                '距 Strike':round((pct/ratio(product.get('strike_ratio'))-1)*100,2)
+                          if pct and ratio(product.get('strike_ratio')) else None,
+                '距 KI':round((pct/ratio(product.get('ki_barrier_ratio'))-1)*100,2)
+                         if pct and ratio(product.get('ki_barrier_ratio')) else None,
+            })
+        models[pid]=model
+    return catalog,models
 
-def _holidays(reader):
-    """Read same holiday column used by original V2; if unavailable, do not calculate."""
-    rows=reader.read(ORIGINAL_V2_ID,"'Data'!AL31:AL129")
-    days={to_date(r[0]) for r in rows if r and r[0] not in ('',None)}
-    days.discard(None)
-    if not days: raise ValueError('原 V2 休市日表未讀取成功')
-    return days
-
-def _periods(reader, pid):
-    records=_rows(reader,CENTRAL_CATALOG_ID,'配息期','A1:I300')
-    result=[]
-    for r in records:
-        if str(r.get('商品代號') or '').strip()!=pid: continue
-        start=to_date(r.get('期初日')); end=to_date(r.get('期末日'))
-        payment=to_date(r.get('配息日'))
-        n=_float(r.get('配息期'))
-        if start is None or end is None or payment is None or n is None:
-            raise ValueError('中央配息期缺完整起訖日／配息日／期別')
-        result.append(CouponPeriod(int(n),start,end,payment))
-    if not result: raise ValueError('中央配息期不存在')
-    return sorted(result,key=lambda x:x.number)
-
-def _prices(reader, tickers, pricing, end):
-    data=reader.read(CENTRAL_CATALOG_ID,"'歷史行情_核心'!A1:AZ1100")
-    if not data: raise ValueError('中央歷史行情缺漏')
-    headers=[str(x or '').strip().upper() for x in data[0]]
-    idx={t:headers.index(t) for t in tickers if t in headers}
-    if len(idx)!=len(tickers): raise ValueError('中央歷史行情缺少連結標的欄位')
-    result={}
-    for row in data[1:]:
-        day=to_date(row[0] if row else None)
-        if day is None or day<pricing or day>end: continue
-        result[day]={t:_float(row[j]) if j<len(row) else None for t,j in idx.items()}
-    return result
 
 def enrich_new_holdings(reader, holdings):
-    """Read-only enhancement, preserving old products and incomplete new-product ledger values.
+    """Update copies of EACH customer's holding using one central FCN calculation.
 
-    For transparency, attaches v2_issues / v2_state; only complete V2 results overwrite
-    projected fields in memory. Does not mutate source holdings or cash-flow records.
+    Remove all old ledger model projection values in memory. Real transaction
+    records in customer ledger are NOT changed. Missing central inputs => null,
+    NOT a stale ledger estimate, invented zero or 'bank verification pending'.
     """
     copied=[dict(h) for h in holdings]
-    selected=[h for h in copied if str(h.get('product_id') or '').strip() in NEW_PRODUCT_IDS]
-    if not selected: return copied
+    # A failed Sheets refresh must never leave previous product results cached.
     try:
-        catalog=load_catalog(reader)
-        holidays=_holidays(reader)
+        import streamlit as st
+        st.session_state.pop('_fcn_v9_catalog_models',None)
+    except (ImportError,AttributeError):
+        pass
+    try:
+        catalog,models=load_models(reader)
     except Exception as exc:
-        for h in selected: h['v2_issues']=f'V2 資料讀取失敗：{exc}'
-        return copied
-    today=datetime.now(timezone(timedelta(hours=8))).date()
-    cache={}
-    for h in selected:
+        catalog,models=None,{}
+        failure='中央商品庫暫時無法讀取：'+str(exc)
+    else:
+        failure=None
+        # Cache product-only calculations for the CURRENT authenticated Streamlit
+        # rerun. Client data is never cached and the next rerun reloads Sheets.
+        try:
+            import streamlit as st
+            st.session_state['_fcn_v9_catalog_models']=(catalog,models)
+        except (ImportError,AttributeError):
+            pass
+    for h in copied:
         pid=str(h.get('product_id') or '').strip()
-        if pid not in cache:
-            try:
-                p=catalog.products[pid]; legs=catalog.legs[pid]
-                start=to_date(p.get('pricing_date')); ko_start=to_date(p.get('ko_start_date'))
-                end=to_date(p.get('final_eval_date'))
-                if not start or not ko_start or not end: raise ValueError('商品重要日期缺漏')
-                initial={str(x['ticker']):_float(x.get('initial_price')) for x in legs}
-                if not initial or any(v is None for v in initial.values()): raise ValueError('期初價格缺漏')
-                periods=_periods(reader,pid)
-                prices=_prices(reader,list(initial),start,end)
-                ko_type=str(p.get('ko_type') or '').strip()
-                if ko_type in ('記憶KO','記憶式KO','memory KO'): ko_type='記憶式'
-                ki_type=str(p.get('ki_type') or '').strip()
-                if 'Non-KI' in ki_type: ki_type='Non-KI'
-                elif 'EKI' in ki_type: ki_type='EKI'
-                elif 'AKI' in ki_type: ki_type='AKI'
-                res=calculate_v2(pricing_date=start,ko_start=ko_start,final_eval=end,
-                    initial_prices=initial,daily_prices=prices,ko_barrier=_float(p.get('ko_barrier_ratio')) or 0,
-                    strike=_float(p.get('strike_ratio')) or 0,
-                    ki_barrier=_float(p.get('ki_barrier_ratio')),
-                    ko_type=ko_type,ki_type=ki_type,annual_rate=_float(p.get('annual_coupon_rate')) or 0,
-                    periods=periods,holidays=holidays,as_of=today)
-                cache[pid]=res
-            except Exception as exc: cache[pid]=exc
-        res=cache[pid]
-        if isinstance(res,Exception): h['v2_issues']=str(res); continue
-        h['v2_state']=res.state
-        if res.issues: h['v2_issues']='；'.join(res.issues); continue
-        amount=_float(h.get('invested_amount'))
-        if amount is None: h['v2_issues']='持倉本金缺漏'; continue
-        h['v2_coupon_schedule']=[{'期別':c.number,'配息日':c.payment.isoformat(),
-                                  '交易日':c.full_trading_days,'KO前交易日':c.ko_trading_days,
-                                  '計息比例':c.accrual_ratio,'預估票息':round(amount*c.coupon_rate,2)}
-                                 for c in res.coupons]
-        if res.principal_recovery_ratio is not None:
-            principal=round(amount*res.principal_recovery_ratio,2)
-            h['estimated_principal_total']=principal
-            h['estimated_outstanding']=max(0.,round(amount-principal,2))
-            h['estimated_coupon_total']=round(amount*res.coupon_total_rate,2)
-            h['estimated_settlement_state']='V2 模型：'+res.state
-            h['expected_principal_amount']=principal
-            h['expected_principal_date']=(res.ko_date or to_date(catalog.products[pid].get('maturity_date')))
-        # No settlement value for live product before KO/final evaluation.
+        capital=as_positive_number(h.get('invested_amount'))
+        # Stop projecting from the legacy customer's bank spreadsheet columns.
+        for field in ('estimated_principal_total','estimated_coupon_total',
+                      'estimated_outstanding','expected_principal_date',
+                      'expected_principal_amount'):
+            h[field]=None
+        h['v2_coupon_schedule']=[]
+        h['v2_model_source']='中央商品參數庫＋成分股股價庫'
+        h['v2_issues']=''
+        if failure:
+            h['v2_issues']=failure
+            h['estimated_settlement_state']='中央資料讀取失敗'
+            continue
+        m=models.get(pid)
+        if m is None:
+            h['v2_issues']='中央商品庫找不到此商品代號'
+            h['estimated_settlement_state']='中央商品待建檔'
+            continue
+        h['v2_state']=m.state
+        if m.issues:
+            h['v2_issues']='；'.join(m.issues)
+            h['estimated_settlement_state']='中央模型資料不足'
+            continue
+        if capital is None:
+            h['v2_issues']='客戶持倉本金缺漏'
+            h['estimated_settlement_state']='客戶資料不足'
+            continue
+        h['v2_coupon_schedule']=[{
+            '期別':r['期數'],'計息起日':r['計息起日'],'計息末日':r['計息末日'],
+            '預定配息日':r['配息日'],
+            '模型票息率 (%)':round(r['模型票息率']*100,5),
+            '模型票息金額':round(capital*r['模型票息率'],2),
+            '未來情境票息':round(capital*r['未來假設票息率'],2),
+            '模式':r['計息模式']}
+            for r in m.coupon_rows]
+        h['estimated_coupon_total']=(round(capital*m.earned_coupon_rate,2)
+                                     if m.earned_coupon_rate is not None else None)
+        h['v2_forecast_coupon_total']=(round(capital*m.forecast_coupon_rate,2)
+                                      if m.forecast_coupon_rate is not None else None)
+        if m.principal_ratio is not None:
+            h['estimated_principal_total']=round(capital*m.principal_ratio,2)
+            h['estimated_outstanding']=max(0,round(capital*(1-m.principal_ratio),2))
+            h['expected_principal_amount']=h['estimated_principal_total']
+            h['expected_principal_date']=m.ko_date or m.maturity_day
+        else:
+            # Unmatured and not KO: capital is still exposed to the FCN.
+            h['estimated_principal_total']=None
+            h['estimated_outstanding']=capital
+            h['expected_principal_date']=m.maturity_day
+        h['estimated_settlement_state']='中央 V2：'+m.state
     return copied
