@@ -80,6 +80,12 @@ def _snapshot(reader):
     cached=st.session_state.get('_fcn_v9_catalog_models')
     if cached is not None:
         return cached
+    # Avoid sending another burst of Sheets API requests after the adapter
+    # has already failed earlier during this same Streamlit rerun.
+    failure=st.session_state.get('_fcn_v9_model_error')
+    if failure:
+        st.error(failure+'。網站不會連回舊商品檔案。')
+        return None,None
     try:return load_models(reader)
     except Exception as exc:
         st.error('中央商品庫讀取失敗：'+str(exc)+'。網站不會連回舊商品檔案。')

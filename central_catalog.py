@@ -9,6 +9,7 @@ import datetime as dt
 from dataclasses import dataclass
 from math import isfinite
 from typing import Any
+import time
 
 CENTRAL_CATALOG_ID = '1peKhu1Nt8UuCiCnajGqC9bT_GXyL3qCzQBO3z-VzzOI'
 # EXACT same ID/tab as the existing price_library_trial.py used by historical trial.
@@ -24,6 +25,10 @@ REQUIRED_PRODUCTS = {'product_id','currency','pricing_date','annual_coupon_rate'
 REQUIRED_LEGS = {'product_id','leg_no','ticker','initial_price'}
 
 class CatalogSchemaError(ValueError):
+    pass
+
+class BatchReadError(RuntimeError):
+    """A safe, source-specific Google Sheets API error; no credential content."""
     pass
 
 @dataclass(frozen=True)
@@ -72,8 +77,50 @@ def parse_catalog(p_values,l_values):
     return Catalog(products,{key:tuple(sorted(ls,key=lambda l:l['leg_no'])) for key,ls in legs.items()})
 
 
+def read_bundle(reader, sheet_id: str, ranges: list[str]) -> list[list[list]]:
+    """One Google Sheets values:batchGet for one workbook, using EXISTING readonly credentials.
+
+    Individual reader.read fallback is intentionally retained only for fake readers in
+    offline tests; a running Streamlit SheetsReader uses its authenticated session.
+    Neither credentials nor sheet contents are written, cached persistently or logged.
+    """
+    session = getattr(reader, 'session', None)
+    if session is None or not callable(getattr(session, 'get', None)):
+        return [reader.read(sheet_id, span) for span in ranges]
+    endpoint = f'https://sheets.googleapis.com/v4/spreadsheets/{sheet_id}/values:batchGet'
+    params = [('ranges', span) for span in ranges] + [('valueRenderOption', 'UNFORMATTED_VALUE')]
+    for attempt in range(3):
+        try:
+            response = session.get(endpoint, params=params, timeout=45)
+            status = response.status_code
+            if status in (429,500,502,503,504) and attempt < 2:
+                time.sleep((attempt + 1) * 1.5)
+                continue
+            if status in (401,403):
+                raise BatchReadError('Google 服務帳號無法存取該工作簿（HTTP %d）；請確認 Viewer 分享權限' % status)
+            if status == 404:
+                raise BatchReadError('找不到工作簿或 Google 服務帳號未獲授權（HTTP 404）')
+            if status == 429:
+                raise BatchReadError('Google Sheets API 讀取配額限制（HTTP 429）；稍後重試')
+            if status >= 400:
+                raise BatchReadError('Google Sheets API 回覆 HTTP %d，請查看 Streamlit 管理介面 Logs' % status)
+            payload=response.json().get('valueRanges', [])
+            if len(payload)!=len(ranges):
+                raise BatchReadError('Google Sheets 批次讀取回傳筆數不符')
+            return [item.get('values', []) for item in payload]
+        except BatchReadError:
+            raise
+        except Exception as exc:
+            if attempt < 2:
+                time.sleep((attempt + 1) * 1.5)
+                continue
+            raise BatchReadError('Google Sheets 連線逾時或網路錯誤（%s）' % type(exc).__name__) from None
+    raise BatchReadError('Google Sheets 讀取暫時失敗')
+
+
 def load_catalog(reader, sheet_id=CENTRAL_CATALOG_ID):
-    return parse_catalog(reader.read(sheet_id,PRODUCT_RANGE),reader.read(sheet_id,LEGS_RANGE))
+    products, legs = read_bundle(reader, sheet_id, [PRODUCT_RANGE, LEGS_RANGE])
+    return parse_catalog(products, legs)
 
 
 def to_day(value):
@@ -126,6 +173,7 @@ def load_market_matrix(reader, tickers=None, sheet_id=STOCK_LIBRARY_ID):
     # Explicit symbols ensure the routine cannot accidentally fetch 526*all rows.
     if tickers is None:
         requested=list(labels[1:])
+    # Original dates are read first to determine the actual occupied row bound.
     raw_dates=reader.read(sheet_id,f"'{STOCK_PRICE_TAB}'!A2:A")
     dates=[]
     for row in raw_dates:
@@ -142,12 +190,12 @@ def load_market_matrix(reader, tickers=None, sheet_id=STOCK_LIBRARY_ID):
         raise CatalogSchemaError('成分股股價庫交易日期重複或排序錯誤')
     today=_today_taipei()
     market={day:{} for day in valid if day<=today}
+    selected=[(symbol, sheet_column(labels.index(symbol))) for symbol in requested if symbol in included]
     endrow=len(dates)+1
-    for symbol in requested:
-        if symbol not in included:
-            continue
-        column=sheet_column(labels.index(symbol))
-        values=reader.read(sheet_id,f"'{STOCK_PRICE_TAB}'!{column}2:{column}{endrow}")
+    ranges=[f"'{STOCK_PRICE_TAB}'!{column}2:{column}{endrow}" for _,column in selected]
+    # All ticker columns in one batch request rather than one request per ticker.
+    columns=read_bundle(reader,sheet_id,ranges) if ranges else []
+    for (symbol,_),values in zip(selected, columns):
         for i,day in enumerate(dates):
             if day not in market:
                 continue
@@ -157,8 +205,7 @@ def load_market_matrix(reader, tickers=None, sheet_id=STOCK_LIBRARY_ID):
     return market,latest,included
 
 
-def load_holidays(reader,sheet_id=CENTRAL_CATALOG_ID):
-    rows=reader.read(sheet_id,CALENDAR_RANGE)
+def parse_holidays(rows):
     if not rows or not rows[0] or str(rows[0][0]).strip()!='休市日期':
         raise CatalogSchemaError('中央市場休市日分頁缺少「休市日期」標題')
     holiday=set()
@@ -169,8 +216,11 @@ def load_holidays(reader,sheet_id=CENTRAL_CATALOG_ID):
     return holiday
 
 
-def load_periods(reader,sheet_id=CENTRAL_CATALOG_ID):
-    rows=reader.read(sheet_id,PERIOD_RANGE)
+def load_holidays(reader,sheet_id=CENTRAL_CATALOG_ID):
+    return parse_holidays(reader.read(sheet_id,CALENDAR_RANGE))
+
+
+def parse_periods(rows):
     if not rows or not rows[0] or rows[0][1:3]!=['商品代號','配息期']:
         raise CatalogSchemaError('中央配息期表頭異動')
     groups={}
@@ -186,8 +236,11 @@ def load_periods(reader,sheet_id=CENTRAL_CATALOG_ID):
     return {pid:sorted(v) for pid,v in groups.items()}
 
 
-def load_input_rules(reader,sheet_id=CENTRAL_CATALOG_ID):
-    rows=reader.read(sheet_id,INPUT_RANGE)
+def load_periods(reader,sheet_id=CENTRAL_CATALOG_ID):
+    return parse_periods(reader.read(sheet_id,PERIOD_RANGE))
+
+
+def parse_input_rules(rows):
     if not rows or not rows[0] or rows[0][0]!='商品代號':
         raise CatalogSchemaError('中央原始輸入欄位異動')
     headers=[str(s or '').strip() for s in rows[0]]
@@ -198,6 +251,22 @@ def load_input_rules(reader,sheet_id=CENTRAL_CATALOG_ID):
         record={h:row[j] if j<len(row) else None for j,h in enumerate(headers) if h}
         rules[pid]=record
     return rules
+
+
+def load_input_rules(reader,sheet_id=CENTRAL_CATALOG_ID):
+    return parse_input_rules(reader.read(sheet_id,INPUT_RANGE))
+
+
+def load_model_inputs(reader,sheet_id=CENTRAL_CATALOG_ID):
+    """Load the five CENTRAL term/calendar tabs in one read-only API request."""
+    try:
+        prods, legs, periods, calendar, rules = read_bundle(
+            reader,sheet_id,[PRODUCT_RANGE,LEGS_RANGE,PERIOD_RANGE,CALENDAR_RANGE,INPUT_RANGE]
+        )
+    except BatchReadError as exc:
+        raise BatchReadError('中央商品參數庫連線失敗：'+str(exc)) from None
+    return (parse_catalog(prods,legs),parse_holidays(calendar),
+            parse_periods(periods),parse_input_rules(rules))
 
 
 def load_history(reader,tickers,sheet_id=STOCK_LIBRARY_ID):

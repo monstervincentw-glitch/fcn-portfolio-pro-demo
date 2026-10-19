@@ -6,8 +6,8 @@ No old V2/Data file, individual FCN Chart files or second daily price feed.
 from __future__ import annotations
 from datetime import datetime, timezone, timedelta
 from central_catalog import (
-    load_catalog, load_market_matrix, load_holidays, load_periods,
-    load_input_rules, as_positive_number, to_day,
+    load_model_inputs, load_market_matrix,
+    as_positive_number, to_day,
 )
 from fcn_central_model import model_one, ratio
 
@@ -17,12 +17,14 @@ def load_models(reader, *, today=None):
 
     Return (Catalog, models); one model per product, never one per customer.
     """
-    catalog=load_catalog(reader)
+    # 1 central batch instead of multiple sequential requests.
+    catalog, holidays, periods, input_rules = load_model_inputs(reader)
     tickers={leg['ticker'] for legs in catalog.legs.values() for leg in legs}
-    market, latest, symbols=load_market_matrix(reader,tickers)
-    holidays=load_holidays(reader)
-    periods=load_periods(reader)
-    input_rules=load_input_rules(reader)
+    try:
+        # Header request + one multi-column batch from EXISTING 526-stock library.
+        market, latest, symbols=load_market_matrix(reader,tickers)
+    except Exception as exc:
+        raise ValueError('成分股歷史股價庫讀取失敗：'+str(exc)) from None
     models={}
     for pid, product in catalog.products.items():
         model=model_one(product,catalog.legs.get(pid,()),periods.get(pid,()),
@@ -67,13 +69,19 @@ def enrich_new_holdings(reader, holdings):
     try:
         import streamlit as st
         st.session_state.pop('_fcn_v9_catalog_models',None)
+        st.session_state.pop('_fcn_v9_model_error',None)
     except (ImportError,AttributeError):
         pass
     try:
         catalog,models=load_models(reader)
     except Exception as exc:
         catalog,models=None,{}
-        failure='中央商品庫暫時無法讀取：'+str(exc)
+        failure='商品監控來源讀取失敗：'+str(exc)
+        try:
+            import streamlit as st
+            st.session_state['_fcn_v9_model_error']=failure
+        except (ImportError,AttributeError):
+            pass
     else:
         failure=None
         # Cache product-only calculations for the CURRENT authenticated Streamlit
