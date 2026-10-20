@@ -124,7 +124,7 @@ if MODE in ("diagnostic", "live"):
         st.button("安全登出", on_click=logout)
         st.stop()
     try:
-        DATA = validate_masked_portfolio(READER.portfolio())
+        DATA = validate_masked_portfolio(READER.portfolio(model_only=True))
     except SheetConnectionError as exc:
         st.error(str(exc))
         st.stop()
@@ -442,25 +442,22 @@ elif page=="📈 FCN 商品":
         from fcn_customer_panel import render_product_clients
         render_product_clients(chosen_product, HOLDINGS, mode=MODE)
 elif page=="📝 例外處理":
-    st.markdown('<div class="fcn-section"><strong>例外處理與資料品質</strong><p>集中追蹤條款不足與已啟用的人工覆寫</p></div>', unsafe_allow_html=True)
-    st.info("正常 FCN 按契約日及 3 個工作日的預設規則推定結算；特殊本金、票息、日期才需例外覆寫。")
-    st.markdown("**目前網站完全唯讀，不會直接修改總帳。** 如有例外，在私人 Google Sheets 的『異常覆寫』修改；不需銀行逐筆核實。")
-    exceptions=[r for r in HOLDINGS if "不足" in str(r.get("estimated_settlement_state"))]
-    st.dataframe(pd.DataFrame([{"持倉":r['holding_id'],"商品":r['product_id'],"幣別":r['currency'],"提示":r.get('estimated_settlement_state')} for r in exceptions]),use_container_width=True,hide_index=True)
-    if MODE == "live":
-        enabled=[r for r in DATA.get("exceptions", []) if r.get("啟用狀態")=="啟用"]
-        st.subheader("已啟用的人工例外（唯讀檢視）")
-        st.dataframe(pd.DataFrame([{"持倉ID":r.get("持倉ID"),"FCN":r.get("商品"),"幣別":r.get("幣別"),
-            "人工覆寫本金":r.get("覆寫總本金"),"人工覆寫票息":r.get("覆寫總票息"),"說明":r.get("異常說明")}
-            for r in enabled]),hide_index=True,use_container_width=True)
-        st.caption("若要更正，仍在私人 Google Sheets『異常覆寫』操作；網站目前不開放寫入。")
+    st.markdown('<div class="fcn-section"><strong>模型資料品質</strong><p>僅顯示中央條款或共用行情缺漏，不建立另一套人工覆寫與估算帳</p></div>', unsafe_allow_html=True)
+    st.info("本系統只從客戶持倉、中央商品條款及共用股價庫推算，不進行銀行入帳核對，也不使用額外的覆寫試算表。")
+    issues=[r for r in HOLDINGS if r.get("v2_issues")]
+    st.dataframe(pd.DataFrame([{"FCN":r.get('product_id'),"幣別":r.get('currency'),
+        "模型待補資料":r.get('v2_issues')} for r in issues]),
+        hide_index=True,use_container_width=True)
+    if not issues:
+        st.success("目前沒有模型所回報的資料缺漏。")
+
 else:
     st.subheader("🛠️ 系統狀態｜中央聯動資料來源")
-    st.caption("商品監控與客戶報表均由伺服器唯讀載入；此頁不提供銀行核約、核價或結算確認功能。")
+    st.caption("三套唯一來源：客戶持倉、中央商品參數及共用股價；網站僅即時計算模型結果，不核對銀行入帳。")
     st.write("**商品條款與配息**：中央商品參數庫（API_商品條款_V1、API_標的_V1、配息期、商品完整參數輸入）。")
     st.write("**客戶與持倉**：既有客戶總帳，依 product_id 自動匹配中央商品。")
     st.write("**股價來源**：既有 526 檔成分股股價庫（收盤價矩陣）。歷史試打與正式商品監控共用股價，不複製行情。")
-    st.write("**每日行情**：原股價庫的 GitHub Actions 排程於美股收盤後增量更新同一份收盤價矩陣；網站僅唯讀。排程需完成 GitHub Secrets 設定後才會執行。")
+    st.write("**每日行情**：現有股價庫的 Apps Script 五分鐘分批更新器負責寫入唯一收盤價矩陣；網站僅唯讀，不啟用第二套 GitHub 股價寫入器。")
     st.info("如果商品顯示『資料不足』，請檢查中央必要條款或成分股庫是否包含該股票及完整歷史價；不會以舊商品表、其他來源或零值替補。")
 
 
