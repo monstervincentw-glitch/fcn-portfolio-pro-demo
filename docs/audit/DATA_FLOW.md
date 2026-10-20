@@ -1,5 +1,8 @@
 # 資料流與模組盤點
 
+## 本輪最新｜2026-10-20｜本地驗收單位
+隔離AppTest以記憶體隨機測試PIN走真實gate→SheetsReader.portfolio解析→中央快照load_models→V2→六頁。無網路或寫入方法。原生pages入口現亦走enrich，避免跨頁cache與舊總帳模型值。歷史試打走原render_trial、fetch_library_prices與simulate_history，結果僅session_state、不寫Sheets，頁面rerun保留但新session不作永久保存。
+
 ## 本輪最終交接｜2026-10-19
 真實行情驗證已走與網站相同 load_model_inputs／load_market_matrix／load_models／calculate_v2 路徑，EvidenceReader 僅離線重播讀回快照。原庫列號488～587與五檔實價保存作證據；正式reader不讀稽核快照。第一單位完成後才開始三檔核對；客戶總帳未做寫入，未讀取或保存客戶交易值。下一步僅網站版本／視覺操作驗收，詳見 NEXT_STEPS.md。
 
