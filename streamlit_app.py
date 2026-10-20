@@ -330,7 +330,7 @@ elif page in ("🏠 投資總覽","👥 客戶投資"):
             if item.get("v2_issues"):
                 st.warning(f"{item['product_id']}：V2 資料尚未完整 — {item['v2_issues']}；舊總帳模型值不作為本頁試算結果。")
     if page=="🏠 投資總覽":
-        st.markdown('<div class="fcn-section"><strong>投資組合摘要</strong><p>每種幣別分別統計，模型推定與銀行實際入帳不得混淆</p></div>', unsafe_allow_html=True)
+        st.markdown('<div class="fcn-section"><strong>投資組合摘要</strong><p>每種幣別分別統計；本金回收、存續本金與票息均為網站即時計算的模型估算</p></div>', unsafe_allow_html=True)
         groups=currency_summary(rows)
         tabs=st.tabs([f"{cc} 統計" for cc in CURRENCY])
         for tab,cc in zip(tabs,CURRENCY):
@@ -368,7 +368,7 @@ elif page in ("🏠 投資總覽","👥 客戶投資"):
         table=[]
         for r in rows:
             table.append({"FCN":r['product_id'],"幣別":r['currency'],"投入本金":r['invested_amount'],"申購日期":date_str(r.get('trade_date')),"模型出場日":date_str(r.get('v2_exit_date')),"預定本金付款日":date_str(r.get('expected_principal_date')),"模型回收本金":r.get('estimated_principal_total'),"預估票息":r.get('estimated_coupon_total'),"模型存續本金":r.get('estimated_outstanding'),"模型本金損失":r.get('v2_principal_loss'),"結算狀態":display_status(r.get('estimated_settlement_state'))})
-        st.dataframe(pd.DataFrame(table),use_container_width=True,hide_index=True,column_config={"投入本金":st.column_config.NumberColumn(format="%.2f"),"模型回收本金":st.column_config.NumberColumn(format="%.2f"),"預估票息":st.column_config.NumberColumn(format="%.2f"),"估算未回本金":st.column_config.NumberColumn(format="%.2f")})
+        st.dataframe(pd.DataFrame(table),use_container_width=True,hide_index=True,column_config={"投入本金":st.column_config.NumberColumn(format="%.2f"),"模型回收本金":st.column_config.NumberColumn(format="%.2f"),"預估票息":st.column_config.NumberColumn(format="%.2f"),"模型存續本金":st.column_config.NumberColumn(format="%.2f")})
         st.caption("所有回收與票息均為網站模型估算；空白表示缺少可計算條款或行情，不代表零。未出場商品列示模型存續本金，歷史持倉不因 KO 或到期而刪除。")
         if MODE == "live" and rows:
             st.divider()
