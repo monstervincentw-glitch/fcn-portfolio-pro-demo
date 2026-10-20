@@ -1,5 +1,8 @@
 # 接續工作
 
+## 最新：P0最短上線接續
+正式Apps Script存取BLOCKED，已停止重試；只做共用行情路徑相關測試。下一步由原排程擁有者登入既有Apps Script專案，供核對來源及觸發器後再申請正式變更批准。詳見PRICE_UPDATE_ACCELERATION_20261020.md；不要重跑207項全套。
+
 ## 本輪最終交接｜2026-10-20
 下一步只需部署身份／預覽瀏覽器補驗：核對使用者先後提供的兩個網址（mnjdp回not_found；mnrjdp可到PIN）；請使用者自行管理頁查看SHA及登入操作，不能索取PIN或Secrets。按DEPLOYMENT_READINESS.md四步驗收，沒有明確授權不可合併／部署。不要重做207項已完成工作。F-012未來日曆、19檔缺條款及排程線上成功證據繼續保留。最新完整包FCN-e2e-delivery-20261020.zip，復原見RESTORE.md；最終SHA見包內MANIFEST.json。
 

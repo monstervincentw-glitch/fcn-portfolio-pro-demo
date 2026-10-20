@@ -28,3 +28,10 @@
 ## 影響界線
 - 未修改正式股價、Apps Script、Streamlit、main、PIN、客戶資料或晨報。
 - 需能操作 Apps Script 編輯器的授權環境才能完成正式切換。
+
+## 本輪接續：正式編輯器存取檢查
+- 已快轉到遠端140d92a，保留f15a72c與207項成果。
+- 本輪唯一Apps Script管理頁檢查：script.google.com/home轉到公開開發者介紹頁（登入連結），沒有可操作的既有專案／觸發器。已停止該部分，不重試授權或搜尋。Sheets Connector權限不代表Apps Script專案／觸發器權限。
+- 缺少的是「可存取既有繫結Apps Script專案的登入編輯環境，以及觸發器擁有者的管理權限」。最短下一步：使用者以原排程擁有者登入原股價庫→擴充功能→Apps Script，開啟原程式及觸發器供核對；無須提供PIN、Secrets或Token。正式修改仍須另行明確批准。
+- 附件SHA256：28288b3badbbabb719bbe406d311b5c679f19292fad569a3a6aae0aabefc11de。原3檔在repo外fast-price-prepared-check保留，12項Node離線helper測試重新通過；沒有執行Install/Tick，也沒有Google呼叫。
+- 附件為自包含替代準備版，尚未與正式來源比較；12個helper測試不證明鎖、觸發器、斷點及寫入流程已驗收。依使用者指示停止正式更新器部分，未新增另一套正式更新器。
