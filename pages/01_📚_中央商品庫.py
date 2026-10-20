@@ -75,7 +75,7 @@ except SheetConnectionError as exc:
 # it will not invent customer holdings or show an unvalidated customer name.
 holdings: list[dict] = []
 try:
-    portfolio = validate_masked_portfolio(reader.portfolio())
+    portfolio = validate_masked_portfolio(reader.portfolio(model_only=True))
     holdings = portfolio.get("holdings", [])
 except SheetConnectionError:
     st.warning("原客戶總帳目前無法讀取；下方承作客戶區僅顯示空白。商品條款及歷史行情仍可獨立檢視。")
