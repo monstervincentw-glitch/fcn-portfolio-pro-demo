@@ -158,7 +158,7 @@ def render_exposure(reader,holdings):
     rows=model_exposure_rows(catalog,models,symbol,holdings)
     if rows:st.dataframe(pd.DataFrame(rows),hide_index=True,use_container_width=True)
     else:st.info('中央商品參數庫尚無此連結股票商品。')
-    st.caption('模型 KO／到期後停止存續曝險，歷史連結與持倉紀錄保留；模型出場不代表客戶已入帳。')
+    st.caption('模型 KO／到期後停止存續曝險，歷史連結與持倉紀錄保留；模型出場與存續本金只作試算，不需要銀行入帳欄位。')
 
 
 def render_product_page(reader,holdings,ledger_products):
