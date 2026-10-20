@@ -242,3 +242,78 @@ def test_native_catalog_page_refreshes_shared_model_and_customer_amounts(live_ap
     app.run()
     assert '_fcn_v9_catalog_models' not in app.session_state
     assert app.error
+
+
+@pytest.mark.parametrize('problem', ['empty_customers', 'unmasked', 'unmapped', 'missing_column'])
+def test_malformed_ledger_fails_closed(live_app, problem):
+    app, state = live_app
+    if problem == 'empty_customers':
+        state['ledger']['customers'] = [state['ledger']['customers'][0]]
+    elif problem == 'unmasked':
+        state['ledger']['customers'][1][1] = 'SYNTHETIC_UNMASKED'
+    elif problem == 'unmapped':
+        state['ledger']['holdings'][1][1] = 'UNMAPPED'
+    else:
+        state['ledger']['holdings'][0][4] = 'missing_invested_column'
+    state['reads'].clear()
+    app.run()
+    assert not app.exception and app.error
+    assert not app.dataframe
+    assert not any(s == CENTRAL_CATALOG_ID for s, r in state['reads'])
+
+
+def test_history_thresholds_and_page_return_keep_actual_result(live_app):
+    app, state = live_app
+    page(app, PAGES[2])
+    element(app.number_input, 'KO (%)').set_value(105.0)
+    element(app.number_input, 'Strike (%)').set_value(80.0)
+    element(app.selectbox, 'KI 類型').set_value('AKI')
+    element(app.number_input, 'KI (%)').set_value(70.0)
+    element(app.number_input, '閉鎖月數').set_value(2)
+    submit_history(app)
+    trial, params, provenance = app.session_state['official_price_trial']
+    assert (params.ko_pct, params.strike_pct, params.ki_pct, params.ki_type) == (105, 80, 70, 'AKI')
+    assert trial['ko_start'] > trial['pricing_date']
+    old = trial['total_profit_amount']
+    page(app, PAGES[0])
+    page(app, PAGES[2])
+    assert app.session_state['official_price_trial'][0]['total_profit_amount'] == old
+
+
+def test_http_failures_are_sanitized_and_have_timeouts(monkeypatch):
+    """Exercise the production HTTP boundary; never perform a real API call."""
+    import requests
+    import central_catalog as central
+    calls = []
+    waits = []
+    monkeypatch.setattr(central.time, 'sleep', waits.append)
+    class Session:
+        def get(self, url, params, timeout):
+            calls.append(timeout)
+            raise requests.exceptions.Timeout('SYNTHETIC_PRIVATE_TRANSPORT_DETAIL')
+    reader = backend.SheetsReader('SYNTHETIC_LEDGER', Session())
+    for call in (lambda: reader.read('SYNTHETIC_LEDGER', 'A1'),
+                 lambda: reader.read_many(['A1'])):
+        with pytest.raises(backend.SheetConnectionError) as caught:
+            call()
+        assert 'SYNTHETIC_PRIVATE' not in str(caught.value)
+    with pytest.raises(central.BatchReadError) as caught:
+        central.read_bundle(reader, CENTRAL_CATALOG_ID, ['A1'])
+    assert 'SYNTHETIC_PRIVATE' not in str(caught.value)
+    assert calls == [25, 35, 45, 45, 45] and waits == [1.5, 3.0]
+
+
+def test_http_rate_limit_retry_is_bounded(monkeypatch):
+    import central_catalog as central
+    calls, waits = [], []
+    class Response:
+        status_code = 429
+    class Session:
+        def get(self, url, params, timeout):
+            calls.append(timeout)
+            return Response()
+    monkeypatch.setattr(central.time, 'sleep', waits.append)
+    with pytest.raises(central.BatchReadError, match='429'):
+        central.read_bundle(backend.SheetsReader('SYNTHETIC', Session()),
+                            CENTRAL_CATALOG_ID, ['A1'])
+    assert calls == [45, 45, 45] and waits == [1.5, 3.0]

@@ -20,3 +20,5 @@ F-019：原生中央商品庫入口跨頁沿用cache，反例失敗後修正為�
 網址證據：本次提供的 ...zzbdzzmnjdp... 轉至Streamlit not_found（無法區分不存在或無權限）；前次提供 ...zzbdzzmnrjdp... 可顯示PIN頁，title V9.1、頁面標示V8.5.8。這些文字不是部署SHA證據。公開source按鈕未取得Commit；精確線上Commit仍BLOCKED。未輸入正式PIN、未繞過登入。
 
 AppTest驗證伺服器元件及計算結果，不等同瀏覽器像素視覺驗收或真實拖曳縮放。歷史試打只有session暫存，沒有永久儲存功能；不宣稱已完成不存在的永久儲存功能。
+
+最終：23項新增測試與原184項合計207 passed、0 failed；環境及未驗項目見DEPLOYMENT_READINESS.md。23項最後由完整套件一併驗證。

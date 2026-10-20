@@ -1,5 +1,8 @@
 # 稽核成果重建與推送
 
+## 本輪最終交接｜2026-10-20
+最新使用上一層FCN-e2e-delivery-20261020.zip，含完整Bundle、原始9份及recovery自858b8d9起全部Patch、交接文件與SHA256校驗。依下方codex-audit-recovery clone指令，鎖定Python3.12環境預期207項通過；AppTest需允許本機loopback。不要把Bundle的歷史本地main當作GitHub main；正式遠端main仍858b8d9。最新Commit與還原結果見MANIFEST.json。保存包不含Secrets／.venv；不用任何正式憑證即可跑隔離測試。
+
 ## KO聯動與三檔實價保存包（最新）
 使用上一層 FCN-ko-linkage-delivery-20261019.zip；內含最新完整 fcn-audit-latest.bundle、原始9份Patch、recovery分支自858b8d9起全部Patch、交接與實價證據、鎖定依賴、MANIFEST.json／SHA256SUMS.txt。保留所有舊保存包與本地提交備份分支。
 

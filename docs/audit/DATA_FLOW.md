@@ -1,5 +1,8 @@
 # 資料流與模組盤點
 
+## 本輪最終交接｜2026-10-20
+本輪全流程證據：正式解析＋中央30快照＋三檔實價快照→同一V2→六頁與額外原生中央入口；測試只攔截外部I/O。重新讀取後持倉本金17000重新計算，原999999舊估算未沿用；歷史試打資料存在session，不寫正式庫。HTTP邊界25/35秒與中央45秒最多3次已驗證；真實網路延遲未知。所有保存證據無正式客戶紀錄或PIN。
+
 ## 本輪最新｜2026-10-20｜本地驗收單位
 隔離AppTest以記憶體隨機測試PIN走真實gate→SheetsReader.portfolio解析→中央快照load_models→V2→六頁。無網路或寫入方法。原生pages入口現亦走enrich，避免跨頁cache與舊總帳模型值。歷史試打走原render_trial、fetch_library_prices與simulate_history，結果僅session_state、不寫Sheets，頁面rerun保留但新session不作永久保存。
 

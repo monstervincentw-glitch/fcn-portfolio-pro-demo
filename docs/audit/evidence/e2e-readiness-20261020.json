@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-20",
+  "scope": "tracked working tree; signature scan is not an exhaustive historical secret audit",
+  "tracked_files": 120,
+  "pr_changed_files": 48,
+  "credential_signature_findings": [],
+  "tracked_secrets_or_venv": [],
+  "new_archives": [],
+  "syntax_files": 66,
+  "dependency_check": "No broken requirements found",
+  "pytest": "207 passed in 12.47s, 0 failed",
+  "loopback_health": "HTTP 200 ok",
+  "sheets_writes": 0,
+  "production_deployed_sha": null,
+  "production_authenticated_pages": "BLOCKED",
+  "github_pr_runs": [],
+  "github_statuses": [],
+  "ci_note": "PR-triggered runs only; scheduled stock updater was not executed"
+}

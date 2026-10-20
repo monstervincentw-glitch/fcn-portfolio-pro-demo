@@ -1,5 +1,8 @@
 # 接續工作
 
+## 本輪最終交接｜2026-10-20
+下一步只需部署身份／預覽瀏覽器補驗：核對使用者先後提供的兩個網址（mnjdp回not_found；mnrjdp可到PIN）；請使用者自行管理頁查看SHA及登入操作，不能索取PIN或Secrets。按DEPLOYMENT_READINESS.md四步驗收，沒有明確授權不可合併／部署。不要重做207項已完成工作。F-012未來日曆、19檔缺條款及排程線上成功證據繼續保留。最新完整包FCN-e2e-delivery-20261020.zip，復原見RESTORE.md；最終SHA見包內MANIFEST.json。
+
 ## 本輪最新｜2026-10-20｜本地驗收單位
 已完成真實PIN流程及六頁本地離線整合測試16項；不要重做V2稽核。接續執行全套Pytest、語法／依賴／Streamlit啟動與PR安全檢查，完成DEPLOYMENT_READINESS.md後同步分支、PR、Bundle。正式PIN不索取。
 
