@@ -1,6 +1,7 @@
 """Aggregation helpers for display; do not conflate currencies."""
 import datetime as dt
 import calendar
+from math import isfinite
 
 def _date(value):
     if isinstance(value, dt.datetime): return value.date()
@@ -29,7 +30,10 @@ def recent_end(p, today):
     group = str(p.get('monitor_group') or '')
     return ('結束後三個月' in group or '結束後3個月' in group) and (until is None or today <= until)
 def num(v):
-    try:return float(v) if v not in ('',None) else None
+    if isinstance(v,bool): return None
+    try:
+        n=float(v) if v not in ('',None) else None
+        return n if n is not None and isfinite(n) else None
     except (ValueError,TypeError):return None
 
 def product_group(p, today=None):
@@ -49,6 +53,15 @@ def product_group(p, today=None):
         return "日常監控" if recent_end(p, today) else "歷史歸檔"
     return "其他"
 
+def receipt_values(row):
+    """Only explicit ledger cash fields count; never infer receipts from V2."""
+    principal=num(row.get('invested_amount'))
+    returned=num(row.get('returned_principal_amount'))
+    coupon=num(row.get('received_coupon_amount'))
+    outstanding=(max(0.,principal-returned) if principal is not None and returned is not None else None)
+    return dict(actual_returned=returned,actual_coupon=coupon,actual_outstanding=outstanding)
+
+
 def currency_summary(rows):
     output={c:dict(invested=0.,returned=0.,outstanding=0.,coupon=0.,pending_count=0,pending_principal=0.,count=0) for c in ('USD','EUR','JPY')}
     for r in rows:
@@ -62,5 +75,15 @@ def currency_summary(rows):
             d['outstanding']+=num(r.get('estimated_outstanding')) or 0
         d['returned']+=num(r.get('estimated_principal_total')) or 0
         d['coupon']+=num(r.get('estimated_coupon_total')) or 0
+    # Expose incompleteness per measure; never display an unknown total as zero
+    # (or as an apparently complete subtotal of only the known holdings).
+    for currency,d in output.items():
+        members=[r for r in rows if r.get('currency')==currency]
+        for target,source in [('invested','invested_amount'),('returned','estimated_principal_total'),
+                              ('outstanding','estimated_outstanding'),('coupon','estimated_coupon_total')]:
+            if any(num(r.get(source)) is None for r in members): d[target]=None
+        for name in ('actual_returned','actual_coupon','actual_outstanding'):
+            values=[receipt_values(r)[name] for r in members]
+            d[name]=None if any(v is None for v in values) else sum(values)
     return output
 

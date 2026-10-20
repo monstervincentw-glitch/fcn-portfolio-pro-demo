@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-19",
+  "code_commit": "aa32d4dd550090df8306bf3f205e7412bd6273c1",
+  "issue": "F-003",
+  "spreadsheet_id": "1peKhu1Nt8UuCiCnajGqC9bT_GXyL3qCzQBO3z-VzzOI",
+  "sheet_id": 10008,
+  "range": "'API_商品條款_V1'!K2",
+  "before_cell": {},
+  "source": {"input_K2": 0.75, "master_K2": 0.75, "ticker": "MU", "initial_price": 198.47, "ki_price": 148.85, "ki_type": "EKI"},
+  "planned_formula": "=IF('商品主檔'!K2=\"\",\"\",'商品主檔'!K2)",
+  "rollback": "Clear only userEnteredValue in API_商品條款_V1 K2; preserve all formatting."
+}

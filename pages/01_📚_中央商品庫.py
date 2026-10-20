@@ -11,6 +11,7 @@ import streamlit as st
 from central_catalog_page import render_central_catalog
 from sheets_backend import SheetConnectionError, SheetsReader, validate_masked_portfolio
 from site_login import gate, logout
+from v2_portfolio_adapter import enrich_new_holdings
 
 st.set_page_config(
     page_title="中央商品庫｜FCN Portfolio Pro",
@@ -79,4 +80,7 @@ try:
 except SheetConnectionError:
     st.warning("原客戶總帳目前無法讀取；下方承作客戶區僅顯示空白。商品條款及歷史行情仍可獨立檢視。")
 
+# Native page reruns do not execute streamlit_app.py. Refresh the same central
+# snapshot and replace legacy ledger estimates here as well, even without holdings.
+holdings = enrich_new_holdings(reader, holdings)
 render_central_catalog(reader, holdings)

@@ -1,0 +1,51 @@
+# 接續工作
+
+## 最新：原更新器五分鐘加速版已完成（未正式啟用）
+使用者已提供FCN_hourlyJob原碼並批准加速；apps_script/FCN_price_updater.gs為可完整貼上的原碼修訂版，README.md含隔離驗證、切換及回復步驟。20項Node隔離測試通過（模擬首輪70分鐘）；正式Apps Script/GOOGLEFINANCE尚未驗證，不能宣稱已切換或達成真實90分鐘目標。舊207/18/12成果保留，沒有重跑全站。只需原排程擁有者依README操作；不再重做稽核，不合併main或部署網站。
+
+## 最新：P0最短上線接續
+正式Apps Script存取BLOCKED，已停止重試；共用行情路徑18項測試及附件12項helper已通過，不須重做。下一步由原排程擁有者登入既有Apps Script專案，供核對來源及觸發器後再申請正式變更批准。詳見PRICE_UPDATE_ACCELERATION_20261020.md；不要重跑207項全套。
+
+## 本輪最終交接｜2026-10-20
+下一步只需部署身份／預覽瀏覽器補驗：核對使用者先後提供的兩個網址（mnjdp回not_found；mnrjdp可到PIN）；請使用者自行管理頁查看SHA及登入操作，不能索取PIN或Secrets。按DEPLOYMENT_READINESS.md四步驗收，沒有明確授權不可合併／部署。不要重做207項已完成工作。F-012未來日曆、19檔缺條款及排程線上成功證據繼續保留。最新完整包FCN-e2e-delivery-20261020.zip，復原見RESTORE.md；最終SHA見包內MANIFEST.json。
+
+## 本輪最新｜2026-10-20｜本地驗收單位
+已完成真實PIN流程及六頁本地離線整合測試16項；不要重做V2稽核。接續執行全套Pytest、語法／依賴／Streamlit啟動與PR安全檢查，完成DEPLOYMENT_READINESS.md後同步分支、PR、Bundle。正式PIN不索取。
+
+## 本輪最終交接｜2026-10-19
+本輪完成184項測試與三檔實價驗證，請先讀 KO_LINKAGE.md、KO_MARKET.md，不重做。下一個最小任務：核對可存取的正式網站版本與六頁視覺／PIN後操作（先確認部署SHA，只讀、不合併、不部署）；若無正式站權限，明列未驗收並保留目前證據。若另行授權其餘8檔實價驗證，再沿用 scripts/audit_ko_market.py 的只讀方法。19檔缺條款仍保留。舊模型快取／客戶欄位問題 F-014～018 已修復；本次不擴展其他重構。最新保存包為上一層 FCN-ko-linkage-delivery-20261019.zip，含Bundle、全部Patch、RESTORE與校驗碼。
+
+## 本階段最新狀態｜2026-10-19
+最新完成：KO_LINKAGE.md 的本地聯動修復，169 項通過。先同步 codex-audit-recovery／PR #1，再唯讀中央五表與既有股價庫，核對 SB04、SP43、SB19 真實交易日、缺價、首次 KO 及票息。不得用合成價替代；19 檔缺條款繼續保留。六頁正式網站視覺／真人操作仍未驗收。
+
+以下保留先前交接記錄，最新段落優先。
+
+## 最新續跑位置｜2026-10-19（優先於下方歷史記錄）
+已完成 GitHub 遠端恢復與 V2 比率／本金邊界；全案仍 IN_PROGRESS。
+
+目前使用 codex-audit-recovery，草稿 PR #1 已建立，main 未變動。原 cb3e895／9 個提交保留在 audit/fcn-20261019 及 Bundle。遠端等內容恢復提交 e768a50；本次新修改另存 audit/v2-local-20261019 並同步 recovery。最終 SHA 看 git log -1 與交付包 MANIFEST.json。Connector 可寫入；終端機無登入憑證不再阻礙保存。
+
+全套 142 passed in 1.23s，0 failed。已完成 11 檔／25 標的／33 配息期來源與公式/API一致性；本次新增 27 項 KI／本金／比率反例。勿重做已完成修復。本輪 Sheets 寫入 0 次，原備份及讀回證據保留。
+
+下一個最小單位：先讀 RECOVERY_V2.md，檢查 fcn_central_model.py 的 price_history／worst_ticker 與 KO 日期，以及 v2_portfolio_adapter.py 的舊估值欄位清除。新增可重現反例，有錯才改。接著從既有共用股價庫唯讀載入 SB04、SP43、SB19 的應有交易日與收盤價，逐日核對 KO/KI/Strike／本金。缺價列出，不可用合成價冒充實際驗收，再擴至其餘 8 檔。19 檔缺條款保持缺漏。
+
+尚未完成：實際行情全面稽核、六頁線上驗收／部署 SHA、F-005 既有 bank_approved 路徑、F-007 舊 Chart 可達性／持倉欄位、F-012 中央 2027-12-31 休市記錄。不得更動客戶實際收款、歷史交易、UI/PIN 或建立第二股價庫。F-012 若另案修正須備份與讀回，不能滾動契約指定日期。
+
+每單位完成測試、交接文件、Commit、Connector 同步 recovery 及核對 tree，再更新完整 Bundle／Patch。最新交付為上一層 FCN-recovery-v2-delivery-20261019.zip 及 fcn-audit-latest.bundle，重建見 RESTORE.md。停止於此最小單位，不宣稱全案驗收。
+
+## 以下為歷史交接（其中 BLOCKED 與測試數已由上述覆蓋）
+日期：2026-10-19；狀態：IN_PROGRESS；本階段基準Commit SHA：f1e6521638279dd5e82a578818fffc94cb5f1455。
+
+- 最後成功完成階段：配息期、營業日與API一致性 DONE（11檔33期，本地程式）；詳見COUPON_CALENDAR.md。F-009/010/011關閉。
+- 最後成功 Commit SHA：f1e6521638279dd5e82a578818fffc94cb5f1455為本階段開始點；本次程式提交完成後用git log -1取得；下一提交回填。分支audit/fcn-20261019。
+- 尚未完成的工作清單：下一階段V2 KI/KO/Strike/本金回收全面反例及實際行情；19檔缺必要條款；六頁線上驗收；F-012未來2027-12-31休市錯誤另案；F-008推送權限。
+- 正在修改的檔案：central_catalog.py、fcn_central_model.py、v2_portfolio_engine.py、test_coupon_calendar.py、scripts/audit_coupon_calendar.py與docs/audit；提交後應乾淨。
+- 尚未解決的測試錯誤：0；115 passed in 1.18s。原79項全部保留通過。
+- Google Sheets 已修改的欄位與備份位置：本輪0寫入；快照evidence/period-calendar-20261019.json、二次讀回period-readback-20261019.json五表相同。歷史SA94 K2備份仍在backups/SA94_API_K2_20261019.json。
+- 外部權限阻礙：先前Git缺憑證與Connector HTTP403未解除；沒有PR、遠端未同步；線上部署SHA與付款地完整日曆未取得。這些不阻止本地引擎測試。
+- 下一次應執行的第一個命令：Get-Content docs/audit/STATUS.md,docs/audit/NEXT_STEPS.md
+- 明確的完成條件：下一單位先新增AKI/EKI/Non-KI邊界、最差標的與Strike回收反例並驗證現有引擎；有錯才改、相關測試及全套通過後Commit及更新Bundle。實際價格缺漏不得以合成價格冒充驗收。F-012若處理須先備份中央對應列再讀回，勿更改商品契約日期。
+
+本次交付採coupon-calendar保存包，含最新完整Bundle及自858b8d9起全部Patch。RESTORE.md適用，完整包還原後以audit/fcn-20261019分支執行。
+
+最後成功程式 Commit SHA：5ac3646e59e0d5035ca4d7c9e209d4253417a0d2；獨立Bundle還原115項全通過。正在修改的檔案：無（最後文件保存提交後）。最新完整Bundle同步為../fcn-audit-latest.bundle，交付包為../FCN-coupon-calendar-delivery-20261019.zip。

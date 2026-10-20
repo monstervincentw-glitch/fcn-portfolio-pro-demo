@@ -91,12 +91,16 @@ class ReleaseFixTests(unittest.TestCase):
         self.assertTrue(pin_matches('123456','123456'))
 
     def test_image_and_deployment_paths(self):
-        from warm_theme import hero_uri
-        self.assertTrue(hero_uri().startswith('data:image/jpeg;base64,/9j/'))
-        root=Path(__file__).resolve().parents[1]
-        self.assertTrue((root/'assets/warm-theme.css').is_file())
-        self.assertTrue((root/'.streamlit/config.toml').is_file())
-        self.assertTrue((root/'.github/workflows/update_stock_prices.yml').is_file())
-        self.assertTrue((root/'tools/update_stock_prices.py').is_file())
+        from io import BytesIO
+        from PIL import Image
+        from warm_theme import hero_image, SAFE_WARM_CSS
+        with Image.open(BytesIO(hero_image())) as image:
+            image.verify()
+        self.assertIn('--', SAFE_WARM_CSS)
+        root=Path(__file__).resolve().parent
+        self.assertTrue((root/'config.toml').is_file())
+        workflow=root/'.github/workflows/fcn_stock_library_daily.yml'
+        self.assertIn('python update_stock_prices.py', workflow.read_text(encoding='utf-8'))
+        self.assertTrue((root/'update_stock_prices.py').is_file())
 
 if __name__=='__main__': unittest.main()

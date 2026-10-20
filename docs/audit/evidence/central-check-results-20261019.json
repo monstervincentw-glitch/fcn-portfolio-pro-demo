@@ -1,0 +1,147 @@
+{
+  "count": 30,
+  "complete_basic": [
+    {
+      "product_id": "SA94",
+      "legs": [
+        "MU"
+      ],
+      "periods": 3,
+      "errors": [],
+      "notes": []
+    },
+    {
+      "product_id": "SB04",
+      "legs": [
+        "MU",
+        "TSLA",
+        "NVDA"
+      ],
+      "periods": 3,
+      "errors": [],
+      "notes": [
+        "第2期前有日曆間隔，需休市日核對"
+      ]
+    },
+    {
+      "product_id": "SP43",
+      "legs": [
+        "AVGO",
+        "NVDA",
+        "TSLA"
+      ],
+      "periods": 3,
+      "errors": [],
+      "notes": [
+        "第3期前有日曆間隔，需休市日核對"
+      ]
+    },
+    {
+      "product_id": "SQ29",
+      "legs": [
+        "NVDA",
+        "AMD",
+        "MU"
+      ],
+      "periods": 3,
+      "errors": [],
+      "notes": []
+    },
+    {
+      "product_id": "SR50",
+      "legs": [
+        "NVDA",
+        "MU",
+        "LITE"
+      ],
+      "periods": 3,
+      "errors": [],
+      "notes": []
+    },
+    {
+      "product_id": "SAE9",
+      "legs": [
+        "MU",
+        "COHR",
+        "LITE"
+      ],
+      "periods": 3,
+      "errors": [],
+      "notes": []
+    },
+    {
+      "product_id": "SR67",
+      "legs": [
+        "MU"
+      ],
+      "periods": 3,
+      "errors": [],
+      "notes": []
+    },
+    {
+      "product_id": "SB19",
+      "legs": [
+        "PLTR",
+        "AVGO",
+        "TSLA"
+      ],
+      "periods": 3,
+      "errors": [],
+      "notes": [
+        "第2期前有日曆間隔，需休市日核對",
+        "第3期前有日曆間隔，需休市日核對"
+      ]
+    },
+    {
+      "product_id": "SP34",
+      "legs": [
+        "INTC"
+      ],
+      "periods": 3,
+      "errors": [],
+      "notes": []
+    },
+    {
+      "product_id": "SM25",
+      "legs": [
+        "MU"
+      ],
+      "periods": 3,
+      "errors": [],
+      "notes": []
+    },
+    {
+      "product_id": "SQ59",
+      "legs": [
+        "AMD",
+        "NVDA",
+        "MU"
+      ],
+      "periods": 3,
+      "errors": [],
+      "notes": []
+    }
+  ],
+  "incomplete": [
+    "SB23",
+    "SP62",
+    "SQ78",
+    "SR24",
+    "SAE8",
+    "SA13",
+    "SA17",
+    "SA23",
+    "SA36",
+    "SA41",
+    "SA48",
+    "SA49",
+    "SA57",
+    "SA70",
+    "SA85",
+    "SA92",
+    "SA99",
+    "SP10",
+    "SB11"
+  ],
+  "errors": []
+}

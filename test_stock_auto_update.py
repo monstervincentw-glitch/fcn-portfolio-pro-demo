@@ -5,7 +5,7 @@ import unittest
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
-from tools import update_stock_prices as upd
+import update_stock_prices as upd
 
 
 class PriceUpdaterTests(unittest.TestCase):

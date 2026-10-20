@@ -92,13 +92,8 @@ def _snapshot(reader):
         return None,None
 
 
-def render_dashboard(reader,holdings):
-    import streamlit as st
-    st.subheader('🧭 FCN 商品監控工作台｜中央即時計算')
-    st.caption('依中央商品日期分類閉鎖／比價，KO 由 V2 模型判定；資料不足仍留在原監控分類並標示試算狀態。股價為收盤價。')
-    catalog,models=_snapshot(reader)
-    if models is None:return
-    groups={name:[] for name in ('閉鎖中','比價中','近三個月出場','近兩週到期','資料不足')}
+def model_dashboard_groups(models,holdings,*,today):
+    groups={name:[] for name in ('閉鎖中','比價中','近三個月出場','近兩週到期','資料不足','歷史歸檔')}
     unique=sorted({code(h.get('product_id')) for h in holdings if code(h.get('product_id'))})
     for pid in unique:
         m=models.get(pid)
@@ -111,8 +106,19 @@ def render_dashboard(reader,holdings):
         category=m.category
         if category in groups:groups[category].append(entry)
         else:groups['資料不足'].append(entry)
-        if category in ('閉鎖中','比價中') and m.maturity_day and _today_taipei()<=m.maturity_day<=_today_taipei()+dt.timedelta(days=14):
+        if category in ('閉鎖中','比價中') and m.maturity_day and today<=m.maturity_day<=today+dt.timedelta(days=14):
             groups['近兩週到期'].append(entry)
+    return groups
+
+
+def render_dashboard(reader,holdings):
+    import streamlit as st
+    st.subheader('🧭 FCN 商品監控工作台｜中央即時計算')
+    st.caption('依中央商品日期分類閉鎖／比價，KO 由 V2 模型判定；資料不足仍留在原監控分類並標示試算狀態。股價為收盤價。')
+    catalog,models=_snapshot(reader)
+    if models is None:return
+    groups=model_dashboard_groups(models,holdings,today=_today_taipei())
+    unique={code(h.get('product_id')) for h in holdings}
     cols=st.columns(5)
     for col,k in zip(cols,groups):col.metric(k,len(groups[k]))
     name=st.selectbox('選擇監控狀態',list(groups),key='central_dashboard_filter')
@@ -125,6 +131,22 @@ def render_dashboard(reader,holdings):
     st.caption('分類依模型 KO／到期日及中央資料計算；缺資料時顯示「資料不足」，不沿用舊試算表結果。')
 
 
+def model_exposure_rows(catalog,models,symbol,holdings):
+    rows=[]
+    counts={}
+    for h in holdings:
+        pid=code(h.get('product_id'));counts[pid]=counts.get(pid,0)+1
+    for pid,p in sorted(catalog.products.items()):
+        if symbol not in [leg['ticker'] for leg in catalog.legs.get(pid,())]:continue
+        m=models[pid]
+        risk=('無持倉紀錄' if not counts.get(pid) else '待確認（資料不足）' if m.issues
+              else '無（模型已出場）' if m.ko_date or m.principal_ratio is not None else '有')
+        rows.append({'FCN':pid,'存續曝險':risk,'歷史持倉筆數':counts.get(pid,0),'幣別':p.get('currency'),
+                     '模型狀態':m.state,'最新行情日期':_day(m.latest_date),
+                     '最差標的':m.worst_ticker or '—'})
+    return rows
+
+
 def render_exposure(reader,holdings):
     import streamlit as st
     st.subheader('🔎 股票曝險｜中央商品聯動')
@@ -133,17 +155,10 @@ def render_exposure(reader,holdings):
     symbols=sorted({leg['ticker'] for legs in catalog.legs.values() for leg in legs})
     symbol=st.selectbox('搜尋連結股票',['']+symbols,format_func=lambda x:x or '請選擇股票',key='exposure_central')
     if not symbol:return
-    rows=[]
-    held={code(h.get('product_id')) for h in holdings}
-    for pid,p in sorted(catalog.products.items()):
-        if symbol not in [leg['ticker'] for leg in catalog.legs.get(pid,())]:continue
-        m=models[pid]
-        rows.append({'FCN':pid,'是否持有':'是' if pid in held else '否','幣別':p.get('currency'),
-                     '模型狀態':m.state,'最新行情日期':_day(m.latest_date),
-                     '最差標的':m.worst_ticker or '—'})
+    rows=model_exposure_rows(catalog,models,symbol,holdings)
     if rows:st.dataframe(pd.DataFrame(rows),hide_index=True,use_container_width=True)
     else:st.info('中央商品參數庫尚無此連結股票商品。')
-    st.caption('曝險名單按中央商品連結標的建立，未使用逐檔 Chart 或其他舊試算表。')
+    st.caption('模型 KO／到期後停止存續曝險，歷史連結與持倉紀錄保留；模型出場不代表客戶已入帳。')
 
 
 def render_product_page(reader,holdings,ledger_products):
@@ -186,7 +201,7 @@ def render_product_page(reader,holdings,ledger_products):
     st.caption(f'KO 類型 {p.get("ko_type") or "未填"} ｜ KI 類型 {p.get("ki_type") or "未填"} ｜ 票息模式 {m.coupon_mode} ｜ KO 觀察假設：{m.ko_observation}')
     if m.issues:st.warning('本商品資料尚不完整：'+'；'.join(m.issues))
     if m.quote_rows:
-        st.markdown('##### 連結股票｜最近可得收盤價及障礙距離')
+        st.markdown('##### 連結股票｜觀察期間最後可得收盤價及障礙距離')
         st.dataframe(pd.DataFrame(m.quote_rows),hide_index=True,use_container_width=True)
     if m.price_history:
         frame=pd.DataFrame(m.price_history)

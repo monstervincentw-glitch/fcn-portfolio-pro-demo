@@ -1,0 +1,4690 @@
+{
+  "source_snapshot": "ko-market-20261019.json",
+  "captured_at": "2026-10-19 15:33:09 UTC",
+  "note": "Actual source prices; independent audit scan only. No deployment or settlement confirmation.",
+  "products": [
+    {
+      "product_id": "SB04",
+      "pricing_date": "2025-12-09",
+      "ko_start": "2026-01-16",
+      "final_eval": "2026-03-16",
+      "maturity": "2026-03-19",
+      "ko_type": "記憶式",
+      "ko_barrier": 0.95,
+      "legs": [
+        {
+          "ticker": "MU",
+          "initial_price": 252.42,
+          "input_ticker": "MU",
+          "input_initial": 252.42,
+          "pricing_close": 252.42,
+          "matches_input": true
+        },
+        {
+          "ticker": "TSLA",
+          "initial_price": 445.17,
+          "input_ticker": "TSLA",
+          "input_initial": 445.17,
+          "pricing_close": 445.17,
+          "matches_input": true
+        },
+        {
+          "ticker": "NVDA",
+          "initial_price": 184.97,
+          "input_ticker": "NVDA",
+          "input_initial": 184.97,
+          "pricing_close": 184.97,
+          "matches_input": true
+        }
+      ],
+      "reference_ko": "2026-01-16",
+      "v2_ko": "2026-01-16",
+      "legacy_api_ko": "2026-01-16",
+      "legacy_api_disagrees": false,
+      "state": "模型提前 KO",
+      "category": "歷史歸檔",
+      "principal_ratio": 1.0,
+      "ki_touched": null,
+      "reference_principal": 1.0,
+      "worst_ticker": "TSLA",
+      "worst_ratio": 0.9827706269515016,
+      "coupon_rate": 0.011766666666666667,
+      "forecast_rate": 0.011766666666666667,
+      "missing": [],
+      "issues": [],
+      "excluded_dates": [
+        "2025-12-13",
+        "2025-12-14",
+        "2025-12-20",
+        "2025-12-21",
+        "2025-12-25",
+        "2025-12-27",
+        "2025-12-28",
+        "2026-01-01",
+        "2026-01-03",
+        "2026-01-04",
+        "2026-01-10",
+        "2026-01-11"
+      ],
+      "observed_trading_days": 27,
+      "first_hits": {
+        "MU": "2026-01-16",
+        "TSLA": "2026-01-16",
+        "NVDA": "2026-01-16"
+      },
+      "coupons": [
+        {
+          "number": 1,
+          "start": "2025-12-16",
+          "end": "2026-01-16",
+          "payment": "2026-01-22",
+          "full_days": 22,
+          "earned_days": 22,
+          "expected_rate": 0.011766666666666668
+        },
+        {
+          "number": 2,
+          "start": "2026-01-20",
+          "end": "2026-02-17",
+          "payment": "2026-02-20",
+          "full_days": 20,
+          "earned_days": 0,
+          "expected_rate": 0.0
+        },
+        {
+          "number": 3,
+          "start": "2026-02-18",
+          "end": "2026-03-16",
+          "payment": "2026-03-19",
+          "full_days": 19,
+          "earned_days": 0,
+          "expected_rate": 0.0
+        }
+      ],
+      "model_coupons": [
+        {
+          "期數": 1,
+          "計息起日": "2025-12-16",
+          "計息末日": "2026-01-16",
+          "配息日": "2026-01-22",
+          "計息模式": "按交易日比例（V2）",
+          "整期交易日": 22,
+          "計入交易日": 22,
+          "模型票息率": 0.011766666666666667,
+          "未來假設票息率": 0.0
+        },
+        {
+          "期數": 2,
+          "計息起日": "2026-01-20",
+          "計息末日": "2026-02-17",
+          "配息日": "2026-02-20",
+          "計息模式": "按交易日比例（V2）",
+          "整期交易日": 20,
+          "計入交易日": 0,
+          "模型票息率": 0.0,
+          "未來假設票息率": 0.0
+        },
+        {
+          "期數": 3,
+          "計息起日": "2026-02-18",
+          "計息末日": "2026-03-16",
+          "配息日": "2026-03-19",
+          "計息模式": "按交易日比例（V2）",
+          "整期交易日": 19,
+          "計入交易日": 0,
+          "模型票息率": 0.0,
+          "未來假設票息率": 0.0
+        }
+      ],
+      "trace": [
+        {
+          "date": "2025-12-09",
+          "source_row": 488,
+          "quotes": {
+            "MU": 252.42,
+            "TSLA": 445.17,
+            "NVDA": 184.97
+          },
+          "ratios": {
+            "MU": 1.0,
+            "TSLA": 1.0,
+            "NVDA": 1.0
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2025-12-10",
+          "source_row": 489,
+          "quotes": {
+            "MU": 263.71,
+            "TSLA": 451.45,
+            "NVDA": 183.78
+          },
+          "ratios": {
+            "MU": 1.0447270422312018,
+            "TSLA": 1.0141069703708694,
+            "NVDA": 0.993566524301238
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2025-12-11",
+          "source_row": 490,
+          "quotes": {
+            "MU": 258.46,
+            "TSLA": 446.89,
+            "NVDA": 180.93
+          },
+          "ratios": {
+            "MU": 1.0239283733460105,
+            "TSLA": 1.0038636925219577,
+            "NVDA": 0.9781586203168082
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2025-12-12",
+          "source_row": 491,
+          "quotes": {
+            "MU": 241.14,
+            "TSLA": 458.96,
+            "NVDA": 175.02
+          },
+          "ratios": {
+            "MU": 0.9553125742809603,
+            "TSLA": 1.0309769301615113,
+            "NVDA": 0.9462074931069904
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": false
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2025-12-15",
+          "source_row": 492,
+          "quotes": {
+            "MU": 237.5,
+            "TSLA": 475.31,
+            "NVDA": 176.29
+          },
+          "ratios": {
+            "MU": 0.9408921638538944,
+            "TSLA": 1.0677044724487275,
+            "NVDA": 0.9530734713737362
+          },
+          "eligible": false,
+          "reached": {
+            "MU": false,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2025-12-16",
+          "source_row": 493,
+          "quotes": {
+            "MU": 232.51,
+            "TSLA": 489.88,
+            "NVDA": 177.72
+          },
+          "ratios": {
+            "MU": 0.921123524284922,
+            "TSLA": 1.1004335422422895,
+            "NVDA": 0.9608044547764503
+          },
+          "eligible": false,
+          "reached": {
+            "MU": false,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2025-12-17",
+          "source_row": 494,
+          "quotes": {
+            "MU": 225.52,
+            "TSLA": 467.26,
+            "NVDA": 170.94
+          },
+          "ratios": {
+            "MU": 0.8934315822834958,
+            "TSLA": 1.0496214929128198,
+            "NVDA": 0.9241498621398064
+          },
+          "eligible": false,
+          "reached": {
+            "MU": false,
+            "TSLA": true,
+            "NVDA": false
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2025-12-18",
+          "source_row": 495,
+          "quotes": {
+            "MU": 248.55,
+            "TSLA": 483.37,
+            "NVDA": 174.14
+          },
+          "ratios": {
+            "MU": 0.9846684097932019,
+            "TSLA": 1.085809915313251,
+            "NVDA": 0.9414499648591663
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": false
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2025-12-19",
+          "source_row": 496,
+          "quotes": {
+            "MU": 265.92,
+            "TSLA": 481.2,
+            "NVDA": 180.99
+          },
+          "ratios": {
+            "MU": 1.0534822914190636,
+            "TSLA": 1.0809353730035716,
+            "NVDA": 0.9784829972427962
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2025-12-22",
+          "source_row": 497,
+          "quotes": {
+            "MU": 276.59,
+            "TSLA": 488.73,
+            "NVDA": 183.69
+          },
+          "ratios": {
+            "MU": 1.0957531098962048,
+            "TSLA": 1.0978502594514454,
+            "NVDA": 0.9930799589122561
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2025-12-23",
+          "source_row": 498,
+          "quotes": {
+            "MU": 276.27,
+            "TSLA": 485.56,
+            "NVDA": 189.21
+          },
+          "ratios": {
+            "MU": 1.0944853815070121,
+            "TSLA": 1.0907293842801626,
+            "NVDA": 1.0229226361031518
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2025-12-24",
+          "source_row": 499,
+          "quotes": {
+            "MU": 286.68,
+            "TSLA": 485.4,
+            "NVDA": 188.61
+          },
+          "ratios": {
+            "MU": 1.1357261706679345,
+            "TSLA": 1.090369971022306,
+            "NVDA": 1.019678866843272
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2025-12-26",
+          "source_row": 500,
+          "quotes": {
+            "MU": 284.79,
+            "TSLA": 475.19,
+            "NVDA": 190.53
+          },
+          "ratios": {
+            "MU": 1.1282386498692656,
+            "TSLA": 1.067434912505335,
+            "NVDA": 1.0300589284748878
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2025-12-29",
+          "source_row": 501,
+          "quotes": {
+            "MU": 294.37,
+            "TSLA": 459.64,
+            "NVDA": 188.22
+          },
+          "ratios": {
+            "MU": 1.1661912685207194,
+            "TSLA": 1.0325044365074016,
+            "NVDA": 1.0175704168243498
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2025-12-30",
+          "source_row": 502,
+          "quotes": {
+            "MU": 292.63,
+            "TSLA": 454.43,
+            "NVDA": 187.54
+          },
+          "ratios": {
+            "MU": 1.1592979954044846,
+            "TSLA": 1.0208010422984477,
+            "NVDA": 1.0138941449964858
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2025-12-31",
+          "source_row": 503,
+          "quotes": {
+            "MU": 285.41,
+            "TSLA": 449.72,
+            "NVDA": 186.5
+          },
+          "ratios": {
+            "MU": 1.1306948736233264,
+            "TSLA": 1.0102208145202956,
+            "NVDA": 1.008271611612694
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-02",
+          "source_row": 504,
+          "quotes": {
+            "MU": 315.42,
+            "TSLA": 438.07,
+            "NVDA": 188.85
+          },
+          "ratios": {
+            "MU": 1.2495840266222964,
+            "TSLA": 0.9840510366826156,
+            "NVDA": 1.0209763745472238
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-05",
+          "source_row": 505,
+          "quotes": {
+            "MU": 312.15,
+            "TSLA": 451.67,
+            "NVDA": 188.12
+          },
+          "ratios": {
+            "MU": 1.236629427145234,
+            "TSLA": 1.0146011636004224,
+            "NVDA": 1.01702978861437
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-06",
+          "source_row": 506,
+          "quotes": {
+            "MU": 343.43,
+            "TSLA": 432.96,
+            "NVDA": 187.24
+          },
+          "ratios": {
+            "MU": 1.3605498771888125,
+            "TSLA": 0.972572275759822,
+            "NVDA": 1.012272260366546
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-07",
+          "source_row": 507,
+          "quotes": {
+            "MU": 339.55,
+            "TSLA": 431.41,
+            "NVDA": 189.11
+          },
+          "ratios": {
+            "MU": 1.3451786704698518,
+            "TSLA": 0.9690904598243368,
+            "NVDA": 1.022382007893172
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-08",
+          "source_row": 508,
+          "quotes": {
+            "MU": 327.02,
+            "TSLA": 435.8,
+            "NVDA": 185.04
+          },
+          "ratios": {
+            "MU": 1.2955391807305285,
+            "TSLA": 0.9789518610867758,
+            "NVDA": 1.000378439746986
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-09",
+          "source_row": 509,
+          "quotes": {
+            "MU": 345.09,
+            "TSLA": 445.01,
+            "NVDA": 184.86
+          },
+          "ratios": {
+            "MU": 1.367126218207749,
+            "TSLA": 0.9996405867421434,
+            "NVDA": 0.9994053089690221
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-12",
+          "source_row": 510,
+          "quotes": {
+            "MU": 345.87,
+            "TSLA": 448.96,
+            "NVDA": 184.94
+          },
+          "ratios": {
+            "MU": 1.370216306156406,
+            "TSLA": 1.008513601545477,
+            "NVDA": 0.999837811537006
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-13",
+          "source_row": 511,
+          "quotes": {
+            "MU": 338.13,
+            "TSLA": 447.2,
+            "NVDA": 185.81
+          },
+          "ratios": {
+            "MU": 1.3395531257428097,
+            "TSLA": 1.0045600557090548,
+            "NVDA": 1.004541276963832
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-14",
+          "source_row": 512,
+          "quotes": {
+            "MU": 333.35,
+            "TSLA": 439.2,
+            "NVDA": 183.14
+          },
+          "ratios": {
+            "MU": 1.3206164329292451,
+            "TSLA": 0.9865893928162275,
+            "NVDA": 0.990106503757366
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-15",
+          "source_row": 513,
+          "quotes": {
+            "MU": 336.63,
+            "TSLA": 438.57,
+            "NVDA": 187.05
+          },
+          "ratios": {
+            "MU": 1.3336106489184694,
+            "TSLA": 0.9851742031134173,
+            "NVDA": 1.011245066767584
+          },
+          "eligible": false,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": null,
+            "TSLA": null,
+            "NVDA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-16",
+          "source_row": 514,
+          "quotes": {
+            "MU": 362.75,
+            "TSLA": 437.5,
+            "NVDA": 186.23
+          },
+          "ratios": {
+            "MU": 1.4370889786863166,
+            "TSLA": 0.9827706269515016,
+            "NVDA": 1.006811915445748
+          },
+          "eligible": true,
+          "reached": {
+            "MU": true,
+            "TSLA": true,
+            "NVDA": true
+          },
+          "memory": {
+            "MU": "2026-01-16",
+            "TSLA": "2026-01-16",
+            "NVDA": "2026-01-16"
+          },
+          "first_ko": "2026-01-16"
+        }
+      ]
+    },
+    {
+      "product_id": "SP43",
+      "pricing_date": "2026-01-26",
+      "ko_start": "2026-03-02",
+      "final_eval": "2026-05-04",
+      "maturity": "2026-05-07",
+      "ko_type": "記憶式",
+      "ko_barrier": 1.0,
+      "legs": [
+        {
+          "ticker": "AVGO",
+          "initial_price": 324.85,
+          "input_ticker": "AVGO",
+          "input_initial": 324.85,
+          "pricing_close": 324.85,
+          "matches_input": true
+        },
+        {
+          "ticker": "NVDA",
+          "initial_price": 186.47,
+          "input_ticker": "NVDA",
+          "input_initial": 186.47,
+          "pricing_close": 186.47,
+          "matches_input": true
+        },
+        {
+          "ticker": "TSLA",
+          "initial_price": 435.2,
+          "input_ticker": "TSLA",
+          "input_initial": 435.2,
+          "pricing_close": 435.2,
+          "matches_input": true
+        }
+      ],
+      "reference_ko": null,
+      "v2_ko": null,
+      "legacy_api_ko": null,
+      "legacy_api_disagrees": false,
+      "state": "已到期（模型尚無 KO 結果）",
+      "category": "歷史歸檔",
+      "principal_ratio": 1.0,
+      "ki_touched": false,
+      "reference_principal": 1.0,
+      "worst_ticker": "TSLA",
+      "worst_ratio": 0.901907169117647,
+      "coupon_rate": 0.039351,
+      "forecast_rate": 0.039351,
+      "missing": [],
+      "issues": [],
+      "excluded_dates": [
+        "2026-01-31",
+        "2026-02-01",
+        "2026-02-07",
+        "2026-02-08",
+        "2026-02-14",
+        "2026-02-15",
+        "2026-02-16",
+        "2026-02-21",
+        "2026-02-22",
+        "2026-02-28",
+        "2026-03-01",
+        "2026-03-07",
+        "2026-03-08",
+        "2026-03-14",
+        "2026-03-15",
+        "2026-03-21",
+        "2026-03-22",
+        "2026-03-28",
+        "2026-03-29",
+        "2026-04-03",
+        "2026-04-04",
+        "2026-04-05",
+        "2026-04-11",
+        "2026-04-12",
+        "2026-04-18",
+        "2026-04-19",
+        "2026-04-25",
+        "2026-04-26",
+        "2026-05-02",
+        "2026-05-03"
+      ],
+      "observed_trading_days": 69,
+      "first_hits": {
+        "AVGO": "2026-03-05",
+        "NVDA": "2026-04-10",
+        "TSLA": null
+      },
+      "coupons": [
+        {
+          "number": 1,
+          "start": "2026-02-02",
+          "end": "2026-03-02",
+          "payment": "2026-03-05",
+          "full_days": 20,
+          "earned_days": 20,
+          "expected_rate": 0.013116999999999998
+        },
+        {
+          "number": 2,
+          "start": "2026-03-03",
+          "end": "2026-04-02",
+          "payment": "2026-04-08",
+          "full_days": 23,
+          "earned_days": 23,
+          "expected_rate": 0.013117
+        },
+        {
+          "number": 3,
+          "start": "2026-04-06",
+          "end": "2026-05-04",
+          "payment": "2026-05-07",
+          "full_days": 21,
+          "earned_days": 21,
+          "expected_rate": 0.013116999999999998
+        }
+      ],
+      "model_coupons": [
+        {
+          "期數": 1,
+          "計息起日": "2026-02-02",
+          "計息末日": "2026-03-02",
+          "配息日": "2026-03-05",
+          "計息模式": "按交易日比例（V2）",
+          "整期交易日": 20,
+          "計入交易日": 20,
+          "模型票息率": 0.013116999999999998,
+          "未來假設票息率": 0.0
+        },
+        {
+          "期數": 2,
+          "計息起日": "2026-03-03",
+          "計息末日": "2026-04-02",
+          "配息日": "2026-04-08",
+          "計息模式": "按交易日比例（V2）",
+          "整期交易日": 23,
+          "計入交易日": 23,
+          "模型票息率": 0.013116999999999998,
+          "未來假設票息率": 0.0
+        },
+        {
+          "期數": 3,
+          "計息起日": "2026-04-06",
+          "計息末日": "2026-05-04",
+          "配息日": "2026-05-07",
+          "計息模式": "按交易日比例（V2）",
+          "整期交易日": 21,
+          "計入交易日": 21,
+          "模型票息率": 0.013116999999999998,
+          "未來假設票息率": 0.0
+        }
+      ],
+      "trace": [
+        {
+          "date": "2026-01-26",
+          "source_row": 519,
+          "quotes": {
+            "AVGO": 324.85,
+            "NVDA": 186.47,
+            "TSLA": 435.2
+          },
+          "ratios": {
+            "AVGO": 1.0,
+            "NVDA": 1.0,
+            "TSLA": 1.0
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": true
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-27",
+          "source_row": 520,
+          "quotes": {
+            "AVGO": 332.79,
+            "NVDA": 188.52,
+            "TSLA": 430.9
+          },
+          "ratios": {
+            "AVGO": 1.0244420501770048,
+            "NVDA": 1.0109937255322572,
+            "TSLA": 0.9901194852941176
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-28",
+          "source_row": 521,
+          "quotes": {
+            "AVGO": 333.24,
+            "NVDA": 191.52,
+            "TSLA": 431.46
+          },
+          "ratios": {
+            "AVGO": 1.0258273049099584,
+            "NVDA": 1.0270821043599507,
+            "TSLA": 0.9914062499999999
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-29",
+          "source_row": 522,
+          "quotes": {
+            "AVGO": 330.73,
+            "NVDA": 192.51,
+            "TSLA": 416.56
+          },
+          "ratios": {
+            "AVGO": 1.018100661843928,
+            "NVDA": 1.0323912693730894,
+            "TSLA": 0.9571691176470588
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-30",
+          "source_row": 523,
+          "quotes": {
+            "AVGO": 331.3,
+            "NVDA": 191.13,
+            "TSLA": 430.41
+          },
+          "ratios": {
+            "AVGO": 1.0198553178390026,
+            "NVDA": 1.0249906151123505,
+            "TSLA": 0.9889935661764707
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-02",
+          "source_row": 524,
+          "quotes": {
+            "AVGO": 331.11,
+            "NVDA": 185.61,
+            "TSLA": 421.81
+          },
+          "ratios": {
+            "AVGO": 1.019270432507311,
+            "NVDA": 0.9953879980693946,
+            "TSLA": 0.9692325367647059
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": true,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-03",
+          "source_row": 525,
+          "quotes": {
+            "AVGO": 320.33,
+            "NVDA": 180.34,
+            "TSLA": 421.96
+          },
+          "ratios": {
+            "AVGO": 0.986085885793443,
+            "NVDA": 0.9671260792620797,
+            "TSLA": 0.969577205882353
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-04",
+          "source_row": 526,
+          "quotes": {
+            "AVGO": 308.05,
+            "NVDA": 174.19,
+            "TSLA": 406.01
+          },
+          "ratios": {
+            "AVGO": 0.9482838233030629,
+            "NVDA": 0.9341449026653081,
+            "TSLA": 0.9329273897058824
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-05",
+          "source_row": 527,
+          "quotes": {
+            "AVGO": 310.51,
+            "NVDA": 171.88,
+            "TSLA": 397.21
+          },
+          "ratios": {
+            "AVGO": 0.955856549176543,
+            "NVDA": 0.9217568509679841,
+            "TSLA": 0.9127068014705882
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-06",
+          "source_row": 528,
+          "quotes": {
+            "AVGO": 332.92,
+            "NVDA": 185.41,
+            "TSLA": 411.11
+          },
+          "ratios": {
+            "AVGO": 1.0248422348776358,
+            "NVDA": 0.9943154394808816,
+            "TSLA": 0.9446461397058824
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": true,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-09",
+          "source_row": 529,
+          "quotes": {
+            "AVGO": 343.94,
+            "NVDA": 190.04,
+            "TSLA": 417.32
+          },
+          "ratios": {
+            "AVGO": 1.0587655841157457,
+            "NVDA": 1.0191451708049553,
+            "TSLA": 0.9589154411764707
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-10",
+          "source_row": 530,
+          "quotes": {
+            "AVGO": 340.44,
+            "NVDA": 188.54,
+            "TSLA": 425.21
+          },
+          "ratios": {
+            "AVGO": 1.0479913806372172,
+            "NVDA": 1.0111009813911085,
+            "TSLA": 0.9770450367647059
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-11",
+          "source_row": 531,
+          "quotes": {
+            "AVGO": 342.76,
+            "NVDA": 190.05,
+            "TSLA": 428.27
+          },
+          "ratios": {
+            "AVGO": 1.055133138371556,
+            "NVDA": 1.019198798734381,
+            "TSLA": 0.9840762867647058
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-12",
+          "source_row": 532,
+          "quotes": {
+            "AVGO": 331.17,
+            "NVDA": 186.94,
+            "TSLA": 417.07
+          },
+          "ratios": {
+            "AVGO": 1.0194551331383714,
+            "NVDA": 1.0025205126830052,
+            "TSLA": 0.9583409926470589
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-13",
+          "source_row": 533,
+          "quotes": {
+            "AVGO": 325.17,
+            "NVDA": 182.81,
+            "TSLA": 417.44
+          },
+          "ratios": {
+            "AVGO": 1.0009850700323226,
+            "NVDA": 0.980372177830214,
+            "TSLA": 0.9591911764705883
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": true,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-17",
+          "source_row": 534,
+          "quotes": {
+            "AVGO": 332.54,
+            "NVDA": 184.97,
+            "TSLA": 410.63
+          },
+          "ratios": {
+            "AVGO": 1.0236724642142527,
+            "NVDA": 0.9919558105861532,
+            "TSLA": 0.9435431985294118
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": true,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-18",
+          "source_row": 535,
+          "quotes": {
+            "AVGO": 333.51,
+            "NVDA": 187.98,
+            "TSLA": 411.32
+          },
+          "ratios": {
+            "AVGO": 1.0266584577497306,
+            "NVDA": 1.0080978173432724,
+            "TSLA": 0.9451286764705883
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-19",
+          "source_row": 536,
+          "quotes": {
+            "AVGO": 333.99,
+            "NVDA": 187.9,
+            "TSLA": 411.71
+          },
+          "ratios": {
+            "AVGO": 1.0281360627982146,
+            "NVDA": 1.0076687939078672,
+            "TSLA": 0.9460248161764706
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-20",
+          "source_row": 537,
+          "quotes": {
+            "AVGO": 332.65,
+            "NVDA": 189.82,
+            "TSLA": 411.82
+          },
+          "ratios": {
+            "AVGO": 1.0240110820378634,
+            "NVDA": 1.017965356357591,
+            "TSLA": 0.9462775735294118
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-23",
+          "source_row": 538,
+          "quotes": {
+            "AVGO": 330.34,
+            "NVDA": 191.55,
+            "TSLA": 399.83
+          },
+          "ratios": {
+            "AVGO": 1.0169001077420345,
+            "NVDA": 1.0272429881482277,
+            "TSLA": 0.9187270220588235
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-24",
+          "source_row": 539,
+          "quotes": {
+            "AVGO": 325.49,
+            "NVDA": 192.85,
+            "TSLA": 409.38
+          },
+          "ratios": {
+            "AVGO": 1.0019701400646452,
+            "NVDA": 1.0342146189735615,
+            "TSLA": 0.9406709558823529
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-25",
+          "source_row": 540,
+          "quotes": {
+            "AVGO": 332.31,
+            "NVDA": 195.56,
+            "TSLA": 417.4
+          },
+          "ratios": {
+            "AVGO": 1.0229644451285207,
+            "NVDA": 1.0487477878479112,
+            "TSLA": 0.9590992647058824
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-26",
+          "source_row": 541,
+          "quotes": {
+            "AVGO": 321.7,
+            "NVDA": 184.89,
+            "TSLA": 408.58
+          },
+          "ratios": {
+            "AVGO": 0.9903032168693242,
+            "NVDA": 0.991526787150748,
+            "TSLA": 0.9388327205882353
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-27",
+          "source_row": 542,
+          "quotes": {
+            "AVGO": 319.55,
+            "NVDA": 177.19,
+            "TSLA": 402.51
+          },
+          "ratios": {
+            "AVGO": 0.9836847775896568,
+            "NVDA": 0.9502332814930016,
+            "TSLA": 0.9248851102941177
+          },
+          "eligible": false,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-02",
+          "source_row": 543,
+          "quotes": {
+            "AVGO": 318.82,
+            "NVDA": 182.48,
+            "TSLA": 403.32
+          },
+          "ratios": {
+            "AVGO": 0.9814375865784207,
+            "NVDA": 0.9786024561591676,
+            "TSLA": 0.9267463235294118
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-03",
+          "source_row": 544,
+          "quotes": {
+            "AVGO": 313.84,
+            "NVDA": 180.05,
+            "TSLA": 392.43
+          },
+          "ratios": {
+            "AVGO": 0.9661074342004,
+            "NVDA": 0.965570869308736,
+            "TSLA": 0.9017233455882353
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-04",
+          "source_row": 545,
+          "quotes": {
+            "AVGO": 317.53,
+            "NVDA": 183.04,
+            "TSLA": 405.94
+          },
+          "ratios": {
+            "AVGO": 0.9774665230106201,
+            "NVDA": 0.9816056202070038,
+            "TSLA": 0.932766544117647
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": null,
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-05",
+          "source_row": 546,
+          "quotes": {
+            "AVGO": 332.77,
+            "NVDA": 183.34,
+            "TSLA": 405.55
+          },
+          "ratios": {
+            "AVGO": 1.0243804832999845,
+            "NVDA": 0.9832144580897731,
+            "TSLA": 0.9318704044117647
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-06",
+          "source_row": 547,
+          "quotes": {
+            "AVGO": 330.48,
+            "NVDA": 177.82,
+            "TSLA": 396.73
+          },
+          "ratios": {
+            "AVGO": 1.017331075881176,
+            "NVDA": 0.9536118410468172,
+            "TSLA": 0.9116038602941177
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-09",
+          "source_row": 548,
+          "quotes": {
+            "AVGO": 345.75,
+            "NVDA": 182.65,
+            "TSLA": 398.68
+          },
+          "ratios": {
+            "AVGO": 1.0643373864860703,
+            "NVDA": 0.9795141309594037,
+            "TSLA": 0.9160845588235295
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-10",
+          "source_row": 549,
+          "quotes": {
+            "AVGO": 342.58,
+            "NVDA": 184.77,
+            "TSLA": 399.24
+          },
+          "ratios": {
+            "AVGO": 1.0545790364783745,
+            "NVDA": 0.9908832519976404,
+            "TSLA": 0.9173713235294119
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-11",
+          "source_row": 550,
+          "quotes": {
+            "AVGO": 341.57,
+            "NVDA": 186.03,
+            "TSLA": 407.82
+          },
+          "ratios": {
+            "AVGO": 1.0514699091888564,
+            "NVDA": 0.9976403711052716,
+            "TSLA": 0.9370863970588236
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-12",
+          "source_row": 551,
+          "quotes": {
+            "AVGO": 335.97,
+            "NVDA": 183.14,
+            "TSLA": 395.01
+          },
+          "ratios": {
+            "AVGO": 1.0342311836232108,
+            "NVDA": 0.9821418995012602,
+            "TSLA": 0.9076516544117648
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-13",
+          "source_row": 552,
+          "quotes": {
+            "AVGO": 322.16,
+            "NVDA": 180.25,
+            "TSLA": 391.2
+          },
+          "ratios": {
+            "AVGO": 0.9917192550407881,
+            "NVDA": 0.9666434278972489,
+            "TSLA": 0.8988970588235294
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-16",
+          "source_row": 553,
+          "quotes": {
+            "AVGO": 324.92,
+            "NVDA": 183.22,
+            "TSLA": 395.56
+          },
+          "ratios": {
+            "AVGO": 1.0002154840695705,
+            "NVDA": 0.9825709229366654,
+            "TSLA": 0.9089154411764706
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-17",
+          "source_row": 554,
+          "quotes": {
+            "AVGO": 321.31,
+            "NVDA": 181.93,
+            "TSLA": 399.27
+          },
+          "ratios": {
+            "AVGO": 0.9891026627674311,
+            "NVDA": 0.9756529200407573,
+            "TSLA": 0.9174402573529412
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-18",
+          "source_row": 555,
+          "quotes": {
+            "AVGO": 315.93,
+            "NVDA": 180.4,
+            "TSLA": 392.78
+          },
+          "ratios": {
+            "AVGO": 0.9725411728490072,
+            "NVDA": 0.9674478468386336,
+            "TSLA": 0.9025275735294117
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-19",
+          "source_row": 556,
+          "quotes": {
+            "AVGO": 319.84,
+            "NVDA": 178.56,
+            "TSLA": 380.3
+          },
+          "ratios": {
+            "AVGO": 0.984577497306449,
+            "NVDA": 0.9575803078243149,
+            "TSLA": 0.8738511029411765
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-20",
+          "source_row": 557,
+          "quotes": {
+            "AVGO": 310.51,
+            "NVDA": 172.7,
+            "TSLA": 367.96
+          },
+          "ratios": {
+            "AVGO": 0.955856549176543,
+            "NVDA": 0.9261543411808869,
+            "TSLA": 0.8454963235294117
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-23",
+          "source_row": 558,
+          "quotes": {
+            "AVGO": 322.51,
+            "NVDA": 175.64,
+            "TSLA": 380.85
+          },
+          "ratios": {
+            "AVGO": 0.9927966753886408,
+            "NVDA": 0.9419209524320266,
+            "TSLA": 0.8751148897058825
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-24",
+          "source_row": 559,
+          "quotes": {
+            "AVGO": 318.29,
+            "NVDA": 175.2,
+            "TSLA": 383.03
+          },
+          "ratios": {
+            "AVGO": 0.9798060643373865,
+            "NVDA": 0.9395613235372982,
+            "TSLA": 0.8801240808823529
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-25",
+          "source_row": 560,
+          "quotes": {
+            "AVGO": 318.81,
+            "NVDA": 178.68,
+            "TSLA": 385.95
+          },
+          "ratios": {
+            "AVGO": 0.9814068031399107,
+            "NVDA": 0.9582238429774227,
+            "TSLA": 0.8868336397058824
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-26",
+          "source_row": 561,
+          "quotes": {
+            "AVGO": 309.42,
+            "NVDA": 171.24,
+            "TSLA": 372.11
+          },
+          "ratios": {
+            "AVGO": 0.9525011543789441,
+            "NVDA": 0.918324663484743,
+            "TSLA": 0.8550321691176471
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-27",
+          "source_row": 562,
+          "quotes": {
+            "AVGO": 300.68,
+            "NVDA": 167.52,
+            "TSLA": 361.83
+          },
+          "ratios": {
+            "AVGO": 0.9255964291211328,
+            "NVDA": 0.898375073738403,
+            "TSLA": 0.8314108455882353
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-30",
+          "source_row": 563,
+          "quotes": {
+            "AVGO": 293.41,
+            "NVDA": 165.17,
+            "TSLA": 355.28
+          },
+          "ratios": {
+            "AVGO": 0.9032168693243036,
+            "NVDA": 0.8857725103233763,
+            "TSLA": 0.816360294117647
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-31",
+          "source_row": 564,
+          "quotes": {
+            "AVGO": 309.51,
+            "NVDA": 174.4,
+            "TSLA": 371.75
+          },
+          "ratios": {
+            "AVGO": 0.9527782053255348,
+            "NVDA": 0.9352710891832466,
+            "TSLA": 0.8542049632352942
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-01",
+          "source_row": 565,
+          "quotes": {
+            "AVGO": 313.49,
+            "NVDA": 175.75,
+            "TSLA": 381.26
+          },
+          "ratios": {
+            "AVGO": 0.9650300138525473,
+            "NVDA": 0.9425108596557087,
+            "TSLA": 0.8760569852941177
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-02",
+          "source_row": 566,
+          "quotes": {
+            "AVGO": 314.55,
+            "NVDA": 177.39,
+            "TSLA": 360.59
+          },
+          "ratios": {
+            "AVGO": 0.968293058334616,
+            "NVDA": 0.9513058400815144,
+            "TSLA": 0.8285615808823529
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-06",
+          "source_row": 567,
+          "quotes": {
+            "AVGO": 314.43,
+            "NVDA": 177.64,
+            "TSLA": 352.82
+          },
+          "ratios": {
+            "AVGO": 0.967923657072495,
+            "NVDA": 0.9526465383171555,
+            "TSLA": 0.8107077205882353
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": false,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-07",
+          "source_row": 568,
+          "quotes": {
+            "AVGO": 333.97,
+            "NVDA": 178.1,
+            "TSLA": 346.65
+          },
+          "ratios": {
+            "AVGO": 1.0280744959211945,
+            "NVDA": 0.9551134230707352,
+            "TSLA": 0.7965303308823529
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-08",
+          "source_row": 569,
+          "quotes": {
+            "AVGO": 350.63,
+            "NVDA": 182.08,
+            "TSLA": 343.25
+          },
+          "ratios": {
+            "AVGO": 1.0793597044789902,
+            "NVDA": 0.9764573389821419,
+            "TSLA": 0.7887178308823529
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-09",
+          "source_row": 570,
+          "quotes": {
+            "AVGO": 354.91,
+            "NVDA": 183.91,
+            "TSLA": 345.62
+          },
+          "ratios": {
+            "AVGO": 1.0925350161613052,
+            "NVDA": 0.9862712500670349,
+            "TSLA": 0.7941636029411765
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": false,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-10",
+          "source_row": 571,
+          "quotes": {
+            "AVGO": 371.55,
+            "NVDA": 188.63,
+            "TSLA": 348.95
+          },
+          "ratios": {
+            "AVGO": 1.1437586578420809,
+            "NVDA": 1.0115836327559393,
+            "TSLA": 0.8018152573529411
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": "2026-04-10",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-13",
+          "source_row": 572,
+          "quotes": {
+            "AVGO": 379.75,
+            "NVDA": 189.31,
+            "TSLA": 352.42
+          },
+          "ratios": {
+            "AVGO": 1.1690010774203479,
+            "NVDA": 1.0152303319568832,
+            "TSLA": 0.8097886029411765
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": "2026-04-10",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-14",
+          "source_row": 573,
+          "quotes": {
+            "AVGO": 380.78,
+            "NVDA": 196.51,
+            "TSLA": 364.2
+          },
+          "ratios": {
+            "AVGO": 1.172171771586886,
+            "NVDA": 1.0538424411433474,
+            "TSLA": 0.8368566176470588
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": "2026-04-10",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-15",
+          "source_row": 574,
+          "quotes": {
+            "AVGO": 396.72,
+            "NVDA": 198.87,
+            "TSLA": 391.95
+          },
+          "ratios": {
+            "AVGO": 1.2212405725719564,
+            "NVDA": 1.0664986324877996,
+            "TSLA": 0.9006204044117647
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": "2026-04-10",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-16",
+          "source_row": 575,
+          "quotes": {
+            "AVGO": 398.47,
+            "NVDA": 198.35,
+            "TSLA": 388.9
+          },
+          "ratios": {
+            "AVGO": 1.2266276743112206,
+            "NVDA": 1.0637099801576662,
+            "TSLA": 0.8936121323529411
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": "2026-04-10",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-17",
+          "source_row": 576,
+          "quotes": {
+            "AVGO": 406.54,
+            "NVDA": 201.68,
+            "TSLA": 400.62
+          },
+          "ratios": {
+            "AVGO": 1.2514699091888564,
+            "NVDA": 1.0815680806564059,
+            "TSLA": 0.9205422794117647
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": "2026-04-10",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-20",
+          "source_row": 577,
+          "quotes": {
+            "AVGO": 399.63,
+            "NVDA": 202.06,
+            "TSLA": 392.5
+          },
+          "ratios": {
+            "AVGO": 1.2301985531783899,
+            "NVDA": 1.0836059419745805,
+            "TSLA": 0.9018841911764706
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": "2026-04-10",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-21",
+          "source_row": 578,
+          "quotes": {
+            "AVGO": 402.17,
+            "NVDA": 199.88,
+            "TSLA": 386.42
+          },
+          "ratios": {
+            "AVGO": 1.2380175465599508,
+            "NVDA": 1.0719150533597899,
+            "TSLA": 0.8879136029411765
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": "2026-04-10",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-22",
+          "source_row": 579,
+          "quotes": {
+            "AVGO": 422.65,
+            "NVDA": 202.5,
+            "TSLA": 387.51
+          },
+          "ratios": {
+            "AVGO": 1.3010620286285977,
+            "NVDA": 1.0859655708693088,
+            "TSLA": 0.8904181985294117
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": "2026-04-10",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-23",
+          "source_row": 580,
+          "quotes": {
+            "AVGO": 419.94,
+            "NVDA": 199.64,
+            "TSLA": 373.72
+          },
+          "ratios": {
+            "AVGO": 1.2927197167923656,
+            "NVDA": 1.0706279830535743,
+            "TSLA": 0.8587316176470589
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": "2026-04-10",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-24",
+          "source_row": 581,
+          "quotes": {
+            "AVGO": 422.76,
+            "NVDA": 208.27,
+            "TSLA": 376.3
+          },
+          "ratios": {
+            "AVGO": 1.3014006464522085,
+            "NVDA": 1.116908886147906,
+            "TSLA": 0.8646599264705883
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": "2026-04-10",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-27",
+          "source_row": 582,
+          "quotes": {
+            "AVGO": 418.2,
+            "NVDA": 216.61,
+            "TSLA": 378.67
+          },
+          "ratios": {
+            "AVGO": 1.2873633984916113,
+            "NVDA": 1.1616345792888938,
+            "TSLA": 0.8701056985294118
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": "2026-04-10",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-28",
+          "source_row": 583,
+          "quotes": {
+            "AVGO": 399.83,
+            "NVDA": 213.17,
+            "TSLA": 376.02
+          },
+          "ratios": {
+            "AVGO": 1.2308142219485916,
+            "NVDA": 1.1431865715664717,
+            "TSLA": 0.8640165441176471
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": "2026-04-10",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-29",
+          "source_row": 584,
+          "quotes": {
+            "AVGO": 405.45,
+            "NVDA": 209.25,
+            "TSLA": 372.8
+          },
+          "ratios": {
+            "AVGO": 1.2481145143912573,
+            "NVDA": 1.122164423231619,
+            "TSLA": 0.8566176470588236
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": "2026-04-10",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-30",
+          "source_row": 585,
+          "quotes": {
+            "AVGO": 417.43,
+            "NVDA": 199.57,
+            "TSLA": 381.63
+          },
+          "ratios": {
+            "AVGO": 1.284993073726335,
+            "NVDA": 1.0702525875475948,
+            "TSLA": 0.8769071691176471
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": "2026-04-10",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-05-01",
+          "source_row": 586,
+          "quotes": {
+            "AVGO": 421.28,
+            "NVDA": 198.45,
+            "TSLA": 390.82
+          },
+          "ratios": {
+            "AVGO": 1.2968446975527164,
+            "NVDA": 1.0642462594519224,
+            "TSLA": 0.8980238970588236
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": "2026-04-10",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-05-04",
+          "source_row": 587,
+          "quotes": {
+            "AVGO": 416.5,
+            "NVDA": 198.48,
+            "TSLA": 392.51
+          },
+          "ratios": {
+            "AVGO": 1.2821302139448976,
+            "NVDA": 1.0644071432401994,
+            "TSLA": 0.901907169117647
+          },
+          "eligible": true,
+          "reached": {
+            "AVGO": true,
+            "NVDA": true,
+            "TSLA": false
+          },
+          "memory": {
+            "AVGO": "2026-03-05",
+            "NVDA": "2026-04-10",
+            "TSLA": null
+          },
+          "first_ko": null
+        }
+      ]
+    },
+    {
+      "product_id": "SB19",
+      "pricing_date": "2026-01-06",
+      "ko_start": "2026-02-13",
+      "final_eval": "2026-04-13",
+      "maturity": "2026-04-16",
+      "ko_type": "非記憶式",
+      "ko_barrier": 1.0,
+      "legs": [
+        {
+          "ticker": "PLTR",
+          "initial_price": "179.7100",
+          "input_ticker": "PLTR",
+          "input_initial": "179.7100",
+          "pricing_close": 179.71,
+          "matches_input": true
+        },
+        {
+          "ticker": "AVGO",
+          "initial_price": "343.7700",
+          "input_ticker": "AVGO",
+          "input_initial": "343.7700",
+          "pricing_close": 343.77,
+          "matches_input": true
+        },
+        {
+          "ticker": "TSLA",
+          "initial_price": "432.9600",
+          "input_ticker": "TSLA",
+          "input_initial": "432.9600",
+          "pricing_close": 432.96,
+          "matches_input": true
+        }
+      ],
+      "reference_ko": null,
+      "v2_ko": null,
+      "legacy_api_ko": null,
+      "legacy_api_disagrees": false,
+      "state": "已到期（模型尚無 KO 結果）",
+      "category": "歷史歸檔",
+      "principal_ratio": 0.9207194925157197,
+      "ki_touched": true,
+      "reference_principal": 0.9207194925157197,
+      "worst_ticker": "PLTR",
+      "worst_ratio": 0.7365755940125758,
+      "coupon_rate": 0.038149999999999996,
+      "forecast_rate": 0.038149999999999996,
+      "missing": [],
+      "issues": [],
+      "excluded_dates": [
+        "2026-01-10",
+        "2026-01-11",
+        "2026-01-17",
+        "2026-01-18",
+        "2026-01-19",
+        "2026-01-24",
+        "2026-01-25",
+        "2026-01-31",
+        "2026-02-01",
+        "2026-02-07",
+        "2026-02-08",
+        "2026-02-14",
+        "2026-02-15",
+        "2026-02-16",
+        "2026-02-21",
+        "2026-02-22",
+        "2026-02-28",
+        "2026-03-01",
+        "2026-03-07",
+        "2026-03-08",
+        "2026-03-14",
+        "2026-03-15",
+        "2026-03-21",
+        "2026-03-22",
+        "2026-03-28",
+        "2026-03-29",
+        "2026-04-03",
+        "2026-04-04",
+        "2026-04-05",
+        "2026-04-11",
+        "2026-04-12"
+      ],
+      "observed_trading_days": 67,
+      "first_hits": {
+        "PLTR": null,
+        "AVGO": "2026-03-09",
+        "TSLA": null
+      },
+      "coupons": [
+        {
+          "number": 1,
+          "start": "2026-01-13",
+          "end": "2026-02-13",
+          "payment": "2026-02-19",
+          "full_days": 23,
+          "earned_days": 23,
+          "expected_rate": 0.012716666666666666
+        },
+        {
+          "number": 2,
+          "start": "2026-02-17",
+          "end": "2026-03-13",
+          "payment": "2026-03-18",
+          "full_days": 19,
+          "earned_days": 19,
+          "expected_rate": 0.012716666666666666
+        },
+        {
+          "number": 3,
+          "start": "2026-03-16",
+          "end": "2026-04-13",
+          "payment": "2026-04-16",
+          "full_days": 20,
+          "earned_days": 20,
+          "expected_rate": 0.012716666666666664
+        }
+      ],
+      "model_coupons": [
+        {
+          "期數": 1,
+          "計息起日": "2026-01-13",
+          "計息末日": "2026-02-13",
+          "配息日": "2026-02-19",
+          "計息模式": "按交易日比例（V2）",
+          "整期交易日": 23,
+          "計入交易日": 23,
+          "模型票息率": 0.012716666666666666,
+          "未來假設票息率": 0.0
+        },
+        {
+          "期數": 2,
+          "計息起日": "2026-02-17",
+          "計息末日": "2026-03-13",
+          "配息日": "2026-03-18",
+          "計息模式": "按交易日比例（V2）",
+          "整期交易日": 19,
+          "計入交易日": 19,
+          "模型票息率": 0.012716666666666666,
+          "未來假設票息率": 0.0
+        },
+        {
+          "期數": 3,
+          "計息起日": "2026-03-16",
+          "計息末日": "2026-04-13",
+          "配息日": "2026-04-16",
+          "計息模式": "按交易日比例（V2）",
+          "整期交易日": 20,
+          "計入交易日": 20,
+          "模型票息率": 0.012716666666666666,
+          "未來假設票息率": 0.0
+        }
+      ],
+      "trace": [
+        {
+          "date": "2026-01-06",
+          "source_row": 506,
+          "quotes": {
+            "PLTR": 179.71,
+            "AVGO": 343.77,
+            "TSLA": 432.96
+          },
+          "ratios": {
+            "PLTR": 1.0,
+            "AVGO": 1.0,
+            "TSLA": 1.0
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": true,
+            "AVGO": true,
+            "TSLA": true
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-07",
+          "source_row": 507,
+          "quotes": {
+            "PLTR": 181.68,
+            "AVGO": 343.5,
+            "TSLA": 431.41
+          },
+          "ratios": {
+            "PLTR": 1.0109621056146012,
+            "AVGO": 0.9992145911510604,
+            "TSLA": 0.9964199926090171
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": true,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-08",
+          "source_row": 508,
+          "quotes": {
+            "PLTR": 176.86,
+            "AVGO": 332.48,
+            "TSLA": 435.8
+          },
+          "ratios": {
+            "PLTR": 0.9841411162428357,
+            "AVGO": 0.9671582744276698,
+            "TSLA": 1.006559497413156
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": true
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-09",
+          "source_row": 509,
+          "quotes": {
+            "PLTR": 177.49,
+            "AVGO": 344.97,
+            "TSLA": 445.01
+          },
+          "ratios": {
+            "PLTR": 0.9876467642312615,
+            "AVGO": 1.0034907059952878,
+            "TSLA": 1.0278316703621582
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": true,
+            "TSLA": true
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-12",
+          "source_row": 510,
+          "quotes": {
+            "PLTR": 179.41,
+            "AVGO": 352.21,
+            "TSLA": 448.96
+          },
+          "ratios": {
+            "PLTR": 0.9983306438150352,
+            "AVGO": 1.0245512988335224,
+            "TSLA": 1.0369549150036954
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": true,
+            "TSLA": true
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-13",
+          "source_row": 511,
+          "quotes": {
+            "PLTR": 178.96,
+            "AVGO": 354.61,
+            "TSLA": 447.2
+          },
+          "ratios": {
+            "PLTR": 0.9958266095375884,
+            "AVGO": 1.0315327108240977,
+            "TSLA": 1.032889874353289
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": true,
+            "TSLA": true
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-14",
+          "source_row": 512,
+          "quotes": {
+            "PLTR": 178.4,
+            "AVGO": 339.89,
+            "TSLA": 439.2
+          },
+          "ratios": {
+            "PLTR": 0.9927104779923209,
+            "AVGO": 0.9887133839485702,
+            "TSLA": 1.0144124168514412
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": true
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-15",
+          "source_row": 513,
+          "quotes": {
+            "PLTR": 177.07,
+            "AVGO": 343.02,
+            "TSLA": 438.57
+          },
+          "ratios": {
+            "PLTR": 0.9853096655723108,
+            "AVGO": 0.9978183087529453,
+            "TSLA": 1.0129573170731707
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": true
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-16",
+          "source_row": 514,
+          "quotes": {
+            "PLTR": 170.96,
+            "AVGO": 351.71,
+            "TSLA": 437.5
+          },
+          "ratios": {
+            "PLTR": 0.9513104446051973,
+            "AVGO": 1.0230968380021526,
+            "TSLA": 1.0104859571322986
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": true,
+            "TSLA": true
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-20",
+          "source_row": 515,
+          "quotes": {
+            "PLTR": 168.53,
+            "AVGO": 332.6,
+            "TSLA": 419.25
+          },
+          "ratios": {
+            "PLTR": 0.9377886595069834,
+            "AVGO": 0.9675073450271985,
+            "TSLA": 0.9683342572062085
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-21",
+          "source_row": 516,
+          "quotes": {
+            "PLTR": 165.33,
+            "AVGO": 328.8,
+            "TSLA": 431.44
+          },
+          "ratios": {
+            "PLTR": 0.9199821935340271,
+            "AVGO": 0.956453442708788,
+            "TSLA": 0.996489283074649
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-22",
+          "source_row": 517,
+          "quotes": {
+            "PLTR": 165.9,
+            "AVGO": 325.49,
+            "TSLA": 449.36
+          },
+          "ratios": {
+            "PLTR": 0.9231539702854599,
+            "AVGO": 0.9468249120051198,
+            "TSLA": 1.037878787878788
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": true
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-23",
+          "source_row": 518,
+          "quotes": {
+            "PLTR": 169.6,
+            "AVGO": 320.05,
+            "TSLA": 449.06
+          },
+          "ratios": {
+            "PLTR": 0.9437426965666907,
+            "AVGO": 0.9310003781598163,
+            "TSLA": 1.0371858832224687
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": true
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-26",
+          "source_row": 519,
+          "quotes": {
+            "PLTR": 167.47,
+            "AVGO": 324.85,
+            "TSLA": 435.2
+          },
+          "ratios": {
+            "PLTR": 0.9318902676534416,
+            "AVGO": 0.9449632021409664,
+            "TSLA": 1.0051736881005173
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": true
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-27",
+          "source_row": 520,
+          "quotes": {
+            "PLTR": 165.7,
+            "AVGO": 332.79,
+            "TSLA": 430.9
+          },
+          "ratios": {
+            "PLTR": 0.92204106616215,
+            "AVGO": 0.9680600401431191,
+            "TSLA": 0.9952420546932742
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-28",
+          "source_row": 521,
+          "quotes": {
+            "PLTR": 157.35,
+            "AVGO": 333.24,
+            "TSLA": 431.46
+          },
+          "ratios": {
+            "PLTR": 0.8755773190139668,
+            "AVGO": 0.9693690548913518,
+            "TSLA": 0.9965354767184036
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-29",
+          "source_row": 522,
+          "quotes": {
+            "PLTR": 151.86,
+            "AVGO": 330.73,
+            "TSLA": 416.56
+          },
+          "ratios": {
+            "PLTR": 0.8450281008291136,
+            "AVGO": 0.9620676615178754,
+            "TSLA": 0.9621212121212122
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-01-30",
+          "source_row": 523,
+          "quotes": {
+            "PLTR": 146.59,
+            "AVGO": 331.3,
+            "TSLA": 430.41
+          },
+          "ratios": {
+            "PLTR": 0.815703077179901,
+            "AVGO": 0.963725746865637,
+            "TSLA": 0.9941103104212862
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-02",
+          "source_row": 524,
+          "quotes": {
+            "PLTR": 147.76,
+            "AVGO": 331.11,
+            "TSLA": 421.81
+          },
+          "ratios": {
+            "PLTR": 0.8222135663012631,
+            "AVGO": 0.9631730517497165,
+            "TSLA": 0.9742470436067997
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-03",
+          "source_row": 525,
+          "quotes": {
+            "PLTR": 157.88,
+            "AVGO": 320.33,
+            "TSLA": 421.96
+          },
+          "ratios": {
+            "PLTR": 0.8785265149407377,
+            "AVGO": 0.9318148762253833,
+            "TSLA": 0.9745934959349594
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-04",
+          "source_row": 526,
+          "quotes": {
+            "PLTR": 139.54,
+            "AVGO": 308.05,
+            "TSLA": 406.01
+          },
+          "ratios": {
+            "PLTR": 0.7764732068332313,
+            "AVGO": 0.8960933182069407,
+            "TSLA": 0.9377540650406504
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-05",
+          "source_row": 527,
+          "quotes": {
+            "PLTR": 130.01,
+            "AVGO": 310.51,
+            "TSLA": 397.21
+          },
+          "ratios": {
+            "PLTR": 0.7234433253575203,
+            "AVGO": 0.9032492654972801,
+            "TSLA": 0.9174288617886179
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-06",
+          "source_row": 528,
+          "quotes": {
+            "PLTR": 135.9,
+            "AVGO": 332.92,
+            "TSLA": 411.11
+          },
+          "ratios": {
+            "PLTR": 0.7562183517889933,
+            "AVGO": 0.9684381999592752,
+            "TSLA": 0.9495334441980784
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-09",
+          "source_row": 529,
+          "quotes": {
+            "PLTR": 142.91,
+            "AVGO": 343.94,
+            "TSLA": 417.32
+          },
+          "ratios": {
+            "PLTR": 0.795225641311001,
+            "AVGO": 1.0004945166826658,
+            "TSLA": 0.9638765705838876
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": true,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-10",
+          "source_row": 530,
+          "quotes": {
+            "PLTR": 139.51,
+            "AVGO": 340.44,
+            "TSLA": 425.21
+          },
+          "ratios": {
+            "PLTR": 0.7763062712147347,
+            "AVGO": 0.9903132908630771,
+            "TSLA": 0.982099963045085
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-11",
+          "source_row": 531,
+          "quotes": {
+            "PLTR": 135.68,
+            "AVGO": 342.76,
+            "TSLA": 428.27
+          },
+          "ratios": {
+            "PLTR": 0.7549941572533526,
+            "AVGO": 0.997061989120633,
+            "TSLA": 0.9891675905395417
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-12",
+          "source_row": 532,
+          "quotes": {
+            "PLTR": 129.13,
+            "AVGO": 331.17,
+            "TSLA": 417.07
+          },
+          "ratios": {
+            "PLTR": 0.7185465472149574,
+            "AVGO": 0.9633475870494809,
+            "TSLA": 0.963299150036955
+          },
+          "eligible": false,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-13",
+          "source_row": 533,
+          "quotes": {
+            "PLTR": 131.41,
+            "AVGO": 325.17,
+            "TSLA": 417.44
+          },
+          "ratios": {
+            "PLTR": 0.7312336542206889,
+            "AVGO": 0.9458940570730431,
+            "TSLA": 0.9641537324464154
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-17",
+          "source_row": 534,
+          "quotes": {
+            "PLTR": 133.02,
+            "AVGO": 332.54,
+            "TSLA": 410.63
+          },
+          "ratios": {
+            "PLTR": 0.7401925324133326,
+            "AVGO": 0.9673328097274342,
+            "TSLA": 0.9484247967479675
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-18",
+          "source_row": 535,
+          "quotes": {
+            "PLTR": 135.38,
+            "AVGO": 333.51,
+            "TSLA": 411.32
+          },
+          "ratios": {
+            "PLTR": 0.753324801068388,
+            "AVGO": 0.9701544637402915,
+            "TSLA": 0.9500184774575019
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-19",
+          "source_row": 536,
+          "quotes": {
+            "PLTR": 134.89,
+            "AVGO": 333.99,
+            "TSLA": 411.71
+          },
+          "ratios": {
+            "PLTR": 0.7505981859662789,
+            "AVGO": 0.9715507461384065,
+            "TSLA": 0.9509192535107169
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-20",
+          "source_row": 537,
+          "quotes": {
+            "PLTR": 135.24,
+            "AVGO": 332.65,
+            "TSLA": 411.82
+          },
+          "ratios": {
+            "PLTR": 0.7525457681820711,
+            "AVGO": 0.9676527911103354,
+            "TSLA": 0.9511733185513673
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-23",
+          "source_row": 538,
+          "quotes": {
+            "PLTR": 130.6,
+            "AVGO": 330.34,
+            "TSLA": 399.83
+          },
+          "ratios": {
+            "PLTR": 0.7267263925212842,
+            "AVGO": 0.9609331820694068,
+            "TSLA": 0.923480229120473
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-24",
+          "source_row": 539,
+          "quotes": {
+            "PLTR": 128.84,
+            "AVGO": 325.49,
+            "TSLA": 409.38
+          },
+          "ratios": {
+            "PLTR": 0.7169328362361582,
+            "AVGO": 0.9468249120051198,
+            "TSLA": 0.9455376940133038
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-25",
+          "source_row": 540,
+          "quotes": {
+            "PLTR": 134.19,
+            "AVGO": 332.31,
+            "TSLA": 417.4
+          },
+          "ratios": {
+            "PLTR": 0.7467030215346947,
+            "AVGO": 0.966663757745004,
+            "TSLA": 0.9640613451589062
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-26",
+          "source_row": 541,
+          "quotes": {
+            "PLTR": 135.94,
+            "AVGO": 321.7,
+            "TSLA": 408.58
+          },
+          "ratios": {
+            "PLTR": 0.7564409326136553,
+            "AVGO": 0.9358000989033366,
+            "TSLA": 0.943689948263119
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-02-27",
+          "source_row": 542,
+          "quotes": {
+            "PLTR": 137.19,
+            "AVGO": 319.55,
+            "TSLA": 402.51
+          },
+          "ratios": {
+            "PLTR": 0.7633965833843414,
+            "AVGO": 0.9295459173284464,
+            "TSLA": 0.929670177383592
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-02",
+          "source_row": 543,
+          "quotes": {
+            "PLTR": 145.17,
+            "AVGO": 318.82,
+            "TSLA": 403.32
+          },
+          "ratios": {
+            "PLTR": 0.8078014579044014,
+            "AVGO": 0.9274224045146464,
+            "TSLA": 0.9315410199556541
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-03",
+          "source_row": 544,
+          "quotes": {
+            "PLTR": 147.22,
+            "AVGO": 313.84,
+            "TSLA": 392.43
+          },
+          "ratios": {
+            "PLTR": 0.8192087251683267,
+            "AVGO": 0.9129359746342031,
+            "TSLA": 0.906388580931264
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-04",
+          "source_row": 545,
+          "quotes": {
+            "PLTR": 153.19,
+            "AVGO": 317.53,
+            "TSLA": 405.94
+          },
+          "ratios": {
+            "PLTR": 0.8524289132491235,
+            "AVGO": 0.9236698955697122,
+            "TSLA": 0.9375923872875093
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-05",
+          "source_row": 546,
+          "quotes": {
+            "PLTR": 152.67,
+            "AVGO": 332.77,
+            "TSLA": 405.55
+          },
+          "ratios": {
+            "PLTR": 0.849535362528518,
+            "AVGO": 0.9680018617098641,
+            "TSLA": 0.9366916112342942
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-06",
+          "source_row": 547,
+          "quotes": {
+            "PLTR": 157.16,
+            "AVGO": 330.48,
+            "TSLA": 396.73
+          },
+          "ratios": {
+            "PLTR": 0.8745200600968226,
+            "AVGO": 0.9613404311021905,
+            "TSLA": 0.9163202143385071
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": null,
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-09",
+          "source_row": 548,
+          "quotes": {
+            "PLTR": 156.43,
+            "AVGO": 345.75,
+            "TSLA": 398.68
+          },
+          "ratios": {
+            "PLTR": 0.8704579600467419,
+            "AVGO": 1.0057596648922245,
+            "TSLA": 0.9208240946045825
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": true,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-10",
+          "source_row": 549,
+          "quotes": {
+            "PLTR": 151.14,
+            "AVGO": 342.58,
+            "TSLA": 399.24
+          },
+          "ratios": {
+            "PLTR": 0.8410216459851982,
+            "AVGO": 0.9965383832213398,
+            "TSLA": 0.9221175166297119
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-11",
+          "source_row": 550,
+          "quotes": {
+            "PLTR": 151.6,
+            "AVGO": 341.57,
+            "TSLA": 407.82
+          },
+          "ratios": {
+            "PLTR": 0.8435813254688108,
+            "AVGO": 0.9936003723419728,
+            "TSLA": 0.9419345898004435
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-12",
+          "source_row": 551,
+          "quotes": {
+            "PLTR": 153.5,
+            "AVGO": 335.97,
+            "TSLA": 395.01
+          },
+          "ratios": {
+            "PLTR": 0.8541539146402537,
+            "AVGO": 0.9773104110306311,
+            "TSLA": 0.9123475609756098
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-13",
+          "source_row": 552,
+          "quotes": {
+            "PLTR": 150.95,
+            "AVGO": 322.16,
+            "TSLA": 391.2
+          },
+          "ratios": {
+            "PLTR": 0.839964387068054,
+            "AVGO": 0.9371382028681969,
+            "TSLA": 0.9035476718403548
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-16",
+          "source_row": 553,
+          "quotes": {
+            "PLTR": 152.72,
+            "AVGO": 324.92,
+            "TSLA": 395.56
+          },
+          "ratios": {
+            "PLTR": 0.8498135885593455,
+            "AVGO": 0.9451668266573582,
+            "TSLA": 0.9136178861788619
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-17",
+          "source_row": 554,
+          "quotes": {
+            "PLTR": 155.08,
+            "AVGO": 321.31,
+            "TSLA": 399.27
+          },
+          "ratios": {
+            "PLTR": 0.862945857214401,
+            "AVGO": 0.9346656194548681,
+            "TSLA": 0.9221868070953437
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-18",
+          "source_row": 555,
+          "quotes": {
+            "PLTR": 152.77,
+            "AVGO": 315.93,
+            "TSLA": 392.78
+          },
+          "ratios": {
+            "PLTR": 0.850091814590173,
+            "AVGO": 0.919015620909329,
+            "TSLA": 0.9071969696969697
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-19",
+          "source_row": 556,
+          "quotes": {
+            "PLTR": 155.68,
+            "AVGO": 319.84,
+            "TSLA": 380.3
+          },
+          "ratios": {
+            "PLTR": 0.8662845695843303,
+            "AVGO": 0.9303895046106408,
+            "TSLA": 0.8783721359940873
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-20",
+          "source_row": 557,
+          "quotes": {
+            "PLTR": 150.68,
+            "AVGO": 310.51,
+            "TSLA": 367.96
+          },
+          "ratios": {
+            "PLTR": 0.8384619665015859,
+            "AVGO": 0.9032492654972801,
+            "TSLA": 0.849870657797487
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-23",
+          "source_row": 558,
+          "quotes": {
+            "PLTR": 160.84,
+            "AVGO": 322.51,
+            "TSLA": 380.85
+          },
+          "ratios": {
+            "PLTR": 0.8949974959657225,
+            "AVGO": 0.9381563254501557,
+            "TSLA": 0.8796424611973394
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-24",
+          "source_row": 559,
+          "quotes": {
+            "PLTR": 154.78,
+            "AVGO": 318.29,
+            "TSLA": 383.03
+          },
+          "ratios": {
+            "PLTR": 0.8612765010294363,
+            "AVGO": 0.9258806760333945,
+            "TSLA": 0.8846775683665927
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-25",
+          "source_row": 560,
+          "quotes": {
+            "PLTR": 154.96,
+            "AVGO": 318.81,
+            "TSLA": 385.95
+          },
+          "ratios": {
+            "PLTR": 0.8622781147404152,
+            "AVGO": 0.927393315298019,
+            "TSLA": 0.8914218403547672
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-26",
+          "source_row": 561,
+          "quotes": {
+            "PLTR": 147.56,
+            "AVGO": 309.42,
+            "TSLA": 372.11
+          },
+          "ratios": {
+            "PLTR": 0.8211006621779533,
+            "AVGO": 0.900078540884894,
+            "TSLA": 0.8594558388765706
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-27",
+          "source_row": 562,
+          "quotes": {
+            "PLTR": 143.06,
+            "AVGO": 300.68,
+            "TSLA": 361.83
+          },
+          "ratios": {
+            "PLTR": 0.7960603194034833,
+            "AVGO": 0.8746545655525497,
+            "TSLA": 0.8357123059866962
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-30",
+          "source_row": 563,
+          "quotes": {
+            "PLTR": 137.55,
+            "AVGO": 293.41,
+            "TSLA": 355.28
+          },
+          "ratios": {
+            "PLTR": 0.765399810806299,
+            "AVGO": 0.8535067050644327,
+            "TSLA": 0.8205838876570584
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-03-31",
+          "source_row": 564,
+          "quotes": {
+            "PLTR": 146.28,
+            "AVGO": 309.51,
+            "TSLA": 371.75
+          },
+          "ratios": {
+            "PLTR": 0.8139780757887708,
+            "AVGO": 0.9003403438345405,
+            "TSLA": 0.8586243532889875
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-01",
+          "source_row": 565,
+          "quotes": {
+            "PLTR": 146.49,
+            "AVGO": 313.49,
+            "TSLA": 381.26
+          },
+          "ratios": {
+            "PLTR": 0.8151466251182461,
+            "AVGO": 0.9119178520522443,
+            "TSLA": 0.880589430894309
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-02",
+          "source_row": 566,
+          "quotes": {
+            "PLTR": 148.46,
+            "AVGO": 314.55,
+            "TSLA": 360.59
+          },
+          "ratios": {
+            "PLTR": 0.8261087307328474,
+            "AVGO": 0.9150013090147483,
+            "TSLA": 0.8328483000739099
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-06",
+          "source_row": 567,
+          "quotes": {
+            "PLTR": 147.93,
+            "AVGO": 314.43,
+            "TSLA": 352.82
+          },
+          "ratios": {
+            "PLTR": 0.8231595348060765,
+            "AVGO": 0.9146522384152196,
+            "TSLA": 0.8149020694752402
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-07",
+          "source_row": 568,
+          "quotes": {
+            "PLTR": 150.07,
+            "AVGO": 333.97,
+            "TSLA": 346.65
+          },
+          "ratios": {
+            "PLTR": 0.835067608925491,
+            "AVGO": 0.9714925677051518,
+            "TSLA": 0.8006513303769401
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": false,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-08",
+          "source_row": 569,
+          "quotes": {
+            "PLTR": 140.76,
+            "AVGO": 350.63,
+            "TSLA": 343.25
+          },
+          "ratios": {
+            "PLTR": 0.7832619219854209,
+            "AVGO": 1.0199552026063938,
+            "TSLA": 0.7927984109386549
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": true,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-09",
+          "source_row": 570,
+          "quotes": {
+            "PLTR": 130.49,
+            "AVGO": 354.91,
+            "TSLA": 345.62
+          },
+          "ratios": {
+            "PLTR": 0.7261142952534639,
+            "AVGO": 1.0324053873229195,
+            "TSLA": 0.7982723577235773
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": true,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-10",
+          "source_row": 571,
+          "quotes": {
+            "PLTR": 128.06,
+            "AVGO": 371.55,
+            "TSLA": 348.95
+          },
+          "ratios": {
+            "PLTR": 0.7125925101552502,
+            "AVGO": 1.0808098437909068,
+            "TSLA": 0.8059635994087214
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": true,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        },
+        {
+          "date": "2026-04-13",
+          "source_row": 572,
+          "quotes": {
+            "PLTR": 132.37,
+            "AVGO": 379.75,
+            "TSLA": 352.42
+          },
+          "ratios": {
+            "PLTR": 0.7365755940125758,
+            "AVGO": 1.1046630014253718,
+            "TSLA": 0.8139781966001479
+          },
+          "eligible": true,
+          "reached": {
+            "PLTR": false,
+            "AVGO": true,
+            "TSLA": false
+          },
+          "memory": {
+            "PLTR": null,
+            "AVGO": "2026-03-09",
+            "TSLA": null
+          },
+          "first_ko": null
+        }
+      ]
+    }
+  ]
+}

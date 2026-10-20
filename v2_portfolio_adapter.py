@@ -8,6 +8,7 @@ from datetime import datetime, timezone, timedelta
 from central_catalog import (
     load_model_inputs, load_market_matrix,
     as_positive_number, to_day,
+    _today_taipei,
 )
 from fcn_central_model import model_one, ratio
 
@@ -46,9 +47,12 @@ def load_models(reader, *, today=None):
         # Historical closes are shared with the independent history-trial page.
         for leg in catalog.legs.get(pid,()):
             ticker=leg['ticker']
+            end=min(today or _today_taipei(), model.ko_date or model.final_eval or today or _today_taipei())
             day=next((date for date in sorted(market,reverse=True)
-                      if market[date].get(ticker) is not None),None)
-            close=market[day][ticker] if day else None
+                      if date<=end and (not model.pricing_day or date>=model.pricing_day)
+                      and date.weekday()<5 and date not in holidays
+                      and as_positive_number(market[date].get(ticker)) is not None),None)
+            close=as_positive_number(market[day][ticker]) if day else None
             initial=as_positive_number(leg.get('initial_price'))
             pct=close/initial if close and initial else None
             model.quote_rows.append({
@@ -106,7 +110,11 @@ def enrich_new_holdings(reader, holdings):
         # Stop projecting from the legacy customer's bank spreadsheet columns.
         for field in ('estimated_principal_total','estimated_coupon_total',
                       'estimated_outstanding','expected_principal_date',
-                      'expected_principal_amount'):
+                      'expected_principal_amount','v2_forecast_coupon_total',
+                      'v2_state','ko_date','model_state','monitor_group',
+                      'v2_exit_date','v2_principal_ratio','v2_active_exposure','v2_principal_loss',
+                      'estimated_pnl','expected_coupon_amount','model_coupon_rate',
+                      'model_coupon_amount','model_total_return','product_status','holding_state'):
             h[field]=None
         h['v2_coupon_schedule']=[]
         h['v2_model_source']='中央商品參數庫＋成分股股價庫'
@@ -121,6 +129,15 @@ def enrich_new_holdings(reader, holdings):
             h['estimated_settlement_state']='中央商品待建檔'
             continue
         h['v2_state']=m.state
+        h['model_state']=m.state
+        h['product_status']=m.state
+        h['holding_state']=m.state
+        h['monitor_group']=m.category
+        h['ko_date']=m.ko_date
+        h['v2_exit_date']=m.ko_date or (m.final_eval if m.principal_ratio is not None else None)
+        h['v2_principal_ratio']=m.principal_ratio
+        # Unknown model observations never imply zero exposure or an exit.
+        h['v2_active_exposure']=None if m.issues else m.principal_ratio is None
         if m.issues:
             h['v2_issues']='；'.join(m.issues)
             h['estimated_settlement_state']='中央 V2：'+m.state+'（部分試算資料待補）'
@@ -141,11 +158,18 @@ def enrich_new_holdings(reader, holdings):
                                      if m.earned_coupon_rate is not None else None)
         h['v2_forecast_coupon_total']=(round(capital*m.forecast_coupon_rate,2)
                                       if m.forecast_coupon_rate is not None else None)
+        h['model_coupon_rate']=m.earned_coupon_rate
+        h['model_coupon_amount']=h['estimated_coupon_total']
+        h['expected_coupon_amount']=h['v2_forecast_coupon_total']
         if m.principal_ratio is not None:
             h['estimated_principal_total']=round(capital*m.principal_ratio,2)
-            h['estimated_outstanding']=max(0,round(capital*(1-m.principal_ratio),2))
+            h['estimated_outstanding']=0.0  # Model notional no longer at market risk.
+            h['v2_principal_loss']=max(0,round(capital*(1-m.principal_ratio),2))
             h['expected_principal_amount']=h['estimated_principal_total']
-            h['expected_principal_date']=m.ko_date or m.maturity_day
+            h['estimated_pnl']=round(h['estimated_principal_total']+h['estimated_coupon_total']-capital,2)
+            h['model_total_return']=h['estimated_pnl']/capital
+            # Early KO is an observation event, not evidence of cash settlement.
+            h['expected_principal_date']=None if m.ko_date else m.maturity_day
         else:
             # Unmatured and not KO: capital is still exposed to the FCN.
             h['estimated_principal_total']=None
