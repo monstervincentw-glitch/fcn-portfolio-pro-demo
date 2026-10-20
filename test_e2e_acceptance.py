@@ -203,7 +203,7 @@ def test_refresh_reloads_ledger_and_never_uses_old_model(live_app):
     state['ledger']['holdings'][1][4] = 17000
     element(app.button, '🔄 重新讀取中央資料').click().run()
     row = app.dataframe[0].value.iloc[0]
-    assert row['投入本金'] == row['預估回收本金'] == 17000
+    assert row['投入本金'] == row['模型回收本金'] == 17000
     assert row['預估票息'] == pytest.approx(round(17000*.0117666666667, 2))
 
 
