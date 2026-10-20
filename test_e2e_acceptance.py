@@ -139,16 +139,16 @@ def test_pages_use_actual_loaders_and_v2(live_app, name):
     elif name == PAGES[4]:
         assert [m.value for m in app.metric if m.label == '歷史申購'] == [
             'USD 10,000.00', 'EUR 20,000.00', 'JPY 1,000,000']
-        assert [m.value for m in app.metric if m.label == '依實收計未回本金'][0] == 'USD 10,000.00'
+        assert [m.value for m in app.metric if m.label == '模型本金回收（已計算）'][0] == 'USD 10,000.00'
         app.selectbox(key='customer').set_value('測試乙*').run()
         assert [m.value for m in app.metric if m.label == '歷史申購'][0] == 'USD 30,000.00'
-        assert [m.value for m in app.metric if m.label == '總帳已收本金'][0] == '—'
+        assert [m.value for m in app.metric if m.label == '模型本金回收（已計算）'][0] == 'USD 30,000.00'
     else:
         assert len(app.dataframe[0].value) == 3
         app.selectbox(key='customer').set_value('測試乙*').run()
         table = app.dataframe[0].value
         assert len(table) == 1 and table.iloc[0]['投入本金'] == 30000
-        assert table.iloc[0]['預估回收本金'] == 30000
+        assert table.iloc[0]['模型回收本金'] == 30000
         assert table.iloc[0]['模型出場日'] == '2026/01/16'
         assert table.iloc[0]['預估票息'] == pytest.approx(353)
     assert not app.exception
