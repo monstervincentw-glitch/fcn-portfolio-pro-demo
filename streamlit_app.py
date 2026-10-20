@@ -15,7 +15,7 @@ import pandas as pd
 import altair as alt
 from demo_charts import demo_chart
 import streamlit as st
-from demo_utils import currency_summary, product_group, num, receipt_values
+from demo_utils import currency_summary, product_group, num
 from sheets_backend import SheetsReader, SheetConnectionError, validate_masked_portfolio, DATA_RANGES
 from site_login import gate, logout
 from demo_data import make_demo
@@ -336,34 +336,40 @@ elif page in ("🏠 投資總覽","👥 客戶投資"):
         for tab,cc in zip(tabs,CURRENCY):
             with tab:
                 data=groups[cc]
+
+                def modeled_value(metric):
+                    # Known subtotals stay visible; missing model results are
+                    # never presented as zero or a complete portfolio total.
+                    if not data['count'] or not data['known_count'][metric]:
+                        return '—'
+                    return money(data[metric],cc)
+
                 a,b=st.columns(2)
-                a.metric("歷史申購",money(data["invested"],cc))
-                b.metric("模型本金回收",("—" if data["pending_count"]==data["count"] and data["count"] else money(data["returned"],cc)))
+                a.metric('歷史申購',modeled_value('invested'))
+                b.metric('模型本金回收（已計算）',modeled_value('returned'))
                 c,d=st.columns(2)
-                c.metric("模型存續本金",money(data["outstanding"],cc))
-                d.metric("中央模型票息",("—" if data["pending_count"]==data["count"] and data["count"] else money(data["coupon"],cc)))
-                e,f,g=st.columns(3)
-                e.metric('總帳已收本金',money(data['actual_returned'],cc))
-                f.metric('總帳已收配息',money(data['actual_coupon'],cc))
-                g.metric('依實收計未回本金',money(data['actual_outstanding'],cc))
-                if data["pending_count"]:
-                    st.info(f"另有 {data['pending_count']} 筆試算資料待補，已知歷史申購 {money(data['pending_principal'],cc)}。缺漏合計顯示空白，不能從原總帳模型補數。")
-                elif not data["count"]:st.caption("這位客戶沒有此幣別的申購。")
+                c.metric('模型存續本金（已計算）',modeled_value('outstanding'))
+                d.metric('模型累計票息（已計算）',modeled_value('coupon'))
+                pending={label:data['missing_count'][key] for key,label in (
+                    ('invested','申購本金'),('returned','回收本金'),
+                    ('outstanding','存續本金'),('coupon','累計票息'))
+                    if data['missing_count'][key]}
+                if pending:
+                    st.warning('本幣別部分模型資料待補：' +
+                               '、'.join(f'{name} {count} 筆' for name,count in pending.items()) +
+                               '。已顯示可計算持倉的小計，不能視為完整組合總額。')
+                elif not data['count']:
+                    st.caption('這位客戶沒有此幣別的申購。')
         st.subheader("近期商品狀態")
-        st.caption('模型存續本金是尚未模型出場的本金；出場損失不列為存續曝險。總帳已收本金與配息僅取原始收款欄，未提供則顯示空白；模型出場不代表實際入帳。')
+        st.caption('本金回收、存續本金與票息均由中央商品條款＋共用歷史收盤價套用至客戶申購本金即時計算；已 KO／到期依模型出場計算，未出場的商品本金列於存續本金。')
         for r in rows: st.write(f"**{r['product_id']}** · {r['currency']} · {display_status(r.get('estimated_settlement_state'))}")
     else:
         st.markdown('<div class="fcn-section"><strong>客戶完整投資歷史</strong><p>所有 FCN 保留歷史，可查看預估回收日與收益</p></div>', unsafe_allow_html=True)
         table=[]
         for r in rows:
-            table.append({"FCN":r['product_id'],"幣別":r['currency'],"投入本金":r['invested_amount'],"申購日期":date_str(r.get('trade_date')),"模型出場日":date_str(r.get('v2_exit_date')),"預定本金付款日":date_str(r.get('expected_principal_date')),"預估回收本金":r.get('estimated_principal_total'),"預估票息":r.get('estimated_coupon_total'),"模型存續本金":r.get('estimated_outstanding'),"模型本金損失":r.get('v2_principal_loss'),"結算狀態":display_status(r.get('estimated_settlement_state'))})
-        st.dataframe(pd.DataFrame(table),use_container_width=True,hide_index=True,column_config={"投入本金":st.column_config.NumberColumn(format="%.2f"),"預估回收本金":st.column_config.NumberColumn(format="%.2f"),"預估票息":st.column_config.NumberColumn(format="%.2f"),"估算未回本金":st.column_config.NumberColumn(format="%.2f")})
-        st.caption("空白表示未知，不代表零。KO 是模型出場日，提前 KO 本金付款日尚無來源，不能視為已入帳。歷史資料不因 KO 或到期三個月而刪除。")
-        with st.expander('總帳實際收款（與模型分開）'):
-            st.dataframe(pd.DataFrame([{'持倉ID':r.get('holding_id'),'FCN':r['product_id'],'幣別':r['currency'],
-                '總帳已收本金':receipt_values(r)['actual_returned'],'總帳已收配息':receipt_values(r)['actual_coupon'],
-                '依實收計未回本金':receipt_values(r)['actual_outstanding']} for r in rows]),hide_index=True,use_container_width=True)
-            st.caption('僅顯示原總帳收款欄；缺漏保持空白。模型結果不會回寫或替代這些紀錄。')
+            table.append({"FCN":r['product_id'],"幣別":r['currency'],"投入本金":r['invested_amount'],"申購日期":date_str(r.get('trade_date')),"模型出場日":date_str(r.get('v2_exit_date')),"預定本金付款日":date_str(r.get('expected_principal_date')),"模型回收本金":r.get('estimated_principal_total'),"預估票息":r.get('estimated_coupon_total'),"模型存續本金":r.get('estimated_outstanding'),"模型本金損失":r.get('v2_principal_loss'),"結算狀態":display_status(r.get('estimated_settlement_state'))})
+        st.dataframe(pd.DataFrame(table),use_container_width=True,hide_index=True,column_config={"投入本金":st.column_config.NumberColumn(format="%.2f"),"模型回收本金":st.column_config.NumberColumn(format="%.2f"),"預估票息":st.column_config.NumberColumn(format="%.2f"),"估算未回本金":st.column_config.NumberColumn(format="%.2f")})
+        st.caption("所有回收與票息均為網站模型估算；空白表示缺少可計算條款或行情，不代表零。未出場商品列示模型存續本金，歷史持倉不因 KO 或到期而刪除。")
         if MODE == "live" and rows:
             st.divider()
             st.subheader("各期配息明細（合約模型）")
