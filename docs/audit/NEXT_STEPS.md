@@ -1,5 +1,8 @@
 # 接續工作
 
+## 最新：原更新器五分鐘加速版已完成（未正式啟用）
+使用者已提供FCN_hourlyJob原碼並批准加速；apps_script/FCN_price_updater.gs為可完整貼上的原碼修訂版，README.md含隔離驗證、切換及回復步驟。20項Node隔離測試通過（模擬首輪70分鐘）；正式Apps Script/GOOGLEFINANCE尚未驗證，不能宣稱已切換或達成真實90分鐘目標。舊207/18/12成果保留，沒有重跑全站。只需原排程擁有者依README操作；不再重做稽核，不合併main或部署網站。
+
 ## 最新：P0最短上線接續
 正式Apps Script存取BLOCKED，已停止重試；共用行情路徑18項測試及附件12項helper已通過，不須重做。下一步由原排程擁有者登入既有Apps Script專案，供核對來源及觸發器後再申請正式變更批准。詳見PRICE_UPDATE_ACCELERATION_20261020.md；不要重跑207項全套。
 
