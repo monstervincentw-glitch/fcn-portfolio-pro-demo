@@ -187,22 +187,37 @@ class SheetsReader:
             ("客戶 API", "持倉 API", "商品 API", "配息期快取"), heads, expected
         )}
 
-    def portfolio(self) -> dict:
-        keys = list(DATA_RANGES)
+    def portfolio(self, *, model_only: bool = False) -> dict:
+        """Read customer/holding facts only for model-driven live mode.
+
+        Legacy product, coupon-cache and manual-override tabs remain untouched,
+        but they are not read or used by the live FCN model. Product terms and
+        observations are fetched separately from the single central catalog and
+        shared stock price library.
+        """
+        keys = ("customers", "holdings") if model_only else tuple(DATA_RANGES)
         vals = self.read_many([DATA_RANGES[k] for k in keys])
-        data = {}
+        data = {"customers": [], "holdings": [], "products": [], "coupons": [], "exceptions": []}
         for key, values in zip(keys, vals):
             if key == "customers":
                 records = normalized_rows(values, ("customer_id", "display_name"))
+                if model_only:
+                    records = [{"customer_id": r.get("customer_id"),
+                                "display_name": r.get("display_name")} for r in records]
             elif key == "holdings":
-                records = normalized_rows(values, (
-                    "holding_id", "customer_id", "product_id", "currency",
-                    "invested_amount", "estimated_settlement_state"
-                ))
+                required = ("holding_id", "customer_id", "product_id", "currency",
+                            "invested_amount") if model_only else (
+                            "holding_id", "customer_id", "product_id", "currency",
+                            "invested_amount", "estimated_settlement_state")
+                records = normalized_rows(values, required)
                 _coerce_date_fields(records, (
                     "trade_date", "pricing_date", "issue_date", "ko_date",
                     "final_eval_date", "expected_principal_date", "last_return_date"
                 ))
+                if model_only:
+                    keys_to_keep = ("holding_id", "customer_id", "product_id",
+                                    "currency", "invested_amount", "trade_date")
+                    records = [{k: r.get(k) for k in keys_to_keep} for r in records]
             elif key == "products":
                 records = normalized_rows(values, (
                     "product_id", "visibility_flag", "product_currency", "source_url"
@@ -213,11 +228,10 @@ class SheetsReader:
             elif key == "coupons":
                 records = normalized_rows(values, ("商品代號", "期數", "模型本期票息率"))
                 _coerce_date_fields(records, ("觀察期起日", "觀察期末日", "契約配息日", "預估入帳日"))
-            else:  # exceptions: read only; edits still take place inside private Sheets
+            else:
                 records = normalized_rows(values, ("持倉ID", "啟用狀態"))
                 _coerce_date_fields(records, ("覆寫結算日",))
             data[key] = records
-        # Hide empty reserve rows; never invent currency or principal state.
         data["customers"] = [x for x in data["customers"] if x.get("customer_id")]
         data["holdings"] = [x for x in data["holdings"] if x.get("holding_id") and x.get("customer_id")]
         data["products"] = [x for x in data["products"] if x.get("product_id")]

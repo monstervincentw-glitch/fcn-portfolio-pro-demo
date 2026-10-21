@@ -53,37 +53,45 @@ def product_group(p, today=None):
         return "日常監控" if recent_end(p, today) else "歷史歸檔"
     return "其他"
 
-def receipt_values(row):
-    """Only explicit ledger cash fields count; never infer receipts from V2."""
-    principal=num(row.get('invested_amount'))
-    returned=num(row.get('returned_principal_amount'))
-    coupon=num(row.get('received_coupon_amount'))
-    outstanding=(max(0.,principal-returned) if principal is not None and returned is not None else None)
-    return dict(actual_returned=returned,actual_coupon=coupon,actual_outstanding=outstanding)
-
-
 def currency_summary(rows):
-    output={c:dict(invested=0.,returned=0.,outstanding=0.,coupon=0.,pending_count=0,pending_principal=0.,count=0) for c in ('USD','EUR','JPY')}
-    for r in rows:
-        d=output.get(r.get('currency'))
-        if d is None:continue
-        principal=num(r.get('invested_amount')) or 0
-        d['count']+=1;d['invested']+=principal
-        if num(r.get('estimated_outstanding')) is None:
-            d['pending_count']+=1;d['pending_principal']+=principal
-        else:
-            d['outstanding']+=num(r.get('estimated_outstanding')) or 0
-        d['returned']+=num(r.get('estimated_principal_total')) or 0
-        d['coupon']+=num(r.get('estimated_coupon_total')) or 0
-    # Expose incompleteness per measure; never display an unknown total as zero
-    # (or as an apparently complete subtotal of only the known holdings).
-    for currency,d in output.items():
-        members=[r for r in rows if r.get('currency')==currency]
-        for target,source in [('invested','invested_amount'),('returned','estimated_principal_total'),
-                              ('outstanding','estimated_outstanding'),('coupon','estimated_coupon_total')]:
-            if any(num(r.get(source)) is None for r in members): d[target]=None
-        for name in ('actual_returned','actual_coupon','actual_outstanding'):
-            values=[receipt_values(r)[name] for r in members]
-            d[name]=None if any(v is None for v in values) else sum(values)
-    return output
+    """Model-only per-currency totals derived from central V2-enriched holdings.
 
+    Known subtotals remain visible even when another holding cannot be modeled.
+    Missing data is counted separately rather than silently converted to zero.
+    Legacy ledger receipts/estimated projections are never inputs here.
+    """
+    fields = {
+        'invested': 'invested_amount',
+        'returned': 'estimated_principal_total',
+        'outstanding': 'estimated_outstanding',
+        'coupon': 'estimated_coupon_total',
+    }
+    output = {
+        currency: {
+            **{key: 0.0 for key in fields},
+            'count': 0,
+            'known_count': {key: 0 for key in fields},
+            'missing_count': {key: 0 for key in fields},
+        }
+        for currency in ('USD', 'EUR', 'JPY')
+    }
+    for row in rows:
+        item = output.get(row.get('currency'))
+        if item is None:
+            continue
+        item['count'] += 1
+        for metric, source in fields.items():
+            value = num(row.get(source))
+            # A valid still-active model has returned no principal *yet*.
+            # This is zero modeled recovery, NOT a missing settlement receipt.
+            if (metric == 'returned' and value is None
+                    and row.get('v2_active_exposure') is True
+                    and num(row.get('estimated_outstanding')) is not None
+                    and not row.get('v2_issues')):
+                value = 0.0
+            if value is None:
+                item['missing_count'][metric] += 1
+            else:
+                item[metric] += value
+                item['known_count'][metric] += 1
+    return output
