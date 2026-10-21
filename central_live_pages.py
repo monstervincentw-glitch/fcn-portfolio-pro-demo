@@ -8,6 +8,11 @@ from v2_portfolio_adapter import load_models
 
 def code(x): return str(x or '').strip()
 
+
+def _enabled(product):
+    """Internal selection flag is independent of formal bank-term approval."""
+    return str(product.get('website_visible') or '').strip().lower() in ('是','yes','true','1')
+
 def _day(x):
     d=to_day(x)
     return d.strftime('%Y/%m/%d') if d else '—'
@@ -92,15 +97,36 @@ def _snapshot(reader):
         return None,None
 
 
-def model_dashboard_groups(models,holdings,*,today):
+def model_dashboard_groups(catalog,models,holdings,*,today):
+    """Show active catalog entries even without a customer position.
+
+    Missing terms for one FCN never remove independently readable products.
+    Deactivated products remain searchable under FCN 商品 -> 全部商品.
+    """
     groups={name:[] for name in ('閉鎖中','比價中','近三個月出場','近兩週到期','資料不足','歷史歸檔')}
-    unique=sorted({code(h.get('product_id')) for h in holdings if code(h.get('product_id'))})
+    counts={}
+    for h in holdings:
+        pid=code(h.get('product_id'))
+        if pid: counts[pid]=counts.get(pid,0)+1
+    enabled={pid for pid,p in catalog.products.items() if _enabled(p)}
+    unique=sorted(enabled | set(counts))
     for pid in unique:
+        p=catalog.products.get(pid)
         m=models.get(pid)
-        if not m:
-            groups['資料不足'].append({'FCN':pid,'狀態':'商品尚未輸入中央庫','資料日期':'—'})
+        if not m or not p:
+            groups['資料不足'].append({'FCN':pid,'狀態':'中央商品資料尚未建立',
+                                         '年化票息':'—','KO 門檻':'—',
+                                         '持倉筆數':counts.get(pid,0),'試算資料':'待補'})
             continue
-        entry={'FCN':pid,'狀態':m.state,'試算資料':'待補' if m.issues else '完整',
+        if not _enabled(p):
+            # Delisted/disabled entries should not appear in daily monitoring
+            # merely because an old position still references their code.
+            continue
+        entry={'FCN':pid,'狀態':m.state,
+               '年化票息':_pct(p.get('annual_coupon_rate')),
+               'KO 門檻':_pct(p.get('ko_barrier_ratio')),
+               '持倉筆數':counts.get(pid,0),
+               '試算資料':'待補' if m.issues else '完整',
                '資料日期':_day(m.latest_date),
                'KO 日':_day(m.ko_date),'最差標的':m.worst_ticker or '—'}
         category=m.category
@@ -116,9 +142,13 @@ def render_dashboard(reader,holdings):
     st.subheader('🧭 FCN 商品監控工作台｜中央即時計算')
     st.caption('依中央商品日期分類閉鎖／比價，KO 由 V2 模型判定；資料不足仍留在原監控分類並標示試算狀態。股價為收盤價。')
     catalog,models=_snapshot(reader)
-    if models is None:return
-    groups=model_dashboard_groups(models,holdings,today=_today_taipei())
-    unique={code(h.get('product_id')) for h in holdings}
+    if models is None:
+        st.warning('中央商品模型暫時無法讀取；以下僅顯示持倉商品代號，不代表商品已停用或已出場。')
+        ids=sorted({code(h.get('product_id')) for h in holdings if code(h.get('product_id'))})
+        if ids:st.dataframe(pd.DataFrame([{'FCN':pid,'模型狀態':'來源暫時無法讀取'} for pid in ids]),hide_index=True,use_container_width=True)
+        return
+    groups=model_dashboard_groups(catalog,models,holdings,today=_today_taipei())
+    unique={pid for pid,p in catalog.products.items() if _enabled(p)}
     cols=st.columns(5)
     for col,k in zip(cols,groups):col.metric(k,len(groups[k]))
     name=st.selectbox('選擇監控狀態',list(groups),key='central_dashboard_filter')
@@ -177,18 +207,24 @@ def render_product_page(reader,holdings,ledger_products):
     rows=[]
     for pid,p in sorted(catalog.products.items()):
         m=models[pid]
+        if scope!='全部商品' and not _enabled(p):continue
         if scope=='日常監控' and m.category not in ('閉鎖中','比價中','近兩週到期','近三個月出場'):continue
         if scope in ('閉鎖中','比價中','近三個月出場') and m.category!=scope:continue
         if scope=='資料不足' and m.category!='資料不足':continue
         if scope=='歷史歸檔' and m.category!='歷史歸檔':continue
         if search and search not in pid:continue
         rows.append({'FCN':pid,'幣別':p.get('currency'),'狀態':m.state,
+                     '啟用':'是' if _enabled(p) else '否',
+                     '年化票息':_pct(p.get('annual_coupon_rate')),
+                     'KO 門檻':_pct(p.get('ko_barrier_ratio')),
+                     'Strike':_pct(p.get('strike_ratio')),
+                     'KI 門檻':_pct(p.get('ki_barrier_ratio')),
                      '試算資料':'待補' if m.issues else '完整',
                      '最近行情':_day(m.latest_date),'最差標的':m.worst_ticker or '—',
                      '最差相對期初':_pct(m.worst_ratio) if m.worst_ratio is not None else '—',
                      'KO 日':_day(m.ko_date),'到期日':_day(m.maturity_day)})
     st.dataframe(pd.DataFrame(rows),hide_index=True,use_container_width=True)
-    st.caption(f'中央商品庫 {len(models)} 檔；目前顯示 {len(rows)} 檔。閉鎖／比價依商品日期與 V2 KO 判定；必要數值缺漏僅影響試算，不隱藏商品。')
+    st.caption(f'中央商品庫 {len(models)} 檔，其中啟用 {sum(_enabled(p) for p in catalog.products.values())} 檔；目前顯示 {len(rows)} 檔。未啟用商品僅可於「全部商品」查詢；缺資料只影響該商品試算。')
     if not rows:return
     pid=st.selectbox('開啟商品詳情',[r['FCN'] for r in rows],key='central_p_selected')
     p=catalog.products[pid]; m=models[pid]
