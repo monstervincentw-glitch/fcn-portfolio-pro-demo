@@ -97,7 +97,7 @@ def _snapshot(reader):
         return None,None
 
 
-def model_dashboard_groups(catalog,models,holdings,*,today):
+def model_dashboard_groups(models,holdings,*,today,catalog=None):
     """Show active catalog entries even without a customer position.
 
     Missing terms for one FCN never remove independently readable products.
@@ -108,17 +108,17 @@ def model_dashboard_groups(catalog,models,holdings,*,today):
     for h in holdings:
         pid=code(h.get('product_id'))
         if pid: counts[pid]=counts.get(pid,0)+1
-    enabled={pid for pid,p in catalog.products.items() if _enabled(p)}
+    enabled={pid for pid,p in catalog.products.items() if _enabled(p)} if catalog else set()
     unique=sorted(enabled | set(counts))
     for pid in unique:
-        p=catalog.products.get(pid)
+        p=catalog.products.get(pid) if catalog else {}
         m=models.get(pid)
-        if not m or not p:
+        if not m or (catalog and not p):
             groups['資料不足'].append({'FCN':pid,'狀態':'中央商品資料尚未建立',
                                          '年化票息':'—','KO 門檻':'—',
                                          '持倉筆數':counts.get(pid,0),'試算資料':'待補'})
             continue
-        if not _enabled(p):
+        if catalog and not _enabled(p):
             # Delisted/disabled entries should not appear in daily monitoring
             # merely because an old position still references their code.
             continue
@@ -147,7 +147,7 @@ def render_dashboard(reader,holdings):
         ids=sorted({code(h.get('product_id')) for h in holdings if code(h.get('product_id'))})
         if ids:st.dataframe(pd.DataFrame([{'FCN':pid,'模型狀態':'來源暫時無法讀取'} for pid in ids]),hide_index=True,use_container_width=True)
         return
-    groups=model_dashboard_groups(catalog,models,holdings,today=_today_taipei())
+    groups=model_dashboard_groups(models,holdings,today=_today_taipei(),catalog=catalog)
     unique={pid for pid,p in catalog.products.items() if _enabled(p)}
     cols=st.columns(5)
     for col,k in zip(cols,groups):col.metric(k,len(groups[k]))
