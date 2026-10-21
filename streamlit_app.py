@@ -15,7 +15,7 @@ import pandas as pd
 import altair as alt
 from demo_charts import demo_chart
 import streamlit as st
-from demo_utils import currency_summary, product_group, num
+from demo_utils import currency_summary, product_group, num, receipt_values
 from sheets_backend import SheetsReader, SheetConnectionError, validate_masked_portfolio, DATA_RANGES
 from site_login import gate, logout
 from demo_data import make_demo
@@ -124,7 +124,7 @@ if MODE in ("diagnostic", "live"):
         st.button("安全登出", on_click=logout)
         st.stop()
     try:
-        DATA = validate_masked_portfolio(READER.portfolio(model_only=True))
+        DATA = validate_masked_portfolio(READER.portfolio())
     except SheetConnectionError as exc:
         st.error(str(exc))
         st.stop()
@@ -330,46 +330,40 @@ elif page in ("🏠 投資總覽","👥 客戶投資"):
             if item.get("v2_issues"):
                 st.warning(f"{item['product_id']}：V2 資料尚未完整 — {item['v2_issues']}；舊總帳模型值不作為本頁試算結果。")
     if page=="🏠 投資總覽":
-        st.markdown('<div class="fcn-section"><strong>投資組合摘要</strong><p>每種幣別分別統計；本金回收、存續本金與票息均為網站即時計算的模型估算</p></div>', unsafe_allow_html=True)
+        st.markdown('<div class="fcn-section"><strong>投資組合摘要</strong><p>每種幣別分別統計，模型推定與銀行實際入帳不得混淆</p></div>', unsafe_allow_html=True)
         groups=currency_summary(rows)
         tabs=st.tabs([f"{cc} 統計" for cc in CURRENCY])
         for tab,cc in zip(tabs,CURRENCY):
             with tab:
                 data=groups[cc]
-
-                def modeled_value(metric):
-                    # Known subtotals stay visible; missing model results are
-                    # never presented as zero or a complete portfolio total.
-                    if not data['count'] or not data['known_count'][metric]:
-                        return '—'
-                    return money(data[metric],cc)
-
                 a,b=st.columns(2)
-                a.metric('歷史申購',modeled_value('invested'))
-                b.metric('模型本金回收（已計算）',modeled_value('returned'))
+                a.metric("歷史申購",money(data["invested"],cc))
+                b.metric("模型本金回收",("—" if data["pending_count"]==data["count"] and data["count"] else money(data["returned"],cc)))
                 c,d=st.columns(2)
-                c.metric('模型存續本金（已計算）',modeled_value('outstanding'))
-                d.metric('模型累計票息（已計算）',modeled_value('coupon'))
-                pending={label:data['missing_count'][key] for key,label in (
-                    ('invested','申購本金'),('returned','回收本金'),
-                    ('outstanding','存續本金'),('coupon','累計票息'))
-                    if data['missing_count'][key]}
-                if pending:
-                    st.warning('本幣別部分模型資料待補：' +
-                               '、'.join(f'{name} {count} 筆' for name,count in pending.items()) +
-                               '。已顯示可計算持倉的小計，不能視為完整組合總額。')
-                elif not data['count']:
-                    st.caption('這位客戶沒有此幣別的申購。')
+                c.metric("模型存續本金",money(data["outstanding"],cc))
+                d.metric("中央模型票息",("—" if data["pending_count"]==data["count"] and data["count"] else money(data["coupon"],cc)))
+                e,f,g=st.columns(3)
+                e.metric('總帳已收本金',money(data['actual_returned'],cc))
+                f.metric('總帳已收配息',money(data['actual_coupon'],cc))
+                g.metric('依實收計未回本金',money(data['actual_outstanding'],cc))
+                if data["pending_count"]:
+                    st.info(f"另有 {data['pending_count']} 筆試算資料待補，已知歷史申購 {money(data['pending_principal'],cc)}。缺漏合計顯示空白，不能從原總帳模型補數。")
+                elif not data["count"]:st.caption("這位客戶沒有此幣別的申購。")
         st.subheader("近期商品狀態")
-        st.caption('本金回收、存續本金與票息均由中央商品條款＋共用歷史收盤價套用至客戶申購本金即時計算；已 KO／到期依模型出場計算，未出場的商品本金列於存續本金。')
+        st.caption('模型存續本金是尚未模型出場的本金；出場損失不列為存續曝險。總帳已收本金與配息僅取原始收款欄，未提供則顯示空白；模型出場不代表實際入帳。')
         for r in rows: st.write(f"**{r['product_id']}** · {r['currency']} · {display_status(r.get('estimated_settlement_state'))}")
     else:
         st.markdown('<div class="fcn-section"><strong>客戶完整投資歷史</strong><p>所有 FCN 保留歷史，可查看預估回收日與收益</p></div>', unsafe_allow_html=True)
         table=[]
         for r in rows:
-            table.append({"FCN":r['product_id'],"幣別":r['currency'],"投入本金":r['invested_amount'],"申購日期":date_str(r.get('trade_date')),"模型出場日":date_str(r.get('v2_exit_date')),"預定本金付款日":date_str(r.get('expected_principal_date')),"模型回收本金":r.get('estimated_principal_total'),"預估票息":r.get('estimated_coupon_total'),"模型存續本金":r.get('estimated_outstanding'),"模型本金損失":r.get('v2_principal_loss'),"結算狀態":display_status(r.get('estimated_settlement_state'))})
-        st.dataframe(pd.DataFrame(table),use_container_width=True,hide_index=True,column_config={"投入本金":st.column_config.NumberColumn(format="%.2f"),"模型回收本金":st.column_config.NumberColumn(format="%.2f"),"預估票息":st.column_config.NumberColumn(format="%.2f"),"模型存續本金":st.column_config.NumberColumn(format="%.2f")})
-        st.caption("所有回收與票息均為網站模型估算；空白表示缺少可計算條款或行情，不代表零。未出場商品列示模型存續本金，歷史持倉不因 KO 或到期而刪除。")
+            table.append({"FCN":r['product_id'],"幣別":r['currency'],"投入本金":r['invested_amount'],"申購日期":date_str(r.get('trade_date')),"模型出場日":date_str(r.get('v2_exit_date')),"預定本金付款日":date_str(r.get('expected_principal_date')),"預估回收本金":r.get('estimated_principal_total'),"預估票息":r.get('estimated_coupon_total'),"模型存續本金":r.get('estimated_outstanding'),"模型本金損失":r.get('v2_principal_loss'),"結算狀態":display_status(r.get('estimated_settlement_state'))})
+        st.dataframe(pd.DataFrame(table),use_container_width=True,hide_index=True,column_config={"投入本金":st.column_config.NumberColumn(format="%.2f"),"預估回收本金":st.column_config.NumberColumn(format="%.2f"),"預估票息":st.column_config.NumberColumn(format="%.2f"),"估算未回本金":st.column_config.NumberColumn(format="%.2f")})
+        st.caption("空白表示未知，不代表零。KO 是模型出場日，提前 KO 本金付款日尚無來源，不能視為已入帳。歷史資料不因 KO 或到期三個月而刪除。")
+        with st.expander('總帳實際收款（與模型分開）'):
+            st.dataframe(pd.DataFrame([{'持倉ID':r.get('holding_id'),'FCN':r['product_id'],'幣別':r['currency'],
+                '總帳已收本金':receipt_values(r)['actual_returned'],'總帳已收配息':receipt_values(r)['actual_coupon'],
+                '依實收計未回本金':receipt_values(r)['actual_outstanding']} for r in rows]),hide_index=True,use_container_width=True)
+            st.caption('僅顯示原總帳收款欄；缺漏保持空白。模型結果不會回寫或替代這些紀錄。')
         if MODE == "live" and rows:
             st.divider()
             st.subheader("各期配息明細（合約模型）")
@@ -442,22 +436,25 @@ elif page=="📈 FCN 商品":
         from fcn_customer_panel import render_product_clients
         render_product_clients(chosen_product, HOLDINGS, mode=MODE)
 elif page=="📝 例外處理":
-    st.markdown('<div class="fcn-section"><strong>模型資料品質</strong><p>僅顯示中央條款或共用行情缺漏，不建立另一套人工覆寫與估算帳</p></div>', unsafe_allow_html=True)
-    st.info("本系統只從客戶持倉、中央商品條款及共用股價庫推算，不進行銀行入帳核對，也不使用額外的覆寫試算表。")
-    issues=[r for r in HOLDINGS if r.get("v2_issues")]
-    st.dataframe(pd.DataFrame([{"FCN":r.get('product_id'),"幣別":r.get('currency'),
-        "模型待補資料":r.get('v2_issues')} for r in issues]),
-        hide_index=True,use_container_width=True)
-    if not issues:
-        st.success("目前沒有模型所回報的資料缺漏。")
-
+    st.markdown('<div class="fcn-section"><strong>例外處理與資料品質</strong><p>集中追蹤條款不足與已啟用的人工覆寫</p></div>', unsafe_allow_html=True)
+    st.info("正常 FCN 按契約日及 3 個工作日的預設規則推定結算；特殊本金、票息、日期才需例外覆寫。")
+    st.markdown("**目前網站完全唯讀，不會直接修改總帳。** 如有例外，在私人 Google Sheets 的『異常覆寫』修改；不需銀行逐筆核實。")
+    exceptions=[r for r in HOLDINGS if "不足" in str(r.get("estimated_settlement_state"))]
+    st.dataframe(pd.DataFrame([{"持倉":r['holding_id'],"商品":r['product_id'],"幣別":r['currency'],"提示":r.get('estimated_settlement_state')} for r in exceptions]),use_container_width=True,hide_index=True)
+    if MODE == "live":
+        enabled=[r for r in DATA.get("exceptions", []) if r.get("啟用狀態")=="啟用"]
+        st.subheader("已啟用的人工例外（唯讀檢視）")
+        st.dataframe(pd.DataFrame([{"持倉ID":r.get("持倉ID"),"FCN":r.get("商品"),"幣別":r.get("幣別"),
+            "人工覆寫本金":r.get("覆寫總本金"),"人工覆寫票息":r.get("覆寫總票息"),"說明":r.get("異常說明")}
+            for r in enabled]),hide_index=True,use_container_width=True)
+        st.caption("若要更正，仍在私人 Google Sheets『異常覆寫』操作；網站目前不開放寫入。")
 else:
     st.subheader("🛠️ 系統狀態｜中央聯動資料來源")
-    st.caption("三套唯一來源：客戶持倉、中央商品參數及共用股價；網站僅即時計算模型結果，不核對銀行入帳。")
+    st.caption("商品監控與客戶報表均由伺服器唯讀載入；此頁不提供銀行核約、核價或結算確認功能。")
     st.write("**商品條款與配息**：中央商品參數庫（API_商品條款_V1、API_標的_V1、配息期、商品完整參數輸入）。")
     st.write("**客戶與持倉**：既有客戶總帳，依 product_id 自動匹配中央商品。")
     st.write("**股價來源**：既有 526 檔成分股股價庫（收盤價矩陣）。歷史試打與正式商品監控共用股價，不複製行情。")
-    st.write("**每日行情**：現有股價庫的 Apps Script 五分鐘分批更新器負責寫入唯一收盤價矩陣；網站僅唯讀，不啟用第二套 GitHub 股價寫入器。")
+    st.write("**每日行情**：原股價庫的 GitHub Actions 排程於美股收盤後增量更新同一份收盤價矩陣；網站僅唯讀。排程需完成 GitHub Secrets 設定後才會執行。")
     st.info("如果商品顯示『資料不足』，請檢查中央必要條款或成分股庫是否包含該股票及完整歷史價；不會以舊商品表、其他來源或零值替補。")
 
 

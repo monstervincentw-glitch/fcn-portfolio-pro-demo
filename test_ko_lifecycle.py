@@ -7,7 +7,7 @@ import streamlit as st
 import v2_portfolio_adapter as adapter
 from central_catalog import Catalog
 from fcn_central_model import model_one
-from demo_utils import currency_summary
+from demo_utils import currency_summary, receipt_values
 
 D1, D2, D3, D4, D5 = [date(2026, 10, d) for d in (14,15,16,19,20)]
 PRODUCT = dict(product_id='TEST', currency='USD', pricing_date=D1, issue_date=D1,
@@ -79,6 +79,7 @@ def test_multiclient_amounts_and_unpaid_cash_are_separate(monkeypatch):
         assert h['estimated_outstanding']==0
         assert h['estimated_coupon_total']==round(h['invested_amount']*.01*2/3,2)
         assert h['returned_principal_amount']==0 and h['received_coupon_amount']==12
+        assert receipt_values(h)['actual_outstanding']==h['invested_amount']
         assert h['expected_principal_date'] is None  # KO observation is not a payment date.
     assert len(rows)==4
 
@@ -125,9 +126,7 @@ def test_currency_aggregates_are_separate_and_unknown_is_not_zero(monkeypatch):
     assert [totals[c]['invested'] for c in ('USD','EUR','JPY')]==[40000,20000,1000000]
     missing=dict(rows[0], estimated_outstanding=None,estimated_coupon_total=None,estimated_principal_total=None)
     summary=currency_summary([missing])['USD']
-    for metric in ('outstanding', 'returned', 'coupon'):
-        assert summary['known_count'][metric] == 0
-        assert summary['missing_count'][metric] == 1
+    assert summary['outstanding'] is None and summary['returned'] is None and summary['coupon'] is None
 
 
 def test_historical_holdings_survive_exit_and_dashboard(monkeypatch):
@@ -165,9 +164,7 @@ def test_mixed_known_unknown_currency_total_is_incomplete():
           dict(currency='USD',invested_amount=20,estimated_outstanding=None,
                estimated_principal_total=None,estimated_coupon_total=None)]
     s=currency_summary(rows)['USD']
-    assert s['invested']==30 and s['outstanding']==10 and s['coupon']==1
-    assert s['missing_count']['outstanding']==s['missing_count']['coupon']==1
-    assert s['known_count']['returned']==0 and s['missing_count']['returned']==2
+    assert s['invested']==30 and s['outstanding'] is None and s['coupon'] is None
 
 
 def test_cash_receipt_fields_are_not_rewritten(monkeypatch):
@@ -179,8 +176,7 @@ def test_cash_receipt_fields_are_not_rewritten(monkeypatch):
     assert result[0]['estimated_principal_total']==10000
 
 
-def test_cash_receipts_are_not_part_of_model_summary():
+def test_absent_cash_receipts_remain_unknown():
     s=currency_summary([dict(currency='USD',invested_amount=10000,estimated_outstanding=0,
                              estimated_principal_total=10000,estimated_coupon_total=50)])['USD']
-    assert not any(k.startswith('actual_') for k in s)
-    assert s['returned']==10000 and s['coupon']==50 and s['outstanding']==0
+    assert s['actual_returned'] is None and s['actual_coupon'] is None and s['actual_outstanding'] is None

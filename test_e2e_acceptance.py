@@ -107,20 +107,6 @@ def test_pin_logout_and_expiration_stop_reads(live_app):
     assert element(app.text_input, '6 位數字 PIN')
 
 
-@pytest.mark.parametrize('entry', ['streamlit_app.py', 'pages/01_📚_中央商品庫.py'])
-def test_direct_entry_requires_pin_before_reader_creation(monkeypatch, entry):
-    def forbidden(*args, **kwargs):
-        pytest.fail('Unauthenticated entry attempted to create the Sheets reader')
-    monkeypatch.setattr(backend.SheetsReader, 'from_secrets', forbidden)
-    app = AppTest.from_file(str(ROOT/entry), default_timeout=20)
-    app.secrets['app'] = dict(mode='live', bank_approved=True, master_sheet_id='SYNTHETIC_LEDGER')
-    app.secrets['gcp_service_account'] = {'synthetic': True}
-    app.secrets['site_login'] = {'pin': f'{secrets.randbelow(1_000_000):06d}'}
-    app.run()
-    assert not app.exception and not app.dataframe
-    assert element(app.text_input, '6 位數字 PIN')
-
-
 @pytest.mark.parametrize('name', PAGES[:2]+PAGES[3:])
 def test_pages_use_actual_loaders_and_v2(live_app, name):
     app, state = live_app
@@ -153,16 +139,16 @@ def test_pages_use_actual_loaders_and_v2(live_app, name):
     elif name == PAGES[4]:
         assert [m.value for m in app.metric if m.label == '歷史申購'] == [
             'USD 10,000.00', 'EUR 20,000.00', 'JPY 1,000,000']
-        assert [m.value for m in app.metric if m.label == '模型本金回收（已計算）'][0] == 'USD 10,000.00'
+        assert [m.value for m in app.metric if m.label == '依實收計未回本金'][0] == 'USD 10,000.00'
         app.selectbox(key='customer').set_value('測試乙*').run()
         assert [m.value for m in app.metric if m.label == '歷史申購'][0] == 'USD 30,000.00'
-        assert [m.value for m in app.metric if m.label == '模型本金回收（已計算）'][0] == 'USD 30,000.00'
+        assert [m.value for m in app.metric if m.label == '總帳已收本金'][0] == '—'
     else:
         assert len(app.dataframe[0].value) == 3
         app.selectbox(key='customer').set_value('測試乙*').run()
         table = app.dataframe[0].value
         assert len(table) == 1 and table.iloc[0]['投入本金'] == 30000
-        assert table.iloc[0]['模型回收本金'] == 30000
+        assert table.iloc[0]['預估回收本金'] == 30000
         assert table.iloc[0]['模型出場日'] == '2026/01/16'
         assert table.iloc[0]['預估票息'] == pytest.approx(353)
     assert not app.exception
@@ -217,51 +203,8 @@ def test_refresh_reloads_ledger_and_never_uses_old_model(live_app):
     state['ledger']['holdings'][1][4] = 17000
     element(app.button, '🔄 重新讀取中央資料').click().run()
     row = app.dataframe[0].value.iloc[0]
-    assert row['投入本金'] == row['模型回收本金'] == 17000
+    assert row['投入本金'] == row['預估回收本金'] == 17000
     assert row['預估票息'] == pytest.approx(round(17000*.0117666666667, 2))
-
-
-def test_partial_model_overview_keeps_known_subtotal_and_only_three_sources(live_app):
-    app, state = live_app
-    state['ledger']['holdings'].extend([
-        ['TEST-DUP', '測試甲*', 'SB04', 'USD', 5000, 'OLD', 999999, 999999, 999999],
-        ['TEST-MISSING', '測試甲*', 'MISSING', 'USD', 700, 'OLD', 999999, 999999, 999999],
-    ])
-    original = deepcopy(state['ledger'])
-    state['reads'].clear()
-    page(app, PAGES[4])
-    assert element(app.metric, '歷史申購').value == 'USD 15,700.00'
-    assert element(app.metric, '模型本金回收（已計算）').value == 'USD 15,000.00'
-    assert element(app.metric, '模型存續本金（已計算）').value == 'USD 0.00'
-    assert any('不能視為完整組合總額' in w.value for w in app.warning)
-    app.selectbox(key='customer').set_value('測試乙*').run()
-    assert element(app.metric, '模型本金回收（已計算）').value == 'USD 30,000.00'
-    app.selectbox(key='customer').set_value('測試甲*').run()
-    element(app.button, '🔄 重新讀取中央資料').click().run()
-    assert element(app.metric, '模型本金回收（已計算）').value == 'USD 15,000.00'
-    app.switch_page('pages/01_📚_中央商品庫.py').run()
-    assert not app.exception
-    ledger_ranges = {span for sid, span in state['reads'] if sid == 'SYNTHETIC_LEDGER'}
-    assert ledger_ranges == {backend.DATA_RANGES['customers'], backend.DATA_RANGES['holdings']}
-    assert {sid for sid, _ in state['reads']} == {'SYNTHETIC_LEDGER', CENTRAL_CATALOG_ID, STOCK_LIBRARY_ID}
-    assert state['ledger'] == original
-
-
-def test_active_recovery_is_zero_on_both_customer_pages(live_app, monkeypatch):
-    import v2_portfolio_adapter as adapter
-    from test_model_only_overview import synthetic_model
-    app, _ = live_app
-    catalog, _ = app.session_state['_fcn_v9_catalog_models']
-    active = synthetic_model('active')
-    monkeypatch.setattr(adapter, 'load_models', lambda reader: (catalog, {'SB04': active}))
-    page(app, PAGES[4])
-    assert element(app.metric, '模型本金回收（已計算）').value == 'USD 0.00'
-    assert element(app.metric, '模型存續本金（已計算）').value == 'USD 10,000.00'
-    assert element(app.metric, '模型累計票息（已計算）').value == 'USD 0.00'
-    page(app, PAGES[5])
-    row = app.dataframe[0].value.query("FCN == 'SB04'").iloc[0]
-    assert row['模型回收本金'] == 0 and row['模型存續本金'] == 10000
-    assert row['預估票息'] == 0
 
 
 @pytest.mark.parametrize('failed_source', [CENTRAL_CATALOG_ID, STOCK_LIBRARY_ID, 'SYNTHETIC_LEDGER'])

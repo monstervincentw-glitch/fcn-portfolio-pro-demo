@@ -172,9 +172,7 @@ def enrich_new_holdings(reader, holdings):
             h['expected_principal_date']=None if m.ko_date else m.maturity_day
         else:
             # Unmatured and not KO: capital is still exposed to the FCN.
-            # A valid active model has recovered zero so far. Keep None only
-            # for unavailable inputs, consistently across all customer pages.
-            h['estimated_principal_total']=0.0
+            h['estimated_principal_total']=None
             h['estimated_outstanding']=capital
             h['expected_principal_date']=m.maturity_day
         h['estimated_settlement_state']='中央 V2：'+m.state

@@ -13,8 +13,7 @@ from test_ko_lifecycle import CATALOG, holdings, model
                                   '🔎 股票曝險','🏠 投資總覽','👥 客戶投資'])
 def test_six_page_routes_with_ko_customer_holdings(monkeypatch,page):
     class Reader:
-        def portfolio(self, *, model_only=False):
-            assert model_only is True
+        def portfolio(self):
             return dict(customers=[dict(customer_id='客*',display_name='客*')],
                         holdings=holdings(),products=[],coupons=[],exceptions=[])
     monkeypatch.setattr(site_login,'gate',lambda *a,**kw:None)
