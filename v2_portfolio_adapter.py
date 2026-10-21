@@ -10,7 +10,7 @@ from central_catalog import (
     as_positive_number, to_day,
     _today_taipei,
 )
-from fcn_central_model import model_one, ratio
+from fcn_central_model import model_one, ratio, ProductModel, _date_lifecycle
 
 
 def load_models(reader, *, today=None):
@@ -31,8 +31,19 @@ def load_models(reader, *, today=None):
         market_failure = '成分股歷史股價庫讀取失敗：' + str(exc)
     models={}
     for pid, product in catalog.products.items():
-        model=model_one(product,catalog.legs.get(pid,()),periods.get(pid,()),
-                        market,holidays,input_rules.get(pid),today=today)
+        try:
+            model=model_one(product,catalog.legs.get(pid,()),periods.get(pid,()),
+                            market,holidays,input_rules.get(pid),today=today)
+        except (ValueError, TypeError, KeyError, IndexError, OverflowError, ArithmeticError) as exc:
+            # A single malformed contract must not stop all other FCNs, the
+            # customer's dashboard, or the annual coupon/KO terms display.
+            model=ProductModel(pid)
+            model.pricing_day=to_day(product.get('pricing_date'))
+            model.ko_start=to_day(product.get('ko_start_date'))
+            model.final_eval=to_day(product.get('final_eval_date'))
+            model.maturity_day=to_day(product.get('maturity_date'))
+            _date_lifecycle(model,today or _today_taipei())
+            model.issues.append(f'僅此商品的模型計算失敗：{type(exc).__name__}；請查核該商品資料')
         if market_failure:
             model.issues.append(market_failure)
         else:
