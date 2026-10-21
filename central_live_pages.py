@@ -18,10 +18,20 @@ def _day(x):
     return d.strftime('%Y/%m/%d') if d else '—'
 
 def _pct(x):
+    """Support API ratios (0.2525), plain percent points (25.25),
+    and contract percentage strings ('25.25%', '100.00%', '105%').
+    """
     try:
-        n=float(x)
-        return f'{n*100:.2f}%' if n<=2 else f'{n:.2f}%'
-    except (TypeError,ValueError):return '—'
+        if x is None or isinstance(x, bool):return '—'
+        raw=str(x).strip().replace(',', '')
+        if not raw:return '—'
+        explicit=raw.endswith('%')
+        n=float(raw[:-1] if explicit else raw)
+        from math import isfinite
+        if not isfinite(n):return '—'
+        percent=n if explicit or abs(n)>2 else n*100
+        return f'{percent:.2f}%'
+    except (TypeError,ValueError,OverflowError):return '—'
 
 
 def contract_complete(product,legs):
