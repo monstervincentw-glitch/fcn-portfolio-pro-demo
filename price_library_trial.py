@@ -25,6 +25,31 @@ PRICE_LIBRARY_ID = "1ef0Whr7-bgj37DdOnC7ug8Dyv5Ab92-AMw5n9V18UJY"
 PRICE_TAB = "收盤價矩陣"
 DATE_FORMAT = re.compile(r"\d{4}-\d{2}-\d{2}\Z")
 
+_SHEETS_EPOCH = dt.datetime(1899, 12, 30)
+
+
+def _trading_day(cell: Any, row_number: int) -> dt.date:
+    """Sheets UNFORMATTED_VALUE can return ISO text or DATE-formatted serials.
+
+    Normalize dates in the read-only application, without rewriting the stock
+    library. Only whole-number Sheets day serials or strict ISO strings are
+    valid. Prevent accidentally interpreting prices or times as dates.
+    """
+    if isinstance(cell, str):
+        value = cell.strip()
+        if not DATE_FORMAT.fullmatch(value):
+            raise PriceLibraryError(f"股價庫第 {row_number} 列日期不是 YYYY-MM-DD。")
+        try:
+            return dt.date.fromisoformat(value)
+        except ValueError:
+            raise PriceLibraryError(f"股價庫第 {row_number} 列日期無效。") from None
+    if isinstance(cell, (int, float)) and not isinstance(cell, bool):
+        if not math.isfinite(cell) or not float(cell).is_integer() or not 36526 <= cell <= 73050:
+            raise PriceLibraryError(f"股價庫第 {row_number} 列日期無效。")
+        return (_SHEETS_EPOCH + dt.timedelta(days=int(cell))).date()
+    raise PriceLibraryError(f"股價庫第 {row_number} 列日期不是 YYYY-MM-DD。")
+
+
 class PriceLibraryError(ValueError):
     """Recoverable data/connection failure; safe to display to signed-in users."""
 
@@ -77,13 +102,7 @@ def parse_prices(
     for i, date_cell in enumerate(date_rows):
         if not date_cell or date_cell[0] in (None, ""):
             continue
-        raw = str(date_cell[0]).strip()
-        if not DATE_FORMAT.fullmatch(raw):
-            raise PriceLibraryError(f"股價庫第 {i+2} 列日期不是 YYYY-MM-DD。")
-        try:
-            trading_day = dt.date.fromisoformat(raw)
-        except ValueError:
-            raise PriceLibraryError(f"股價庫第 {i+2} 列日期無效。") from None
+        trading_day = _trading_day(date_cell[0], i+2)
         if trading_day in seen_dates:
             raise PriceLibraryError(f"股價庫重複交易日 {trading_day}，已停止。")
         seen_dates.add(trading_day)
@@ -153,12 +172,9 @@ def latest_available_day(service_account: dict[str, Any]) -> dt.date:
     reader = SheetsReader.from_secrets(service_account, PRICE_LIBRARY_ID)
     cells = reader.read(PRICE_LIBRARY_ID, f"'{PRICE_TAB}'!A2:A")
     parsed = []
-    for cell in cells:
-        if cell:
-            try:
-                parsed.append(dt.date.fromisoformat(str(cell[0]).strip()))
-            except ValueError:
-                raise PriceLibraryError("股價庫交易日期格式錯誤。") from None
+    for i, cell in enumerate(cells):
+        if cell and cell[0] not in (None, ""):
+            parsed.append(_trading_day(cell[0], i+2))
     if not parsed:
         raise PriceLibraryError("股價庫無交易日期。")
     if parsed != sorted(set(parsed)):

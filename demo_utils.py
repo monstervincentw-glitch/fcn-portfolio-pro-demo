@@ -63,27 +63,41 @@ def receipt_values(row):
 
 
 def currency_summary(rows):
-    output={c:dict(invested=0.,returned=0.,outstanding=0.,coupon=0.,pending_count=0,pending_principal=0.,count=0) for c in ('USD','EUR','JPY')}
-    for r in rows:
-        d=output.get(r.get('currency'))
-        if d is None:continue
-        principal=num(r.get('invested_amount')) or 0
-        d['count']+=1;d['invested']+=principal
-        if num(r.get('estimated_outstanding')) is None:
-            d['pending_count']+=1;d['pending_principal']+=principal
-        else:
-            d['outstanding']+=num(r.get('estimated_outstanding')) or 0
-        d['returned']+=num(r.get('estimated_principal_total')) or 0
-        d['coupon']+=num(r.get('estimated_coupon_total')) or 0
-    # Expose incompleteness per measure; never display an unknown total as zero
-    # (or as an apparently complete subtotal of only the known holdings).
-    for currency,d in output.items():
-        members=[r for r in rows if r.get('currency')==currency]
-        for target,source in [('invested','invested_amount'),('returned','estimated_principal_total'),
-                              ('outstanding','estimated_outstanding'),('coupon','estimated_coupon_total')]:
-            if any(num(r.get(source)) is None for r in members): d[target]=None
-        for name in ('actual_returned','actual_coupon','actual_outstanding'):
-            values=[receipt_values(r)[name] for r in members]
-            d[name]=None if any(v is None for v in values) else sum(values)
-    return output
+    """Per-currency MODEL totals. Never use bank receipt or stale ledger estimates.
 
+    A correctly modeled, still-active FCN has recovered principal 0 (not
+    unknown). Missing market/contract model results are kept separate so known
+    subtotals remain visible with an explicit incomplete-data warning.
+    """
+    fields = {
+        'invested': 'invested_amount',
+        'returned': 'estimated_principal_total',
+        'outstanding': 'estimated_outstanding',
+        'coupon': 'estimated_coupon_total',
+    }
+    output = {
+        c: dict(
+            invested=0.0, returned=0.0, outstanding=0.0, coupon=0.0,
+            count=0, missing_count={key: 0 for key in fields},
+            known_count={key: 0 for key in fields},
+        )
+        for c in ('USD', 'EUR', 'JPY')
+    }
+    for row in rows:
+        data = output.get(row.get('currency'))
+        if data is None:
+            continue
+        data['count'] += 1
+        for metric, source in fields.items():
+            value = num(row.get(source))
+            if (metric == 'returned' and value is None
+                    and row.get('v2_active_exposure') is True
+                    and num(row.get('estimated_outstanding')) is not None
+                    and not row.get('v2_issues')):
+                value = 0.0
+            if value is None:
+                data['missing_count'][metric] += 1
+            else:
+                data[metric] += value
+                data['known_count'][metric] += 1
+    return output

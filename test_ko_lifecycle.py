@@ -126,7 +126,10 @@ def test_currency_aggregates_are_separate_and_unknown_is_not_zero(monkeypatch):
     assert [totals[c]['invested'] for c in ('USD','EUR','JPY')]==[40000,20000,1000000]
     missing=dict(rows[0], estimated_outstanding=None,estimated_coupon_total=None,estimated_principal_total=None)
     summary=currency_summary([missing])['USD']
-    assert summary['outstanding'] is None and summary['returned'] is None and summary['coupon'] is None
+    assert summary['missing_count']['outstanding'] == 1
+    assert summary['missing_count']['returned'] == 1
+    assert summary['missing_count']['coupon'] == 1
+    assert summary['known_count']['returned'] == 0
 
 
 def test_historical_holdings_survive_exit_and_dashboard(monkeypatch):
@@ -164,7 +167,9 @@ def test_mixed_known_unknown_currency_total_is_incomplete():
           dict(currency='USD',invested_amount=20,estimated_outstanding=None,
                estimated_principal_total=None,estimated_coupon_total=None)]
     s=currency_summary(rows)['USD']
-    assert s['invested']==30 and s['outstanding'] is None and s['coupon'] is None
+    assert s['invested']==30 and s['outstanding']==10 and s['coupon']==1
+    assert s['missing_count']['outstanding']==1 and s['missing_count']['coupon']==1
+    assert s['known_count']['returned']==0
 
 
 def test_cash_receipt_fields_are_not_rewritten(monkeypatch):
@@ -179,4 +184,5 @@ def test_cash_receipt_fields_are_not_rewritten(monkeypatch):
 def test_absent_cash_receipts_remain_unknown():
     s=currency_summary([dict(currency='USD',invested_amount=10000,estimated_outstanding=0,
                              estimated_principal_total=10000,estimated_coupon_total=50)])['USD']
-    assert s['actual_returned'] is None and s['actual_coupon'] is None and s['actual_outstanding'] is None
+    assert 'actual_returned' not in s and 'actual_coupon' not in s
+    assert s['returned']==10000 and s['outstanding']==0
