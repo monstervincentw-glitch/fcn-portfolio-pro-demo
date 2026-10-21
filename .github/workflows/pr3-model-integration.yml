@@ -19,6 +19,6 @@ jobs:
           cache: pip
       - name: Install existing test dependencies
         run: python -m pip install -r requirements.txt
-      - name: Focused PIN/portfolio/model/price integration regression
+      - name: PIN/portfolio/model/shared-stock-library and historical trial regression
         run: |
-          python -m pytest -q test_hotfix_model_overview.py test_ko_lifecycle.py test_e2e_acceptance.py test_price_source_p0.py test_v2_redemption.py test_ko_pages.py -k 'not history and not http' --tb=short
+          python -m pytest -q test_hotfix_model_overview.py test_ko_lifecycle.py test_e2e_acceptance.py test_price_source_p0.py test_v2_redemption.py test_ko_pages.py test_price_library_dates.py --tb=short
