@@ -73,6 +73,79 @@ h2{margin-top:1.15rem}h3{font-size:1.12rem}
 
 apply_theme()
 
+# Streamlit 1.67 compatible visual restoration.
+# This last, scoped layer overrides both the legacy blue CSS above and
+# the older strongly-yellow warm theme, without changing FCN business logic.
+st.markdown("""<style>
+:root {
+  --fcn-paper: #F8F9F8;
+  --fcn-card: #FFFFFF;
+  --fcn-ink: #303B3A;
+  --fcn-muted: #6E746E;
+  --fcn-gold: #A58049;
+  --fcn-line: #E4E6E1;
+  --fcn-soft: #F3F0E9;
+}
+.stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"] {
+  background-color: var(--fcn-paper) !important;
+  color: var(--fcn-ink) !important;
+}
+[data-testid="stHeader"] {background-color: rgba(248,249,248,.96) !important;}
+[data-testid="stSidebar"], section[data-testid="stSidebar"] {
+  background: #F0F2EF !important;
+  border-right: 1px solid var(--fcn-line) !important;
+}
+h1,h2,h3,h4,.stApp h1,.stApp h2,.stApp h3 {
+  color: var(--fcn-ink) !important;
+}
+.fcn-banner {
+  background: linear-gradient(110deg,#F2F0E9,#FBFAF7) !important;
+  color: var(--fcn-ink) !important;
+  border: 1px solid #E2DED4 !important;
+}
+.fcn-banner h1,.fcn-banner p {color: var(--fcn-ink) !important;}
+.fcn-eyebrow,.fcn-brand span {color: var(--fcn-gold) !important;}
+.fcn-panel,[data-testid="stMetric"],[data-testid="stForm"],
+[data-testid="stExpander"],[data-testid="stVegaLiteChart"] {
+  background: var(--fcn-card) !important;
+  border-color: var(--fcn-line) !important;
+}
+[data-testid="stMetricValue"] {color: #56503F !important;}
+.fcn-tag,[data-testid="stSidebar"] label:has(input:checked) {
+  background: #EEE9DD !important;
+  color: #765F40 !important;
+}
+[data-testid="stSidebar"] label:hover {background: #E8EBE6 !important;}
+button[kind="primary"],button[kind="primaryFormSubmit"],
+.stButton button[kind="primary"],
+[data-testid="stFormSubmitButton"] button[kind="primary"] {
+  background: #947447 !important;
+  border-color: #947447 !important;
+  color: #FFFFFF !important;
+}
+button[kind="primary"]:hover,button[kind="primaryFormSubmit"]:hover {
+  background: #765A35 !important;
+  border-color: #765A35 !important;
+}
+[data-baseweb="tab"][aria-selected="true"] {background:#F1EEE7 !important;color:#6E5738 !important;}
+[data-baseweb="tab-highlight"] {background:#A58049 !important;}
+/* Keep the login Shiba's original pixel colors rather than tinting the image. */
+.stApp:has(.fcn-login-unified) img,
+.stApp:has(.fcn-login-marker) img {
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  opacity: 1 !important;
+}
+/* Retain the full-screen login photograph instead of painting over it. */
+.stApp:has(.fcn-login-unified) [data-testid="stMain"],
+.stApp:has(.fcn-login-unified) [data-testid="stAppViewContainer"] {
+  background: transparent !important;
+}
+@media (prefers-color-scheme: dark) {
+  .stApp {color-scheme: light;}
+}
+</style>""", unsafe_allow_html=True)
+
 
 def section(name):
     # Missing secrets must fail closed at the password gate, even in DEMO.
